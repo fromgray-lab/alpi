@@ -1999,7 +1999,7 @@ window.APP = (function () {
     if (md.fx === "hearts1" || md.fx === "meh") moodFxSoft(md); // 큰 이펙트는 stamp가 이미 쐈다
     var total = G.scen.objs.length, done = G.scen.objs.filter(function (o) { return G.resolved[o.n]; }).length;
     $("hudProg").textContent = "걱정 해소 " + done + "/" + total + " " + G.scen.objs.map(function (o) { return G.resolved[o.n] ? "●" : "○"; }).join("");
-    if (CLOSING_ACT.test(text) && CLOSING.test(text) && done === total) { stamp("crit", "합의 성립!"); setTimeout(function () { if (G.inCall) endCall(false); }, 6000); } // 일레븐도 합의가 서면 그 자리에서 통과
+    if (CLOSING_ACT.test(text) && CLOSING.test(text) && done === total && G.turns.length >= 3) { stamp("crit", "합의 성립!"); setTimeout(function () { if (G.inCall) endCall(false); }, 6000); } // 합의 통과 — 단 3턴 이상 주고받은 뒤에만 (첫 답 즉시 종료 방지)
   }
   function llmFetch(body, signal) { // 중계 서버(키 서버 보관)가 있으면 그쪽으로, 없으면 개인 키로 직접
     if (G.proxyUrl) return fetch(G.proxyUrl, { method: "POST", signal: signal, headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -2037,6 +2037,7 @@ window.APP = (function () {
       "[당신의 진짜 걱정들 — 이게 풀려야만 마음이 움직인다]\n" + objList + (G.scen.variant ? "\n+) 변형 카드: \"" + G.scen.variant.dr + "\"" : "") + "\n" +
       "[이 통화의 발단] 당신은 지난번 MR의 웰체크·일만사 제안을 며칠 곱씹다가 걸었다. 걸게 만든 이유가 바로 걱정 1)이다 — 당신의 첫마디는 이미 그 얘기로 시작했고, 이 통화의 중심 주제는 끝까지 걱정 1)이다.\n" +
       "[주제 이탈 금지] 후속 질문·꼬리 반대도 걱정 1)의 주변에서 파라. 걱정이 '정부 불신'이면 정책 변경 이력·책임 소재를 캐묻는 것이고, 갑자기 앱 사용법이나 무관한 주제로 튀지 않는다. 각 걱정에 적힌 '다시 파는 표현'과 '후속 질문'을 그대로 또는 변형해 써라. 걱정 1)이 확실히 풀린 뒤에야 다음 걱정으로 자연스럽게 넘어간다.\n" +
+      "[성급한 합의 금지] 걱정이 하나뿐이어도 최소 두 번은 되파라 — MR의 첫 답이 완벽해도 '다시 파는 표현'이나 '후속 질문' 중 하나는 던진 뒤에 인정하라. 서너 번의 주고받음 전에는 합의·일정·통화 정리를 절대 꺼내지 마라.\n" +
       "[현실적인 의심만] 세상에 존재하지 않는 증빙을 요구하며 몰아붙이지 마라('없었다는 걸 문서로 증명해봐' 같은 악마의 증명 금지). 현실의 원장이 던질 법한 의심 — 앞으로의 보장, 남의 병원 사례, 조건·예외 — 으로 파고들고, MR이 표준 논리로 제대로 답하면 그 지점은 깨끗하게 인정하라. 같은 요구를 세 번 이상 반복하지 마라.\n" +
       (STD_RP[d.stdType] ? "[이 병원의 표준 유형] " + STD_RP[d.stdType].title + " — " + STD_RP[d.stdType].cs + "\n[이 유형 원장들이 실제로 하는 반대] " + STD_RP[d.stdType].obs.join(" / ") + "\n" : "") +
       "[대화 정책 — 이것이 당신의 전부다]\n" +
@@ -2682,6 +2683,7 @@ window.APP = (function () {
     var objs = (G.scen && G.scen.objs) || [];
     var done = objs.filter(function (o) { return G.resolved[o.n]; }).length;
     if (!objs.length || done < objs.length) return false; // 안 풀린 걱정이 남았는데 끝나는 통화는 없다 — 조기 종료 원천 차단
+    if (G.turns.length < 3) return false; // 최소 3번은 주고받아야 합의가 성립한다 — 첫 답에 판이 끝나는 사고 방지
     var sents = splitSentences(txt), hitSent = false;
     for (var i = 0; i < sents.length; i++) {
       var sn = sents[i];
@@ -3110,7 +3112,7 @@ window.APP = (function () {
     var total = G.scen.objs.length;
     var done = G.scen.objs.filter(function (o) { return G.resolved[o.n]; }).length;
     $("hudProg").textContent = "걱정 해소 " + done + "/" + total + " " + G.scen.objs.map(function (o) { return G.resolved[o.n] ? "●" : "○"; }).join("");
-    var okc = CLOSING_ACT.test(text) && CLOSING.test(text);
+    var okc = CLOSING_ACT.test(text) && CLOSING.test(text) && G.freeN >= 3; // 클로징은 대화 3턴 이후에만 성립 — 답변 속 "방문·날짜" 단어에 판이 끝나지 않게
     var intent = detectIntent(text);
     var obs = "[관찰] 방금 발언 판정: " + (j.numsBad ? "오수치(" + j.badClaims.join(", ") + ") — 그 숫자를 짚어 의심하라" :
         att.typeN && j.crit ? "[" + att.typeN + "] 걱정에 대한 정확한 논리+수치 — 꽤 설득됐다" :
