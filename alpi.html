@@ -4020,7 +4020,8 @@ window.APP = (function () {
     } catch (e) {}
   }
   // ☁ 서버 연동 복원·해시 자동 설정 (#sb=URL|KEY 로 접속하면 전 직원 자동 연동)
-  G.sbUrl = loadK("sbUrl", ""); G.sbKey = loadK("sbKey", "");
+  var SB_URL_DEFAULT = "https://jiexvgydcwyfzqvlcbpp.supabase.co", SB_KEY_DEFAULT = "sb_publishable_W8jxVpRVNFROGa9rAanrvw_9kE1fYH6"; // 알피왕 전용 서버 (publishable 키 — RLS 공개 설계, 브라우저 노출 안전)
+  G.sbUrl = loadK("sbUrl", SB_URL_DEFAULT) || SB_URL_DEFAULT; G.sbKey = loadK("sbKey", SB_KEY_DEFAULT) || SB_KEY_DEFAULT;
   (function () {
     var hs = parseSbHash(typeof location !== "undefined" ? location.hash : "");
     if (hs) { G.sbUrl = hs.url; G.sbKey = hs.key; store("sbUrl", G.sbUrl); store("sbKey", G.sbKey); }
