@@ -1795,6 +1795,10 @@ window.APP = (function () {
     var myId = ++speakSeq; // 새 발화가 이전 발화를 취소해도 이전 콜백 체인이 오발되지 않게
     text = ttsClean(text); // 화면 자막은 원문, 목소리는 정화본
     if (!text) { setTalking(false); G.ttsSpeaking = false; if (cb) cb(); return; }
+    if (elevenOn() && G.elClient && !G.elDead) { // 🎙 일레븐 세션이 살아있으면 브라우저 기계음은 입을 다문다 — 두 목소리 동시 재생 원천 차단 (자막만 표시)
+      if (cb) setTimeout(function () { if (myId === speakSeq || G.inCall) cb(); }, 1200);
+      return;
+    }
     if (text === G._lastSpk && Date.now() - (G._lastSpkT || 0) < 4000) { if (cb) cb(); return; } // 같은 대사 4초 내 재발화 금지 — 이중 호출·중복 재생 보험
     G._lastSpk = text; G._lastSpkT = Date.now();
     try {
@@ -2092,10 +2096,13 @@ window.APP = (function () {
         onError: function (m) { elevenFail(typeof m === "string" ? m : (m && m.message) || "연결 오류"); },
         onDisconnect: function () { if (G.inCall && !G.elDead) $("playBanner").innerHTML += "<div class='banner err'>🎙 일레븐 연결이 종료되었습니다 — 통화 종료(평가)를 누르거나 다시 도전하세요.</div>"; }
       });
-    }).then(function (conv) { G.elClient = conv; })
-      .catch(function (e) { elevenFail((e && e.message) || String(e)); });
+    }).then(function (conv) {
+      if (G.elDead || !G.inCall) { try { conv.endSession(); } catch (e) {} return; } // 연결 완료 전에 실패/종료 판정이 났다면 — 뒤늦게 붙는 유령 세션 차단
+      G.elClient = conv;
+    }).catch(function (e) { elevenFail((e && e.message) || String(e)); });
   }
   function elevenFail(msg) {
+    try { if (G.elClient) G.elClient.endSession(); } catch (e) {} // 세션이 반쯤 살아있는 채로 폴백하면 일레븐+기계음이 동시에 말한다 — 확실히 끊고 넘어간다
     G.elDead = true; G.elClient = null;
     $("playBanner").innerHTML = "<div class='banner err'>🎙 일레븐 연결 실패 — " + esc(msg) + ". " + (llmOn() ? "🧠 Claude 애드립으로 전환합니다." : "🎭 대본 모드로 전환합니다.") + "</div>";
     $("btnMic").classList.remove("hidden"); setMicBtn(); // 폴백에서는 자동 대화 버튼을 되살린다
@@ -3193,8 +3200,9 @@ window.APP = (function () {
     moodSet(-4); pgSet(0);
     toast("🚫 원장에게 해서는 안 될 말 — 통화가 끊깁니다");
     try { if (G.elClient) { G.elClient.endSession(); G.elClient = null; } } catch (e) {} // 일레븐 세션 즉시 종료 — 원장의 마지막 말은 우리가 한다
+    G.elDead = true; // 이후 발화는 브라우저 TTS 폴백으로 — 잔여 일레븐 오디오와 겹치지 않게 한 박자 쉬고 말한다
     var bye = MANNER_BYE[G.doc.nm] || MANNER_BYE["신혁주"];
-    setTimeout(function () { if (G.inCall) drSay(bye, "angry", "angry"); }, 500);
+    setTimeout(function () { if (G.inCall) drSay(bye, "angry", "angry"); }, 1000);
     setTimeout(function () { if (G.inCall) endCall(false); }, 3400);
     return true;
   }
