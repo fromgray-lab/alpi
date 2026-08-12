@@ -210,6 +210,57 @@ table.rank{width:100%;border-collapse:collapse;font-size:13.5px;}
 table.rank th{background:var(--soft);color:var(--acc);padding:8px;border:1px solid var(--line);font-size:12px;}
 table.rank td{padding:8px;border:1px solid var(--line);text-align:center;}
 table.rank td.nm{font-weight:800;}
+/* ── v3 그랜드 업데이트: 현상금 전광판 · 비전서 도감 · 대화 복기 · 보물상자 · 업데이트 노트 ── */
+.chip.gold{background:#F6EDD2;color:#8a6d1a;}
+.rk-tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.rk-tab{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--ink);}
+.rk-tab.on{background:var(--acc);border-color:var(--acc);color:#fff;}
+.rk-podium{display:flex;gap:10px;justify-content:center;align-items:flex-end;margin:6px 0 14px;flex-wrap:wrap;}
+.rkposter{background:#EFE3C0 radial-gradient(circle at 50% 8%,#F6EDD2,#EFE3C0 70%);border:2px solid #8A6A2B;border-radius:6px;box-shadow:0 4px 14px rgba(40,30,8,.25);padding:10px 12px 12px;width:150px;text-align:center;position:relative;}
+.rkposter.top1{width:174px;transform:translateY(-8px);box-shadow:0 8px 22px rgba(140,100,20,.4);border-width:2.5px;}
+.rkposter.me{outline:3px solid var(--teal);outline-offset:2px;}
+.rk-top{font-weight:900;letter-spacing:.3em;font-size:13px;color:#4A3512;border-bottom:1.5px solid #8A6A2B;padding-bottom:3px;font-family:serif;}
+.rk-face{width:58px;height:58px;margin:9px auto 0;border:2px solid #8A6A2B;border-radius:8px;background:#F7F0DC;font-size:28px;font-weight:900;color:#6E4F16;display:flex;align-items:center;justify-content:center;font-family:serif;}
+.rk-medal{font-size:21px;margin-top:-13px;}
+.rk-name{font-weight:900;font-size:15px;margin-top:1px;color:#33250C;}
+.rk-org{font-size:11px;color:#7A5A20;font-weight:700;}
+.rk-bounty{font-weight:900;font-size:14.5px;color:#7A2318;margin-top:4px;letter-spacing:.02em;}
+.rk-sub{font-size:10.5px;color:#6E5A2A;margin-top:2px;font-weight:600;}
+.cdx-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cdx{border:1.5px solid var(--line);border-radius:12px;padding:12px;background:#FAFAF7;}
+.cdx.on{background:linear-gradient(160deg,#FDF9EC,#F6EDD2);border-color:#C9A94E;box-shadow:0 2px 10px rgba(160,120,30,.12);}
+.cdx-top{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);}
+.cdx-n{background:#9AA5A0;color:#fff;font-weight:900;border-radius:6px;min-width:24px;text-align:center;padding:2px 4px;font-size:12px;}
+.cdx.on .cdx-n{background:var(--acc);}
+.cdx-cat{margin-left:auto;font-size:11px;font-weight:800;color:#8a6d1a;background:#F3EAD0;border-radius:99px;padding:2px 8px;white-space:nowrap;}
+.cdx-key{font-size:12.5px;color:var(--acc);font-weight:600;margin-top:8px;line-height:1.65;}
+.cdx-scr{font-size:13px;color:#333;background:#fff;border-left:3px solid #C9A94E;border-radius:0 8px 8px 0;padding:8px 10px;margin-top:8px;line-height:1.7;}
+.cdx-bd{font-size:11.5px;color:#666;margin-top:6px;}
+.cdx-lock{font-size:12.5px;color:#7A7A72;margin-top:10px;line-height:1.6;}
+.rpl{margin:7px 0;padding:7px 10px;border-radius:10px;}
+.rpl.mr{background:var(--soft);}
+.rpl.mr.best{background:#FBF3D9;outline:2px solid #C9A94E;}
+.rpl.dr{background:#F6F3EC;color:#444;}
+.rchip{display:inline-block;font-size:10.5px;font-weight:900;border-radius:99px;padding:1px 8px;margin-left:5px;vertical-align:1px;}
+.rc-crit{background:#B8860B;color:#fff;}
+.rc-hit{background:var(--acc);color:#fff;}
+.rc-mild{background:#DCE8E5;color:#2A5A52;}
+.rc-vague{background:#E6E2D8;color:#7A6A4A;}
+.rc-bad{background:#B0392E;color:#fff;}
+.rc-talk{background:#E8ECEA;color:#5A6E68;}
+.rc-star{background:#33250C;color:#F2C465;}
+#chestOv,#verOv{position:fixed;inset:0;background:rgba(8,18,26,.66);z-index:60;display:none;align-items:center;justify-content:center;padding:20px;}
+#chestOv.show,#verOv.show{display:flex;}
+.chest-box{background:linear-gradient(165deg,#243447,#101E2C);border:2.5px solid #C9A94E;border-radius:18px;color:#F5EFDC;text-align:center;padding:26px 30px;max-width:420px;position:relative;overflow:hidden;animation:chestin .5s cubic-bezier(.2,1.6,.4,1);}
+.chest-ico{font-size:56px;position:relative;z-index:2;animation:chestbounce 1.1s ease infinite alternate;}
+.chest-glow{position:absolute;left:50%;top:30px;width:190px;height:190px;transform:translateX(-50%);background:radial-gradient(circle,rgba(242,196,101,.55),rgba(242,196,101,0) 70%);animation:glowpulse 1.4s ease infinite alternate;}
+@keyframes chestin{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+@keyframes chestbounce{from{transform:translateY(0) rotate(-3deg);}to{transform:translateY(-7px) rotate(3deg);}}
+@keyframes glowpulse{from{opacity:.5;}to{opacity:1;}}
+.ver-box{background:#FBF8F1;border:2px solid #C9A94E;border-radius:18px;max-width:470px;padding:22px 26px;box-shadow:0 18px 50px rgba(0,0,0,.4);animation:chestin .4s cubic-bezier(.2,1.4,.4,1);max-height:86vh;overflow:auto;color:var(--ink);}
+.ver-it{font-size:13.5px;line-height:1.6;margin:8px 0;padding:9px 12px;background:#fff;border:1px solid var(--line);border-radius:10px;}
+.ver-it b{display:block;color:var(--acc);margin-bottom:1px;}
+@media(max-width:700px){.cdx-grid{grid-template-columns:1fr;} .rkposter{width:132px;} .rkposter.top1{width:150px;}}
 .medal{font-size:16px;}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0B2138;color:#fff;border:1px solid #2C567F;padding:10px 20px;border-radius:9px;font-size:13.5px;opacity:0;transition:.25s;pointer-events:none;z-index:99;}
 .toast.show{opacity:1;}
@@ -366,7 +417,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 @media(prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;} } /* 모션 민감·저사양 배려 */
 @media print{ /* 결과 리포트 인쇄 — 코칭 면담용 */
   body{background:#fff!important;color:#111!important;}
-  .adminbtn,.inrow,.btn,button,.pip,.grainov,.cfp,.combo,#btnQR,#btnAdmin,video{display:none!important;}
+  .adminbtn,.inrow,.btn,button,.pip,.grainov,.cfp,.combo,#btnQR,#btnAdmin,video,#chestOv,#verOv,#toast{display:none!important;}
   .scr{display:none!important;}
   #scr-result{display:block!important;min-height:auto;}
   .card{box-shadow:none!important;border:1px solid #ccc!important;page-break-inside:avoid;}
@@ -506,6 +557,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <button class="btn ghost" onclick="APP.gearGo(false)">캠 없이 시작</button>
       </div>
       <div class="small" style="margin-top:10px;">영상은 이 기기 안에서만 처리됩니다.</div>
+      <div class="small" style="margin-top:6px;"><label style="cursor:pointer;"><input type="checkbox" id="sfxChk" checked onchange="APP.toggleSfx(this.checked)" style="vertical-align:-2px;"> 🔊 게임 효과음 (타격음·팡파레·보물상자)</label></div>
       <details class="acc2" style="margin-top:12px;text-align:left;">
         <summary>고급 설정 — 원장 목소리 · Claude 두뇌</summary>
         <div class="bd2">
@@ -544,7 +596,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         </div>
       </details>
       <div id="gearBanner"></div>
-      <div class="small" style="margin-top:8px;"><a href="javascript:void(0)" onclick="APP.secInfo()" style="color:var(--acc);font-weight:700;">🔒 어떤 데이터가 저장되나요?</a> — 대화 내용·음성·영상은 서버에 올라가지 않습니다</div>
+      <div class="small" style="margin-top:8px;"><a href="javascript:void(0)" onclick="APP.secInfo()" style="color:var(--acc);font-weight:700;">🔒 어떤 데이터가 저장되나요?</a> — 대화 내용·음성·영상은 서버에 올라가지 않습니다 · <a href="javascript:void(0)" onclick="APP.verShow()" style="color:var(--acc);font-weight:700;">🗞 v3.0 새 기능</a></div>
     </div>
   </div>
 </section>
@@ -720,12 +772,13 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         </div>
       </details>
       <details class="acc2">
-        <summary>전체 대화 전사</summary>
-        <div class="bd2" id="dlgFull" style="max-height:340px;overflow:auto;font-size:13.5px;line-height:1.7;"></div>
+        <summary>🎬 대화 복기 — 턴별 판정과 이 판의 명대사</summary>
+        <div class="bd2" id="dlgFull" style="max-height:380px;overflow:auto;font-size:13.5px;line-height:1.7;"></div>
       </details>
       <div style="margin-top:10px;">
         <button class="btn" onclick="APP.again()">다시 도전</button>
         <button class="btn gold" onclick="APP.toRank()">🏴‍☠️ 현상금 랭킹</button>
+        <button class="btn ghost" onclick="APP.toCodex()">📜 비전서 도감</button>
         <button class="btn ghost" onclick="APP.toMap()">진행 현황</button>
         <button class="btn ghost" onclick="window.print()">🖨 리포트 인쇄</button>
         <button class="btn ghost" onclick="APP.shareReport()">📤 카톡·SNS 공유</button>
@@ -735,19 +788,35 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
   </div>
 </section>
 
-<!-- ═══════ 랭킹 ═══════ -->
+<!-- ═══════ 랭킹 — 서버 실시간 현상금 전광판 ═══════ -->
 <section class="scr" id="scr-rank">
   <div class="deck">
     <div class="card">
-      <h2>🏴‍☠️ 그랜드라인 현상금 랭킹 <span class="small">데모: 아래 예시 5명은 시드 데이터 · 실서비스는 Supabase 연동</span></h2>
-      <table class="rank" id="rankTable"></table>
-      <div class="small" style="margin-top:8px;">듣기는 본인 녹음만 재생됩니다.</div>
-      <button class="btn" onclick="APP.again()">다시 도전</button>
-      <button class="btn ghost" onclick="APP.toMap()">진행 현황</button>
-      <button class="btn ghost" onclick="APP.show('scr-result')">결과 리포트</button>
+      <h2>🏴‍☠️ 그랜드라인 현상금 전광판</h2>
+      <div id="rankBody"></div>
+      <div style="margin-top:12px;">
+        <button class="btn" onclick="APP.again()">다시 도전</button>
+        <button class="btn ghost" onclick="APP.toMap()">🗺 지도</button>
+        <button class="btn ghost" onclick="APP.toCodex()">📜 비전서 도감</button>
+      </div>
     </div>
   </div>
   <div class="foot-ip"><span class="credit">NEW BUSINESS STRATEGY TEAM&ensp;PRESENTS</span></div>
+</section>
+
+<!-- ═══════ 비전서 도감 — 격파의 보물 ═══════ -->
+<section class="scr" id="scr-codex">
+  <div class="deck" style="max-width:820px;">
+    <div class="card">
+      <h2>📜 반대극복 비전서 도감 <span class="chip gold" id="cdxCount">0/20 해금</span></h2>
+      <div class="small" style="margin:2px 0 10px;">섬을 <b>80점(A)</b>으로 격파하면 그 유형의 <b>실전 표준 스크립트(현장 검증 원문)</b>가 보물로 열립니다. 20권을 모두 모으면 어떤 원장 앞에서도 대본이 필요 없어집니다.</div>
+      <div class="cdx-grid" id="cdxGrid"></div>
+      <div style="margin-top:12px;">
+        <button class="btn" onclick="APP.toMap()">🗺 지도로</button>
+        <button class="btn ghost" onclick="APP.toRank()">🏴‍☠️ 현상금 랭킹</button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══════ 항해 지도 ═══════ -->
@@ -759,6 +828,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
       <div id="mapSvg" style="text-align:center;"></div>
       <div style="margin-top:10px;">
         <button class="btn" style="margin:0 6px 6px 0;padding:9px 18px;" onclick="APP.freeSail()">⚓ 시작 — 무작위 유형</button>
+        <button class="btn gold" style="margin:0 6px 6px 0;padding:9px 16px;font-size:13px;" onclick="APP.toRank()">🏴‍☠️ 현상금 랭킹</button>
+        <button class="btn ghost" style="margin:0 6px 6px 0;padding:9px 16px;font-size:13px;" onclick="APP.toCodex()">📜 비전서 도감</button>
         <button class="btn ghost" style="margin:0 6px 6px 0;padding:9px 16px;font-size:13px;" onclick="APP.numDrill()">🍖 원피스 특훈 60초</button>
         <button class="btn ghost" style="margin:0 0 6px 0;padding:9px 16px;font-size:13px;" onclick="APP.toLib()">🎓 코칭 튜토리얼</button>
       </div>
@@ -867,6 +938,33 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 
 <div class="flashcrit" id="flashcrit"></div>
 <div class="toast" id="toast"></div>
+
+<!-- 💰 보물상자 — 섬 격파 시 비전서 해금 연출 -->
+<div id="chestOv" onclick="this.classList.remove('show')">
+  <div class="chest-box" onclick="event.stopPropagation()">
+    <div class="chest-ico">💰</div>
+    <div class="chest-glow"></div>
+    <div id="chestTxt" style="position:relative;z-index:2;"></div>
+    <div style="position:relative;z-index:2;margin-top:12px;">
+      <button class="btn gold" style="margin:0 6px 0 0;padding:9px 18px;" onclick="APP.toCodex();document.getElementById('chestOv').classList.remove('show')">📜 비전서 열기</button>
+      <button class="btn ghost" style="margin:0;padding:9px 14px;" onclick="document.getElementById('chestOv').classList.remove('show')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🗞 업데이트 노트 — v3.0 그랜드 업데이트 -->
+<div id="verOv" onclick="APP.verClose()">
+  <div class="ver-box" onclick="event.stopPropagation()">
+    <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v3.0 — 그랜드라인이 넓어졌습니다</h2>
+    <div class="ver-it"><b>🏴‍☠️ 현상금 전광판</b>전사 실시간 랭킹 + 사무소 함대전. 매 판이 현상금(베리)으로 쌓입니다.</div>
+    <div class="ver-it"><b>📜 비전서 도감</b>섬을 80점으로 격파하면 그 유형의 실전 표준 스크립트가 보물로 해금 — 20권 수집.</div>
+    <div class="ver-it"><b>🎬 대화 복기</b>결과에서 턴별 판정과 함께 대화를 복기하고, '이 판의 명대사'를 확인하세요.</div>
+    <div class="ver-it"><b>🔥 콤보 & 연속 항해</b>연속 유효타 콤보 보너스, 매일 훈련 스트릭이 지도에 새겨집니다.</div>
+    <div class="ver-it"><b>🔊 효과음 · 🖨 리포트 인쇄</b>타격음·팡파레·보물상자 사운드(끄기 가능), 결과 리포트 A4 인쇄/PDF.</div>
+    <button class="btn gold" style="margin-top:12px;padding:10px 22px;" onclick="APP.verClose()">⚓ 출항</button>
+  </div>
+</div>
 
 <script>
 /* ══════════ 데이터 — 표준집 V22 (standards.md와 동일 원문) ══════════ */
@@ -1741,15 +1839,21 @@ window.APP = (function () {
     } catch (e) {}
   }
   function bellStop() { if (bellTimer) clearInterval(bellTimer); if (bellCtx) { try { bellCtx.close(); } catch (e) {} bellCtx = null; } }
-  function jingle(kind) {
+  function jingle(kind, lv) { // 게임 효과음 — 전부 합성음(에셋 0) · 설정에서 끌 수 있다
+    if (G.sfxOn === false) return;
     try {
       var c = new (window.AudioContext || window.webkitAudioContext)();
       if (kind === "crit") { tone(c, 660, 0, 0.09, 0.14, "triangle"); tone(c, 880, 0.09, 0.09, 0.14, "triangle"); tone(c, 1320, 0.18, 0.22, 0.16, "triangle"); }
       else if (kind === "win") { tone(c, 523, 0, 0.12, 0.13, "triangle"); tone(c, 659, 0.12, 0.12, 0.13, "triangle"); tone(c, 784, 0.24, 0.12, 0.13, "triangle"); tone(c, 1046, 0.36, 0.3, 0.15, "triangle"); }
+      else if (kind === "hit") { tone(c, 740, 0, 0.07, 0.11, "triangle"); tone(c, 988, 0.07, 0.1, 0.09, "triangle"); }
+      else if (kind === "heart") { tone(c, 987, 0, 0.09, 0.06, "sine"); tone(c, 1318, 0.08, 0.14, 0.05, "sine"); }
+      else if (kind === "combo") { var b = 460 + Math.min(9, lv || 2) * 70; tone(c, b, 0, 0.06, 0.09, "square"); tone(c, b * 1.25, 0.06, 0.09, 0.08, "square"); } // 콤보가 쌓일수록 음이 올라간다
+      else if (kind === "chest") { tone(c, 165, 0, 0.16, 0.13, "sine"); tone(c, 660, 0.2, 0.09, 0.1, "triangle"); tone(c, 880, 0.29, 0.09, 0.1, "triangle"); tone(c, 1320, 0.38, 0.24, 0.12, "triangle"); tone(c, 1760, 0.5, 0.28, 0.08, "sine"); } // 쿵… 반짝반짝
       else { tone(c, 392, 0, 0.16, 0.1, "sine"); tone(c, 330, 0.16, 0.24, 0.1, "sine"); }
-      setTimeout(function () { try { c.close(); } catch (e) {} }, 1200);
+      setTimeout(function () { try { c.close(); } catch (e) {} }, 1400);
     } catch (e) {}
   }
+  function toggleSfx(on) { G.sfxOn = !!on; store("sfx", G.sfxOn); if (on) jingle("hit"); toast(on ? "🔊 효과음 켜짐" : "🔇 효과음 꺼짐"); }
 
   /* ══════════ 수배전단 로스터 4인 (오마주 2 + 가공 2 — 이름 자유 교체) ══════════ */
   var DOCTORS = [
@@ -2439,7 +2543,7 @@ window.APP = (function () {
       $("nvMini").textContent = "캠 없음 — 음성 대화 모드";
       $("playBanner").innerHTML = "<div class='banner info'>캠 없이 진행합니다. 자동 대화·음성 녹음은 그대로 동작합니다.</div>";
     }
-    G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.mem = {}; G.dlgLog = [];
+    G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.comboMax = 0; G.mem = {}; G.dlgLog = [];
     G.drCommit = false; G.drCommitEnded = false; G.silenceEnd = false; G.idleN = 0; disarmIdle(); moodSet(0); pgSet(50); // 새 판 — 감정·침묵·승낙·게이지 초기화
     ambStart(); // 미세한 진료실 룸톤 — 무음의 어색함 제거
     var vst = document.querySelector(".vstage");
@@ -2963,7 +3067,9 @@ window.APP = (function () {
   function bumpCombo(hit) {
     if (hit) {
       G.combo = (G.combo || 0) + 1;
-      if (G.combo >= 2) { var c = $("combo"); c.textContent = "COMBO ×" + G.combo; c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop"); }
+      if (G.combo > (G.comboMax || 0)) G.comboMax = G.combo; // 이 판의 최대 콤보 — 결과 리포트 칩
+      if (G.combo >= 2) { var c = $("combo"); c.textContent = "COMBO ×" + G.combo; c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop"); jingle("combo", G.combo); }
+      if (G.combo >= 3) pgBump(2); // 리듬 보너스 — 연속 유효타는 설득의 가속도
     } else G.combo = 0;
   }
   function critCinema() { // 크리티컬 — 화면이 순간 당겨진다
@@ -3066,7 +3172,7 @@ window.APP = (function () {
     void el.offsetWidth;
     el.classList.add("show");
     if (kind === "crit") { var f = $("flashcrit"); f.classList.remove("show"); void f.offsetWidth; f.classList.add("show"); jingle("crit"); critCinema(); heartBurst(4); moodBump(2); pgBump(PG.crit); }
-    if (kind === "hit") { heartBurst(2); moodBump(1); pgBump(PG.hit); }
+    if (kind === "hit") { jingle("hit"); heartBurst(2); moodBump(1); pgBump(PG.hit); }
     if (kind === "bad") { jingle("bad"); angerBurst(true); moodBump(-2); pgBump(PG.bad); }
     if (kind === "vague") { angerBurst(false); moodBump(-1); pgBump(PG.meh); } // 대본 모드 무효·역효과도 게이지에 흐른다
   }
@@ -3539,7 +3645,7 @@ window.APP = (function () {
         var dl = axL.map(function (a, i) { var p = prevAx[i]; return p ? { k: a[1], d: sc[a[0]] - p.v } : null; }).filter(Boolean).sort(function (x, y) { return Math.abs(y.d) - Math.abs(x.d); })[0];
         if (dl && dl.d !== 0) chips += "<span class='cv-chip " + (dl.d > 0 ? "up" : "dn") + "'>지난 판 대비 " + dl.k + " " + (dl.d > 0 ? "+" : "") + dl.d + (dl.d > 0 ? " ↑" : " ↓") + "</span>";
       }
-      chips += "<span class='cv-chip'>설득 게이지 " + pd + "%</span>" + (G.drCommit ? "<span class='cv-chip up'>원장 승낙 💘</span>" : "");
+      chips += "<span class='cv-chip'>설득 게이지 " + pd + "%</span>" + (G.drCommit ? "<span class='cv-chip up'>원장 승낙 💘</span>" : "") + ((G.comboMax || 0) >= 3 ? "<span class='cv-chip up'>🔥 최대 콤보 ×" + G.comboMax + "</span>" : "");
       el.innerHTML =
         "<div class='cv wpn'><small>이번 판의 무기</small>" + best[1] + " " + sc[best[0]] + "/" + best[2] + " · " + axGrade(sc[best[0]], best[2]) + "등급</div>" +
         "<div class='cv gap'><small>병목</small>" + worst[1] + " " + sc[worst[0]] + "/" + worst[2] + (missV.length ? " · 맥 끊김: " + missV.join("·") : "") + "</div>" +
@@ -3621,12 +3727,34 @@ window.APP = (function () {
       var j2 = t.judge || {}, cls = j2.numsBad ? "bad" : j2.crit ? "crit" : (t.typeN && j2.keyHit >= 2) ? "hit" : (t.typeN && j2.keyHit === 1) ? "mild" : j2.vague && t.typeN ? "vague" : "talk";
       return "<div class='tlc tlc-" + cls + "' title='" + esc((t.text || "").slice(0, 90)) + "'></div>";
     }).join("");
-    // 전체 대화 전사 — 코칭 면담·복기용
-    if ($("dlgFull")) $("dlgFull").innerHTML = G.dlgLog.length ? G.dlgLog.map(function (d) {
-      return d.w === "mr" ? "<div style='margin:5px 0;'><b style='color:#0B5B54;'>나</b> — " + esc(d.t) + "</div>"
-        : "<div style='margin:5px 0;color:#444;'><b style='color:#8A6A2B;'>" + esc(G.doc.nm) + "</b> — " + esc(d.t) + "</div>";
-    }).join("") : "<div class='small'>기록 없음</div>";
-    if (sc.total >= 80) { confetti(); } // 캡틴 이상 — 축포
+    // 🎬 대화 복기 — 턴별 판정 칩 + 이 판의 명대사 (전사에 코치의 눈을 얹는다)
+    if ($("dlgFull")) (function () {
+      var tN = G.turns.filter(function (t) { return t.text; });
+      var mrTotal = G.dlgLog.filter(function (d) { return d.w === "mr"; }).length;
+      var zip = mrTotal === tN.length; // 안전핀 — 수가 어긋나면 칩 없이 전사만
+      var star = -1, starScore = -1;
+      tN.forEach(function (t, i) {
+        if (!t.judge || t.judge.numsBad) return;
+        var s2 = (t.judge.crit ? 100 : 0) + (t.judge.keyHit || 0) * 10 + Math.min(9, (t.text || "").length / 60);
+        if ((t.judge.crit || t.judge.keyHit >= 2) && s2 > starScore) { starScore = s2; star = i; }
+      });
+      var mrSeq = 0;
+      $("dlgFull").innerHTML = G.dlgLog.length ? G.dlgLog.map(function (d) {
+        if (d.w !== "mr") return "<div class='rpl dr'><b>" + esc(G.doc.nm) + "</b> — " + esc(d.t) + "</div>";
+        var t = zip ? tN[mrSeq] : null, me = mrSeq; mrSeq++;
+        var chip = "";
+        if (t && t.judge) {
+          var j2 = t.judge;
+          chip = j2.numsBad ? "<span class='rchip rc-bad'>⚠ 오수치</span>" : j2.crit ? "<span class='rchip rc-crit'>⚡ 크리티컬</span>" : (t.typeN && j2.keyHit >= 2) ? "<span class='rchip rc-hit'>🎯 적중</span>" : (t.typeN && j2.keyHit === 1) ? "<span class='rchip rc-mild'>◐ 절반</span>" : (t.typeN && j2.vague) ? "<span class='rchip rc-vague'>〰 빗나감</span>" : "<span class='rchip rc-talk'>💬 대화</span>";
+          if (me === star) chip += "<span class='rchip rc-star'>⭐ 이 판의 명대사</span>";
+        }
+        return "<div class='rpl mr" + (me === star ? " best" : "") + "'><b>나</b> " + chip + "<div style='margin-top:2px;'>" + esc(d.t) + "</div></div>";
+      }).join("") : "<div class='small'>기록 없음</div>";
+    })();
+    markPlayedToday(); // 🔥 연속 항해 스트릭 — 오늘의 훈련 도장
+    G.rankRows = undefined; // 방금 판 반영 — 다음 랭킹 조회는 서버에서 새로
+    if (newConq.length) setTimeout(function () { chestReveal(newConq); }, 1100); // 격파 보물상자 — 축포 뒤에 열린다
+    if (sc.total >= 80) { confetti(); jingle("win"); } // 캡틴 이상 — 축포 + 팡파레
     var wg = $("wGrade"); wg.classList.remove("slamin"); void wg.offsetWidth; wg.classList.add("slamin"); // 등급 도장 슬램
     persistAll(); // 이 기기의 훈련 기록 갱신 — 새로고침해도 유지
     cloudUpload("rp_sessions", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office, div: G.user && G.user.div,
@@ -3855,6 +3983,14 @@ window.APP = (function () {
   }
   function adminBack() { show(G.adminReturn && G.adminReturn !== "scr-admin" ? G.adminReturn : "scr-start"); }
   function adminLock() { G.admin = false; $("adminPin").value = ""; $("adminGateMsg").innerHTML = ""; $("adminPanel").classList.add("hidden"); $("adminGate").classList.remove("hidden"); adminBack(); }
+  function personTrend(p) { // 최근 점수 흐름 — 서버 실기록 우선, 없으면 이 기기 세션 (스파크라인 재료)
+    if (G.cloud && G.cloud.length) {
+      var rs = G.cloud.filter(function (r) { return (r.player || "무명") === p.nm && (r.office || "미지정") === (p.office || "미지정"); });
+      if (rs.length >= 2) return rs.slice(0, 10).reverse().map(function (r) { return r.total || 0; }); // desc → 시간순
+    }
+    if (G.user && p.real && !p.seed && G.user.name === p.nm) return G.sessions.slice(-10).map(function (s) { return s.sc.total; });
+    return null;
+  }
   function renderAdmin() {
     var roster = buildRoster();
     // 목표 게이지: 전원 20유형 자유자재 = 평균 진행도 + S/A 비율
@@ -3890,11 +4026,13 @@ window.APP = (function () {
       hc += "<h3 style='margin:12px 0 2px;font-size:14px;'>우선 코칭 사무소 TOP3</h3>";
       offs.slice().sort(function (a, b) { return b.need - a.need; }).slice(0, 3).forEach(function (g, i) {
         var rx = coachRx({ n: g.n, avgScore: g.avgScore, avgProg: g.avgProg, saPct: g.saPct, ax: axMeanOf(recs.filter(function (r) { return r.office === g.key; })) });
-        hc += "<div class='fb-item'><div class='fb-head'><span class='fb-ic pri'>" + (i + 1) + "</span><b>" + esc(g.key) + " — 평균 " + g.avgScore + "점 · 정복 " + g.avgProg + "/20 · S·A " + g.saPct + "%</b></div><div class='fb-why'>" + (rx.length ? rx.map(function (r) { return "• <b>" + r.t + "</b> — " + r.act; }).join("<br>") : "지표 양호 — 유지 관리") + "</div></div>";
+        var otr = (G.cloud && G.cloud.length) ? G.cloud.filter(function (r) { return (r.office || "미지정") === g.key; }).slice(0, 12).reverse().map(function (r) { return r.total || 0; }) : null;
+        hc += "<div class='fb-item'><div class='fb-head'><span class='fb-ic pri'>" + (i + 1) + "</span><b>" + esc(g.key) + " — 평균 " + g.avgScore + "점 · 정복 " + g.avgProg + "/20 · S·A " + g.saPct + "%</b>" + (otr && otr.length >= 2 ? sparkSvg(otr) : "") + "</div><div class='fb-why'>" + (rx.length ? rx.map(function (r) { return "• <b>" + r.t + "</b> — " + r.act; }).join("<br>") : "지표 양호 — 유지 관리") + "</div></div>";
       });
       hc += "<h3 style='margin:12px 0 2px;font-size:14px;'>개인 처방 — 우선 케어 5명</h3>";
       rankSort(roster, "level").slice(-5).reverse().forEach(function (p) {
-        hc += "<div class='fb-item'><div class='fb-head'><span class='fb-chip c-rx'>처방</span><b>" + esc(p.nm) + " (" + esc(p.office) + ") · " + p.avg + "점 · " + p.prog + "/20</b></div><div class='fb-why'>" + personRx(p) + "</div></div>";
+        var tr = personTrend(p);
+        hc += "<div class='fb-item'><div class='fb-head'><span class='fb-chip c-rx'>처방</span><b>" + esc(p.nm) + " (" + esc(p.office) + ") · " + p.avg + "점 · " + p.prog + "/20</b>" + (tr && tr.length >= 2 ? sparkSvg(tr) : "") + "</div><div class='fb-why'>" + personRx(p) + "</div></div>";
       });
       $("admCoach").innerHTML = hc;
     })();
@@ -3919,13 +4057,17 @@ window.APP = (function () {
       var recs = G.calib.slice();
       (G.cloudCalib || []).forEach(function (r) { if (r.rule && r.human) recs.push({ rule: r.rule, human: r.human }); });
       var st = calibStats(recs);
-      if (!st) { $("admCalib").innerHTML = "아직 전문가 평가 기록이 없습니다 — 결과 화면의 '전문가 평가 입력'에서 축적됩니다."; return; }
+      var gate2 = function (nn) { // 관문2 — 판매 신뢰도의 마지막 퍼즐: 전문가 대조 30판
+        var pct = Math.min(100, Math.round(100 * nn / 30));
+        return "<div style='display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;'><span>🎓 관문2 · 전문가 캘리브레이션 축적</span><b>" + nn + "/30판" + (nn >= 30 ? " ✓ 달성" : "") + "</b></div><div class='axbar" + (pct < 55 ? " lo" : "") + "' style='height:10px;margin:3px 0 8px;'><i style='width:" + pct + "%'></i></div>";
+      };
+      if (!st) { $("admCalib").innerHTML = gate2(0) + "<span class='small'>아직 전문가 평가 기록이 없습니다 — 결과 화면의 '전문가 평가 입력'에서 축적됩니다. 30판이 모이면 AI 채점의 신뢰구간을 공식 문서로 제시할 수 있습니다.</span>"; return; }
       var names = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" };
       var rowsH = Object.keys(st.ax).map(function (a) {
         var m = st.ax[a].mean, col = m >= 2 ? "#B0392E" : m <= -2 ? "#8a6d1a" : "#0B5B54";
         return "<td style='text-align:center;'><b style='color:" + col + ";'>" + (m > 0 ? "+" : "") + m + "</b><br><span class='small'>±" + st.ax[a].mae + "</span></td>";
       }).join("");
-      $("admCalib").innerHTML =
+      $("admCalib").innerHTML = gate2(st.n) +
         "<div class='small'>누적 <b>" + st.n + "건</b> (이 기기 " + G.calib.length + " + 서버 " + ((G.cloudCalib || []).length) + ") · 총점 평균 오차 <b>" + st.totalMae + "점</b> · 값 = AI−전문가 (양수면 AI가 후함)</div>" +
         "<table style='width:100%;border-collapse:collapse;margin-top:6px;font-size:12px;'><tr>" + Object.keys(names).map(function (a) { return "<th style='padding:4px;background:#EFF3F2;border:1px solid #E3EAE7;'>" + names[a] + "</th>"; }).join("") + "</tr><tr>" + rowsH + "</tr></table>" +
         "<div style='margin-top:8px;'>" + st.advice.map(function (a) { return "<div class='chip warn' style='display:block;margin:3px 0;'>" + esc(a) + "</div>"; }).join("") + "</div>";
@@ -3996,18 +4138,142 @@ window.APP = (function () {
   }
 
   /* ── 랭킹 ── */
-  function toRank() {
-    var mine = { nm: G.user ? G.user.name : "-", org: G.user ? G.user.office : "-", bounty: G.sessions.reduce(function (a, s) { return a + s.bounty; }, 0), grade: G.sessions.length ? G.sessions.map(function (s) { return s.sc; }).sort(function (a, b) { return b.total - a.total; })[0].grade : "-", mine: true };
-    var rows = RANK_SEED.concat([mine]).sort(function (a, b) { return b.bounty - a.bounty; });
-    var h = "<tr><th>순위</th><th>항해사</th><th>사무소</th><th>누적 현상금</th><th>최고 등급</th><th>알피 듣기</th></tr>";
-    rows.forEach(function (r, i) {
-      var medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
-      h += "<tr" + (r.mine ? " style='background:#EAF3F1;font-weight:700;'" : "") + "><td class='medal'>" + medal + "</td><td class='nm'>" + esc(r.nm) + (r.mine ? " (나)" : "") + "</td><td>" + esc(r.org) + "</td><td>₿ " + r.bounty.toLocaleString() + "</td><td>" + r.grade + "</td><td>" + (r.mine && G.recUrl ? "<button class='btn ghost' style='margin:0;padding:5px 10px;font-size:12px;' onclick='APP.playMine()'>▶ 재생</button>" : "🔒") + "</td></tr>";
+  function bountyAgg(rows) { // 서버 세션 → 현상금 집계 (개인·사무소) — 순수함수, 테스트 대상
+    var by = {}, off = {};
+    (rows || []).forEach(function (r) {
+      var b = (r.total || 0) * 1000000 + (r.crits || 0) * 5000000; // 판당 현상금 = 총점×100만 + ⚡×500만 베리
+      var k = r.empno ? "E|" + r.empno : (r.player || "무명") + "|" + (r.office || "미지정"); // 사번 우선 — 동명이인 분리
+      if (!by[k]) by[k] = { key: k, nm: r.player || "무명", office: r.office || "미지정", div: r.div || "", bounty: 0, best: 0, n: 0, types: {} };
+      var p = by[k]; p.bounty += b; p.n++; if ((r.total || 0) > p.best) p.best = r.total || 0;
+      if ((r.total || 0) >= 80 && r.types && r.types.forEach) r.types.forEach(function (t) { p.types[t] = true; }); // 80점 판의 유형 = 격파 (관리장과 동일 규칙)
+      var ok = r.office || "미지정";
+      if (!off[ok]) off[ok] = { office: ok, bounty: 0, n: 0, members: {}, best: 0 };
+      off[ok].bounty += b; off[ok].n++; off[ok].members[k] = 1; if ((r.total || 0) > off[ok].best) off[ok].best = r.total || 0;
     });
-    $("rankTable").innerHTML = h;
+    var players = Object.keys(by).map(function (k) { var p = by[k]; p.clears = Object.keys(p.types).length; delete p.types; return p; }).sort(function (a, b) { return b.bounty - a.bounty; });
+    var offices = Object.keys(off).map(function (k) { var o = off[k]; o.crew = Object.keys(o.members).length; delete o.members; return o; }).sort(function (a, b) { return b.bounty - a.bounty; });
+    return { players: players, offices: offices };
+  }
+  function myRankKey() { return G.user ? (G.user.empno ? "E|" + G.user.empno : (G.user.name || "") + "|" + (G.user.office || "미지정")) : null; }
+  function localRankRows() { // 서버가 없거나 비었을 때 — 이 기기 기록만으로라도 전광판은 돈다
+    return G.sessions.map(function (s) { return { player: G.user && G.user.name, empno: G.user && G.user.empno, office: G.user && G.user.office, div: G.user && G.user.div, total: s.sc.total, crits: s.crits, types: s.types }; });
+  }
+  function toRank(tab) {
+    if (tab) G.rankTab = tab;
+    if (!G.rankTab) G.rankTab = "p";
     show("scr-rank");
+    if (G.rankRows) { renderRank(); return; }
+    $("rankBody").innerHTML = "<div class='small' style='padding:26px;text-align:center;'>☁ 그랜드라인 전역에 수배 전단을 조회하는 중…</div>";
+    if (!sbOn()) { G.rankRows = null; renderRank(true); return; }
+    fetch(G.sbUrl + "/rest/v1/rp_sessions?select=player,empno,office,div,total,crits,types&order=created_at.desc&limit=2000", { headers: sbHeaders() })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+      .then(function (rows) { G.rankRows = rows || []; renderRank(); })
+      .catch(function () { G.rankRows = null; renderRank(true); });
+  }
+  function rankRefresh() { G.rankRows = undefined; toRank(); } // 방금 판까지 반영해 다시 수배
+  function wantedMini(p, i, isMe) { // 미니 수배전단 — TOP3 시상대
+    var medal = ["🥇", "🥈", "🥉"][i] || "";
+    return "<div class='rkposter" + (i === 0 ? " top1" : "") + (isMe ? " me" : "") + "'>" +
+      "<div class='rk-top'>WANTED</div>" +
+      "<div class='rk-face'>" + esc((p.nm || "?").charAt(0)) + "</div>" +
+      "<div class='rk-medal'>" + medal + "</div>" +
+      "<div class='rk-name'>" + esc(p.nm) + (isMe ? " (나)" : "") + "</div>" +
+      "<div class='rk-org'>" + esc(p.office) + "</div>" +
+      "<div class='rk-bounty'>₿ " + p.bounty.toLocaleString() + "</div>" +
+      "<div class='rk-sub'>최고 " + p.best + "점 · 격파 " + p.clears + "섬 · " + p.n + "판</div></div>";
+  }
+  function renderRank(offline) {
+    var rows = G.rankRows && G.rankRows.length ? G.rankRows : localRankRows();
+    var src = G.rankRows && G.rankRows.length ? "☁ 서버 실시간 — 전 항해사 " + G.rankRows.length + "판 집계" : offline ? "⚠ 서버 연결 실패 — 이 기기 기록만 표시" : "이 기기 기록만 표시 (서버 기록이 쌓이면 전사 랭킹이 됩니다)";
+    var agg = bountyAgg(rows), me = myRankKey(), h = "";
+    h += "<div class='rk-tabs'><button class='rk-tab" + (G.rankTab === "p" ? " on" : "") + "' onclick='APP.toRank(\"p\")'>🏴‍☠️ 개인 현상금</button><button class='rk-tab" + (G.rankTab === "o" ? " on" : "") + "' onclick='APP.toRank(\"o\")'>⛵ 사무소 함대전</button><button class='rk-tab' onclick='APP.rankRefresh()'>↻ 새로고침</button></div>";
+    h += "<div class='small' style='margin:2px 0 10px;'>" + src + " · 현상금 = 총점×100만 + 크리티컬×500만 베리 (전 판 누적)</div>";
+    if (G.rankTab === "o") {
+      if (!agg.offices.length) h += "<div class='small' style='padding:20px;text-align:center;'>아직 함대 기록이 없습니다 — 첫 출항이 첫 깃발입니다.</div>";
+      else {
+        var t = "<tr><th>순위</th><th>함대 (사무소)</th><th>선원</th><th>판수</th><th>함대 현상금</th><th>최고점</th></tr>";
+        agg.offices.slice(0, 15).forEach(function (o, i) {
+          var mine2 = G.user && (G.user.office || "미지정") === o.office;
+          t += "<tr" + (mine2 ? " style='background:#EAF3F1;font-weight:700;'" : "") + "><td class='medal'>" + (i === 0 ? "👑" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1) + "</td><td class='nm'>" + esc(o.office) + (i === 0 ? " <span style='color:#8a6d1a;font-size:11px;'>최강 함대</span>" : "") + "</td><td>" + o.crew + "명</td><td>" + o.n + "</td><td><b>₿ " + o.bounty.toLocaleString() + "</b></td><td>" + o.best + "</td></tr>";
+        });
+        h += "<table class='rank'>" + t + "</table>";
+      }
+    } else {
+      if (!agg.players.length) h += "<div class='small' style='padding:20px;text-align:center;'>아직 수배된 항해사가 없습니다 — 첫 출항이 첫 현상금입니다.</div>";
+      else {
+        h += "<div class='rk-podium'>" + agg.players.slice(0, 3).map(function (p, i) { return wantedMini(p, i, p.key === me); }).join("") + "</div>";
+        if (agg.players.length > 3) {
+          var t2 = "<tr><th>순위</th><th>항해사</th><th>사무소</th><th>누적 현상금</th><th>최고점</th><th>격파</th><th>판수</th></tr>";
+          agg.players.slice(3, 20).forEach(function (p, i) {
+            t2 += "<tr" + (p.key === me ? " style='background:#EAF3F1;font-weight:700;'" : "") + "><td class='medal'>" + (i + 4) + "</td><td class='nm'>" + esc(p.nm) + (p.key === me ? " (나)" : "") + "</td><td>" + esc(p.office) + "</td><td>₿ " + p.bounty.toLocaleString() + "</td><td>" + p.best + "</td><td>" + p.clears + "/20</td><td>" + p.n + "</td></tr>";
+          });
+          h += "<table class='rank'>" + t2 + "</table>";
+        }
+        var myIdx = -1;
+        agg.players.forEach(function (p, i) { if (p.key === me) myIdx = i; });
+        if (myIdx >= 0) h += "<div class='hl' style='margin-top:10px;'><b>내 수배 순위 " + (myIdx + 1) + "위</b> — ₿ " + agg.players[myIdx].bounty.toLocaleString() + " · 최고 " + agg.players[myIdx].best + "점 · 격파 " + agg.players[myIdx].clears + "/20" + (myIdx > 0 ? " · 앞 순위와 ₿ " + (agg.players[myIdx - 1].bounty - agg.players[myIdx].bounty).toLocaleString() + " 차이" : " · 그랜드라인 1위!") + "</div>";
+        else if (me) h += "<div class='small' style='margin-top:8px;'>아직 서버에 내 기록이 없습니다 — 다음 판부터 수배 전단에 오릅니다.</div>";
+      }
+    }
+    $("rankBody").innerHTML = h;
   }
   function playMine() { if (G.recUrl) { var a = new Audio(G.recUrl); a.play(); } }
+
+  /* ── 연속 항해 스트릭 · 스파크라인 ── */
+  function streakCalc(days, today) { // days: ["YYYY-MM-DD"…], today 기준 연속 일수 (오늘 미접속이면 어제부터 소급)
+    var set = {}; (days || []).forEach(function (d) { set[d] = 1; });
+    var t = new Date(today + "T00:00:00");
+    if (!set[today]) t.setDate(t.getDate() - 1);
+    var n = 0;
+    for (;;) {
+      var k = t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0");
+      if (!set[k]) break;
+      n++; t.setDate(t.getDate() - 1);
+    }
+    return n;
+  }
+  function markPlayedToday() { var days = loadK("days", []); if (days.indexOf(todayStr()) < 0) { days.push(todayStr()); store("days", days); } }
+  function sparkPath(vals, w, h) { // 점수 흐름 미니차트 좌표 — 순수함수
+    if (!vals || vals.length < 2) return "";
+    var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), sp = (mx - mn) || 1;
+    return vals.map(function (v, i) { return (i * (w / (vals.length - 1))).toFixed(1) + "," + (h - 3 - (v - mn) / sp * (h - 6)).toFixed(1); }).join(" ");
+  }
+  function sparkSvg(vals, col) {
+    var p = sparkPath(vals, 72, 22); if (!p) return "";
+    var up = vals[vals.length - 1] >= vals[0], c = col || (up ? "#0B5B54" : "#B0392E");
+    var last = p.split(" ").pop().split(",");
+    return "<svg width='72' height='22' style='vertical-align:middle;margin-left:6px;'><polyline points='" + p + "' fill='none' stroke='" + c + "' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' opacity='.85'/><circle cx='" + last[0] + "' cy='" + last[1] + "' r='2.4' fill='" + c + "'/></svg>";
+  }
+
+  /* ── 비전서 도감 — 격파한 섬의 실전 표준 스크립트가 보물로 열린다 ── */
+  function toCodex() {
+    var un = Object.keys(G.conquered).length;
+    $("cdxCount").textContent = un + "/20 해금";
+    var h = "";
+    V22.slice().sort(function (a, b) { return a.n - b.n; }).forEach(function (v) {
+      var open = !!G.conquered[v.n], best = bestOfType(v.n);
+      if (open) {
+        h += "<div class='cdx on'><div class='cdx-top'><span class='cdx-n'>" + v.n + "</span><b>" + esc(v.t) + "</b><span class='cdx-cat'>" + esc(v.cat) + "</span></div>" +
+          "<div class='cdx-key'>" + v.key.map(function (k) { return "🔑 " + esc(k); }).join("<br>") + "</div>" +
+          "<div class='cdx-scr'>“" + esc(v.script) + "”</div>" +
+          "<div class='cdx-bd'>📎 " + esc(v.bd) + (best !== null ? " · <b>내 최고 " + best + "점</b>" : "") + "</div></div>";
+      } else {
+        h += "<div class='cdx'><div class='cdx-top'><span class='cdx-n'>" + v.n + "</span><b>" + esc(v.t) + "</b><span class='cdx-cat'>" + esc(v.cat) + "</span></div>" +
+          "<div class='cdx-lock'>🔒 봉인된 비전서 — 이 섬을 80점(A)으로 격파하면 실전 표준 스크립트가 열립니다" + (best !== null ? "<br><span class='small'>현재 최고 " + best + "점 — " + Math.max(0, 80 - best) + "점 남음</span>" : "") +
+          "<br><button class='btn ghost' style='margin:8px 0 0;padding:6px 14px;font-size:12.5px;' onclick='APP.challengeType(" + v.n + ")'>⚔ 이 섬에 도전</button></div></div>";
+      }
+    });
+    $("cdxGrid").innerHTML = h;
+    show("scr-codex");
+  }
+  function chestReveal(ns) { // 격파 순간 — 보물상자가 열리고 비전서가 나온다
+    var el = $("chestOv"); if (!el || !ns || !ns.length) return;
+    var names = ns.map(function (n) { var v = V22.filter(function (x) { return x.n === n; })[0]; return "[" + n + "] " + (v ? v.t : ""); });
+    $("chestTxt").innerHTML = "<b style='font-size:17px;'>비전서 획득!</b><br><span style='opacity:.92;'>" + names.map(esc).join("<br>") + "</span><br><span class='small' style='opacity:.75;'>실전 표준 스크립트가 도감에 영구 보존됩니다</span>";
+    el.classList.add("show");
+    jingle("chest");
+    clearTimeout(G._chestT); G._chestT = setTimeout(function () { el.classList.remove("show"); }, 5200);
+  }
 
   /* ── 항해 지도 ── */
   function bestOfType(n) { // 이 섬에서의 최고 기록 — 재도전의 이유
@@ -4064,7 +4330,9 @@ window.APP = (function () {
     });
     s += '</svg>';
     $("mapSvg").innerHTML = s;
-    $("mapCount").textContent = "격파 " + Object.keys(G.conquered).length + "/20 · 도전 " + G.sessions.length + "판";
+    var stk = streakCalc(loadK("days", []), todayStr());
+    var cumB = G.sessions.reduce(function (a, s) { return a + (s.bounty || 0); }, 0);
+    $("mapCount").textContent = "격파 " + Object.keys(G.conquered).length + "/20 · 도전 " + G.sessions.length + "판" + (cumB ? " · ₿ " + cumB.toLocaleString() : "") + (stk >= 2 ? " · 🔥 " + stk + "일 연속 항해" : "");
     $("badgeRow").innerHTML = BADGE_DEFS.map(function (b) {
       return "<span class='badge" + (G.badges[b[0]] ? "" : " off") + "'>" + (G.badges[b[0]] ? "🎖 " : "🔒 ") + b[0] + "</span><span class='small'> " + b[1] + "</span><br>";
     }).join("");
@@ -4099,6 +4367,13 @@ window.APP = (function () {
   Object.keys(BADGE_MIGRATE).forEach(function (k) { if (G.badges[k]) { G.badges[BADGE_MIGRATE[k]] = true; delete G.badges[k]; } }); // 구칭호 → 신칭호 이관
   G.prevAxes = loadK("prevAxes", null);
   G.calib = loadK("calib", []);
+  G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
+  try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
+  /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
+  var APP_VER = "3.0";
+  function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
+  function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
+  try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
   if (G.user) {
     try {
       if ($("regName")) $("regName").value = G.user.name || "";
@@ -4142,14 +4417,15 @@ window.APP = (function () {
       b.innerHTML = s;
     } catch (e) {}
   })();
-  try { var cr = document.querySelector(".credit"); if (cr) cr.innerHTML += " · <span style='letter-spacing:.05em;'>v2.0</span>"; } catch (e) {}
+  try { var cr = document.querySelector(".credit"); if (cr) cr.innerHTML += " · <span style='letter-spacing:.05em;'>v" + APP_VER + "</span>"; } catch (e) {}
   if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = function () { koVoice = pickVoice(); fillVoiceSel(); }; }
 
   return { toReg: toReg, toPick: toPick, choose: choose, gearGo: gearGo, takeCall: takeCall, denyCall: denyCall,
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse } };
+    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey } };
 })();
 
 </script>
