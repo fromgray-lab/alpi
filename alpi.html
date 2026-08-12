@@ -2092,15 +2092,16 @@ window.APP = (function () {
     14: [/간소화|본사업.*(달라|다르)/, /교육\s?간호사|이론|실무|이지스|씨차트|EMR|파견|일부\s?환자|맞춤|프로세스/],
     15: [/카카오|카톡|10초/, /자료|가이드|일일이.*(필요\s?없|않)/],
     16: [/ISO\s?27001|인증/, /필수\s?항목|최소|제한|심평원\s?연동|암호화/, /목적\s?외|진료\s?현장.*(만|한정)|통제/],
-    17: [/묶음\s?환수|사례.*없|단순\s?실수/, /증빙|근거|투명|가이드라인/, /심사팀|재심사|원인\s?분석/],
+    17: [/묶음\s?환수|사례.*없|단순\s?실수|(환수|삭감).{0,16}(없|아니|한\s?번도|전무)|(한\s?번도|전무).{0,10}(없)/, /증빙|근거|투명|가이드라인|19년|2019|본사업/, /심사팀|재심사|원인\s?분석|믿으셔도|안심/],
     18: [/노인.?(정액|외래)|65세/, /젊은|미만.*(등록|위주)|후순위/, /감면|체계적\s?관리|건기식/],
     19: [/직관.*(알림|알려)|당장.*할\s?일|점검|평가|시기|놓치/, /페이퍼리스|보관\s?부담|전자서류|3종|동의서|문진표/, /무료|유료화|정기\s?방문|교육\s?간호사/],
     20: [/수수료.*(없|떼|아껴|zero|제로)|전액|귀속/i, /보안|인증|암호화|원격\s?접속|의료법/, /페이퍼리스|자동\s?제출/]
   };
-  var NUM_OK = [/385,?000|385,?290|38\.?5\s?만|38만\s?5천|^38\s?만/, /1\.9\s?억/, /^2\s?억/, /2,?320/, /15,?560|1만\s?5천/, /13,?000|1만\s?3천/, /10\s?초|12\s?초/, /20\s?명/, /65\s?세/, /12월\s?15일/, /2,?019|19년|2,?021|21년/, /1\/3|3분의\s?1/, /2\s?분/, /10\s?%|십\s?퍼/, /27001/, /500\s?명/, /^1\s?억/, /98,?080/, /^4,?900\s?만/, /80,?000|^8\s?만\s?원?$/, /77,?058/, /^37\s?만/, /^5\s?만\s?원?$/, /^12\s?만/, /^80\s?만/, /^100\s?만/, /1,?500\s?원/, /^5\s?명/, /^0\.5/, /^100\s?%/, /^0\s?원/, /^0\s?건/];
+  var NUM_OK = [/385,?000|385,?290|38\.?5\s?만|38만\s?5천|^38\s?만/, /1\.9\s?억/, /^2\s?억/, /2,?320/, /15,?560|1만\s?5천/, /13,?000|1만\s?3천/, /10\s?초|12\s?초/, /20\s?명/, /65\s?세/, /12월\s?15일/, /2,?019|19년|2,?021|21년/, /1\/3|3분의\s?1/, /2\s?분/, /10\s?%|십\s?퍼/, /27001/, /500\s?명/, /^1\s?억/, /98,?080/, /^4,?900\s?만/, /80,?000|^8\s?만\s?원?$/, /77,?058/, /^37\s?만/, /^5\s?만\s?원?$/, /^12\s?만/, /^80\s?만/, /^100\s?만/, /1,?500\s?원/, /^5\s?명/, /^0\.5/, /^100\s?%/, /^0\s?원/, /^0\s?건/, /^2,?000\s?(처|곳|명|개)?$/]; // 2,000처 — 웰체크 일만사 실참여 거래처 (실증 수치, 돈 단위는 제외)
   var NUM_CLAIM = /(\d[\d,\.]*)\s*(만\s?원|만|천\s?원|억|원|명|초|세|%|퍼센트|포인트)/g;
   var ANALOGY_RE = /내시경|위내시경|대장내시경|검진|독감|백신|주사|엑스레이|X-?ray|초음파|채혈|처방전|커피|아메리카노|택시|담배|김밥|점심|밥값|치킨|짜장|버스|지하철|월세|시급|알바|폰\s?요금|넷플/; // 생활·의료 비유 기준어
   var EMPATHY = /(맞|그렇|이해|공감|힘드|바쁘|걱정|부담되|당연|충분히)/;
+  var GENERIC_RE = /제가|저희가?|도와\s?드리|해\s?드리|지원|세팅|대신|책임지|보장|보전|사례|다른\s?병원|옆\s?병원|원장님들?|후기|만족|검증|경험|입장|상황|맞춤|같이|함께|천천히|부담\s?없|일단|먼저|작게|시작|보여\s?드리|설명\s?드리|정리해|안내|말씀드리|추천|제안|혜택|장점|이점|수익|도움|효율|간단|쉽|편하|빠르/g; // 일반 설득 어휘 — 정답 명분은 아니어도 '설득 시도'는 맞다
   var CONFIRM_LATER = /(확인(해|하고)?.*(알려|드리|말씀)|정확한\s?건.*확인)/;
   var QUESTION = /[?？]|(어떠세요|어떠신가요|괜찮으세요|계신가요|있으세요|어느\s?정도|몇\s?분)/;
   var CLOSING = /(다음\s?주|이번\s?주|내일|모레|요일|(\d{1,2})\s?일|(\d{1,2})\s?시)/;
@@ -2123,12 +2124,15 @@ window.APP = (function () {
       // 비유·외부 비교 수치 (내시경 수가, 커피값 등) — 표준집 대상이 아니므로 채점 중립
       var ctx = t.slice(Math.max(0, cl.i - 16), cl.i + c.length + 8);
       if (ANALOGY_RE.test(ctx)) { numsRef++; return; }
+      if (/(초|분)\s*$/.test(c.trim())) { numsRef++; return; } // 소요시간류(30초·5분 등)는 말버릇 범주 — 위험 수치(돈·명수·비율)만 오수치로 잡는다
       numsBad++; badClaims.push(c.trim());
     });
     var confirmLater = CONFIRM_LATER.test(t);
-    var vague = (hit === 0 && numsOk === 0 && !confirmLater);
+    GENERIC_RE.lastIndex = 0;
+    var generic = (t.match(GENERIC_RE) || []).length; // 정답 명분은 아니어도 설득의 결은 맞는 발화
+    var vague = (hit === 0 && numsOk === 0 && !confirmLater && generic < 2); // 진짜 알맹이 없음만 '빗나감' — 성실한 설득을 무효 취급하지 않는다
     return { typeN: typeN, keyHit: hit, keyTotal: keys.length, numsOk: numsOk, numsBad: numsBad, numsRef: numsRef, badClaims: badClaims,
-      empathy: EMPATHY.test(t), question: QUESTION.test(t), confirmLater: confirmLater,
+      empathy: EMPATHY.test(t), question: QUESTION.test(t), confirmLater: confirmLater, generic: generic,
       pushy: PUSHY.test(t), vague: vague, len: t.length };
   }
   // 크리티컬 ⚡ — C2-C 난이도 차등: 입문(연습)=1군+정수치 / 실전·지옥(랭킹 기준)=2군+정수치
@@ -2594,7 +2598,7 @@ window.APP = (function () {
     if (resolvedNow || j.crit) return { d: 2, fx: "hearts3" };
     if (j.keyHit >= 2) return { d: 1, fx: "hearts2" };
     if (j.empathy || j.question || j.confirmLater) return { d: 1, fx: "hearts1" };
-    if (j.keyHit === 1) return { d: 0, fx: null };
+    if (j.keyHit === 1 || (j.generic || 0) >= 2) return { d: 0, fx: null }; // 성실한 설득 시도 — 벌점 없음
     return { d: -1, fx: "meh" };
   }
   function fxSpawn(ch, n, big) {
@@ -3144,7 +3148,8 @@ window.APP = (function () {
     if (j.numsBad > 0) { stamp("bad", "오수치!"); badNumToast(j); bumpCombo(false); cat = "bad"; expr = "angry"; emo = "angry"; }
     else if (j.vague) {
       o.vagueN = (o.vagueN || 0) + 1;
-      stamp("vague", "무효…"); bumpCombo(false);
+      stamp("vague", "빗나감"); bumpCombo(false);
+      if (o.vagueN >= 1 && o.data && o.data.key) toast("💡 이 걱정의 열쇠: " + o.data.key[0].slice(0, 44) + "…"); // 판정이 야박하게 느껴지지 않게 — 뭘 말해야 뚫리는지 바로 알려준다
       if (o.vagueN >= 3) { cat = "vague3"; expr = "neutral"; emo = "think"; } // 3연속 얼버무림 → 원장이 포기하고 화제를 넘긴다 (무새 종식)
       else { cat = "vague"; expr = o.vagueN >= 2 ? "angry" : "think"; emo = "think"; advance = false; }
     }
