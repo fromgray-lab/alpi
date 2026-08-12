@@ -962,6 +962,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
     <div class="ver-it"><b>🎬 대화 복기</b>결과에서 턴별 판정과 함께 대화를 복기하고, '이 판의 명대사'를 확인하세요.</div>
     <div class="ver-it"><b>🔥 콤보 & 연속 항해</b>연속 유효타 콤보 보너스, 매일 훈련 스트릭이 지도에 새겨집니다.</div>
     <div class="ver-it"><b>🔊 효과음 · 🖨 리포트 인쇄</b>타격음·팡파레·보물상자 사운드(끄기 가능), 결과 리포트 A4 인쇄/PDF.</div>
+    <div class="ver-it"><b>🎙 3.1 — 원장 목소리 전면 재캐스팅 · 매너 시스템</b>캐릭터 싱크로율 기준으로 유료 보이스 교체(장인석·강지은·신혁주). 욕설·모욕은 원장이 그 자리에서 끊습니다 — 게임 오버. 음성 중복 재생 버그 수정.</div>
     <button class="btn gold" style="margin-top:12px;padding:10px 22px;" onclick="APP.verClose()">⚓ 출항</button>
   </div>
 </div>
@@ -1794,6 +1795,8 @@ window.APP = (function () {
     var myId = ++speakSeq; // 새 발화가 이전 발화를 취소해도 이전 콜백 체인이 오발되지 않게
     text = ttsClean(text); // 화면 자막은 원문, 목소리는 정화본
     if (!text) { setTalking(false); G.ttsSpeaking = false; if (cb) cb(); return; }
+    if (text === G._lastSpk && Date.now() - (G._lastSpkT || 0) < 4000) { if (cb) cb(); return; } // 같은 대사 4초 내 재발화 금지 — 이중 호출·중복 재생 보험
+    G._lastSpk = text; G._lastSpkT = Date.now();
     try {
       if (!koVoice) koVoice = pickVoice();
       var vp = (G.doc && G.doc.voice) || { rate: 1.02, pitch: 1 };
@@ -1810,12 +1813,23 @@ window.APP = (function () {
         u.rate = Math.max(0.7, Math.min(1.6, vp.rate + d.rate + (i % 2 ? 0.03 : -0.02) - (voiceComp < 1 ? 0.04 : 0))); // 문장별 미세 변화 — 단조로움 완화
         u.pitch = Math.max(0.35, Math.min(2, (vp.pitch + d.pitch) * voiceComp)); // 성별 보이스 부재 시 저음/고음 보정
         if (koVoice) u.voice = koVoice;
-        var started = false;
+        var started = false, advanced = false; // advanced = 이 청크의 바통은 단 한 번만 넘어간다 — 워치독과 onend가 각각 다음 문장을 큐잉해 대사가 2배씩 증식하던 중복 재생 캐스케이드 차단
+        var handoff = function () { // 다음 청크로 전진 (유일한 전진 경로)
+          if (advanced) return;
+          advanced = true;
+          if (myId !== speakSeq) { done = true; return; }
+          if (i + 1 < chunks.length) setTimeout(function () { sayChunk(i + 1); }, 150); else fire();
+        };
         u.onstart = function () { started = true; setTalking(true); G.ttsSpeaking = true; };
-        u.onend = function () { if (myId !== speakSeq) { done = true; return; } if (i + 1 < chunks.length) setTimeout(function () { sayChunk(i + 1); }, 150); else fire(); };
-        u.onerror = function () { if (myId !== speakSeq) { done = true; return; } fire(); };
+        u.onend = handoff;
+        u.onerror = function () { if (advanced) return; advanced = true; if (myId !== speakSeq) { done = true; return; } fire(); };
         speechSynthesis.speak(u);
-        setTimeout(function () { if (myId === speakSeq && !started && !G.ttsSpeaking) { if (i + 1 < chunks.length) sayChunk(i + 1); else fire(); } }, 3000); // 무보이스 보험
+        setTimeout(function () { // 무보이스 보험 — 3초 내 시작 안 된 청크는 '막힌 큐를 비우고' 딱 한 번만 전진
+          if (myId !== speakSeq || started || advanced || G.ttsSpeaking) return;
+          advanced = true; // cancel()이 뒤늦게 onend/onerror를 불러도 가드에 막힌다
+          try { speechSynthesis.cancel(); } catch (e) {}
+          if (i + 1 < chunks.length) setTimeout(function () { sayChunk(i + 1); }, 100); else fire();
+        }, 3000);
       };
       sayChunk(0);
     } catch (e) { setTalking(false); G.ttsSpeaking = false; if (cb) cb(); }
@@ -1860,7 +1874,7 @@ window.APP = (function () {
     { nm: "장인석", gender: "m", stdType: 4, hosp: "장튼튼내과", ht: "A", plabel: "까칠형 · 루피 오마주", diff: 3, bounty: 300000000,
       tag: "\"1분 드릴게요. 요점만.\" 서론이 길면 3문장 안에 잘린다. 까다로움의 정점.",
       open: "네, 장인석입니다. 통화 요청 봤어요. 지금 진료 틈이라 길게는 어렵고 — 1분 드릴게요, 요점부터 들읍시다.", bias: [2, 17, 4],
-      voice: { rate: 1.12, pitch: 0.8 }, elVoice: "Yg8NUCQZDFSLyAoCOsuK",
+      voice: { rate: 1.12, pitch: 0.8 }, elVoice: "2gbExjiWDnG1DMGr81Bx", // Kyungduk — 고압적·무게감 있는 중년 (Condescending & Clear)
       av: { hs: "short", hair: "#20262B", brow: "angry", mouth: "frown", scar: "cheek", inner: "#C03A2B", steth: true, coat: "#F2F4F5", bg: "#D7E4EC", tag: true },
       reacts: {
         good: ["…흠. 그건 처음 듣네. 계속해봐요.", "{num}이라… 계산은 맞네.", "좋아요, 그 부분은 인정하죠."],
@@ -1876,7 +1890,7 @@ window.APP = (function () {
     { nm: "강지은", gender: "f", stdType: 2, hosp: "해맑은가정의학과", ht: "A", plabel: "밝음·관망 · 나미 오마주", diff: 1, bounty: 150000000,
       tag: "나미처럼 밝고 온화하다. 다 좋다고 웃는데… 가입은 안 한다. 웃는 거절이 제일 어렵다.",
       open: "여보세요~ 담당자님? 통화 요청 보고 걸었어요~ 웬일이에요, 무슨 좋은 소식 있어요?", bias: [3, 11, 7],
-      voice: { rate: 1.04, pitch: 1.28 }, elVoice: "Cm89zxZzEGaMu7ajYw2K",
+      voice: { rate: 1.04, pitch: 1.28 }, elVoice: "QPFsEL6IBxlT15xfiD6C", // Hana — 밝고 명랑한 표준어 여성 (Natural & Cheerful)
       av: { hs: "long", hair: "#D97A36", brow: "soft", mouth: "smile", glasses: false, blush: true, steth: true, coat: "#F8F3EC", inner: "#E8A0B4", bg: "#F6E7D8", pin: true, tag: true },
       reacts: {
         good: ["어머, 그래요? 그건 정말 몰랐네요!", "아~ 그렇게 되는 거구나. 설명 잘하시네요~", "{num}이요? 오~ 꽤 되네요?"],
@@ -1892,7 +1906,7 @@ window.APP = (function () {
     { nm: "신혁주", gender: "m", stdType: 1, hosp: "백산내과", ht: "B", plabel: "데이터형 · 조로 오마주", diff: 2, bounty: 220000000,
       tag: "숫자로 묻고 숫자로 자른다. 어림수·오수치는 그 자리에서 발각된다. 삼색 펜 삼도류.",
       open: "신혁주입니다. 요청 보고 걸었어요. 마침 차트 정리 틈이라 — 용건부터 듣죠. 숫자는 준비돼 있죠?", bias: [9, 19, 20],
-      voice: { rate: 1.05, pitch: 1.0 }, elVoice: "q6R5VRookUTLs2YOBxAU",
+      voice: { rate: 1.05, pitch: 1.0 }, elVoice: "s07IwTCOrCDCaETjUVjx", // Hyunbin — 시크하고 절제된 프로페셔널 (Diplomatic & Cool)
       av: { hs: "short", hair: "#3E7C4F", brow: "flat", mouth: "flat", scar: "eye", steth: false, coat: "#EDF2F6", bg: "#DCE8F0", pens3: true, tag: true },
       reacts: {
         good: ["{num}. 검산했는데 맞네요. 다음.", "수치가 정확하네요. 계속하세요.", "근거가 있네. 인정합니다."],
@@ -2046,6 +2060,7 @@ window.APP = (function () {
   function elevenOn() { return !!G.elevenAgent && !G.elDead; } // 일레븐 모드 — 두뇌+목소리+턴테이킹 통합 (키 불필요)
   /* ══════════ 일레븐 모드 — ElevenLabs Agents (최고 품질 실시간 대화) ══════════ */
   function startEleven() {
+    try { if (G.elClient) { G.elClient.endSession(); G.elClient = null; } } catch (e) {} // 이중 세션 방지 — 같은 원장이 두 겹으로 말하는 사고의 뿌리를 자른다
     $("bWho").textContent = G.doc.nm + " 원장";
     $("bText").textContent = "연결 중…";
     // 마이크 선점검 — 차단 상태로 조용히 시작해 '전송만 되는' 상황 방지
@@ -2089,6 +2104,7 @@ window.APP = (function () {
     drSay(G.doc.open, G.doc.nm === "강지은" ? "happy" : "neutral", G.doc.nm === "강지은" ? "happy" : null);
   }
   function elevenTurn(text) { // 일레븐이 대화를 운전 — 여기서는 심판만 본다 (결정론 채점 유지)
+    if (mannerCheck(text)) { G.dlgLog.push({ w: "mr", t: text }); G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text), eleven: true }); return; } // 음성으로 뱉은 욕설도 잡는다
     var att = attributeTurn(text), j = att.judge;
     scanMem(text);
     G.dlgLog.push({ w: "mr", t: text });
@@ -2141,8 +2157,9 @@ window.APP = (function () {
       "[당신의 진짜 걱정들 — 이게 풀려야만 마음이 움직인다]\n" + objList + (G.scen.variant ? "\n+) 변형 카드: \"" + G.scen.variant.dr + "\"" : "") + "\n" +
       "[이 통화의 발단] 당신은 지난번 MR의 웰체크·일만사 제안을 며칠 곱씹다가 걸었다. 걸게 만든 이유가 바로 걱정 1)이다 — 당신의 첫마디는 이미 그 얘기로 시작했고, 이 통화의 중심 주제는 끝까지 걱정 1)이다.\n" +
       "[주제 이탈 금지] 후속 질문·꼬리 반대도 걱정 1)의 주변에서 파라. 걱정이 '정부 불신'이면 정책 변경 이력·책임 소재를 캐묻는 것이고, 갑자기 앱 사용법이나 무관한 주제로 튀지 않는다. 각 걱정에 적힌 '다시 파는 표현'과 '후속 질문'을 그대로 또는 변형해 써라. 걱정 1)이 확실히 풀린 뒤에야 다음 걱정으로 자연스럽게 넘어간다.\n" +
-      "[성급한 합의 금지] 걱정이 하나뿐이어도 최소 두 번은 되파라 — MR의 첫 답이 완벽해도 '다시 파는 표현'이나 '후속 질문' 중 하나는 던진 뒤에 인정하라. 서너 번의 주고받음 전에는 합의·일정·통화 정리를 절대 꺼내지 마라.\n" +
+      "[성급한 합의 금지 — 그러나 어거지도 금지] 걱정 하나당 '후속 질문' 한 번으로 깊이를 확인하라. 되파는 건 같은 주제 안에서만이다. MR이 근거·수치로 정면으로 답했으면 그 걱정은 두 턴 안에 깨끗하게 인정하라 — 인정해 놓고 무관한 새 걱정을 즉석에서 발명해 붙이는 것(반대를 위한 반대)은 금지다. 준비된 걱정 목록에 없는 주제를 새로 만들지 마라. 서너 번의 주고받음 전에 합의를 꺼내지 않되, 걱정이 다 풀린 뒤에도 질질 끄는 것 역시 부자연스럽다 — 납득했으면 솔직하게 '알겠다, 일리 있다'고 말하고 다음 단계(일정·방법)를 묻는 쪽으로 넘어가라.\n" +
       "[현실적인 의심만] 세상에 존재하지 않는 증빙을 요구하며 몰아붙이지 마라('없었다는 걸 문서로 증명해봐' 같은 악마의 증명 금지). 현실의 원장이 던질 법한 의심 — 앞으로의 보장, 남의 병원 사례, 조건·예외 — 으로 파고들고, MR이 표준 논리로 제대로 답하면 그 지점은 깨끗하게 인정하라. 같은 요구를 세 번 이상 반복하지 마라.\n" +
+      "[무례 대응] MR이 욕설·모욕·조롱을 하면 논리 대응을 멈추고 정색하라 — \"지금 뭐라고 하셨어요. 이 통화는 여기까지 하죠.\" 한마디 후 어떤 말에도 응하지 말고 통화를 끝내라. 당신은 을이 아니다.\n" +
       (STD_RP[d.stdType] ? "[이 병원의 표준 유형] " + STD_RP[d.stdType].title + " — " + STD_RP[d.stdType].cs + "\n[이 유형 원장들이 실제로 하는 반대] " + STD_RP[d.stdType].obs.join(" / ") + "\n" : "") +
       "[대화 정책 — 이것이 당신의 전부다]\n" +
       "- 매 턴, 무엇보다 먼저 MR이 '방금 한 말'의 내용에 반응한다. 그의 단어를 직접 짚어라. 그 다음에 당신 걱정 상태에 따라 자연스럽게 이어간다.\n" +
@@ -2543,7 +2560,7 @@ window.APP = (function () {
       $("nvMini").textContent = "캠 없음 — 음성 대화 모드";
       $("playBanner").innerHTML = "<div class='banner info'>캠 없이 진행합니다. 자동 대화·음성 녹음은 그대로 동작합니다.</div>";
     }
-    G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.comboMax = 0; G.mem = {}; G.dlgLog = [];
+    G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.comboMax = 0; G.mem = {}; G.dlgLog = []; G.mannerFoul = false;
     G.drCommit = false; G.drCommitEnded = false; G.silenceEnd = false; G.idleN = 0; disarmIdle(); moodSet(0); pgSet(50); // 새 판 — 감정·침묵·승낙·게이지 초기화
     ambStart(); // 미세한 진료실 룸톤 — 무음의 어색함 제거
     var vst = document.querySelector(".vstage");
@@ -3165,6 +3182,29 @@ window.APP = (function () {
   function badNumToast(j) { // 어떤 숫자가 왜 걸렸는지 그 자리에서 보여준다
     if (j && j.badClaims && j.badClaims.length) toast("⚠ \"" + j.badClaims.join(", ") + "\" — 표준 수치집에 없는 숫자 (모르면 \"확인해서 알려드리겠습니다\")");
   }
+
+  /* ── 매너 시스템 — 욕설·모욕은 논리 이전의 문제, 즉시 게임 오버 ── */
+  var RUDE_RE = /(씨발|시발(?!점)|씨팔|ㅆㅂ|병신|ㅄ|개새끼|새끼야|새꺄|좆같|좆까|지랄|엿\s?먹어|미친놈|미친새끼|미친 ?거 아니에요|또라이|썅|개소리|닥치세요|닥쳐라|fuck|shit)/i; // 시발점·닥쳐올(제도) 같은 정상 표현은 제외
+  var MANNER_BYE = { "장인석": "…지금 뭐라고 했어요? 이 통화는 여기서 끝냅시다. 다시는 걸지 마세요.", "강지은": "…방금 그 말은, 너무하셨어요. 오늘은 여기까지 할게요.", "신혁주": "말이 지나치시네요. 끊겠습니다.", "김민우": "그런 말까지 들으면서 할 얘기는 아니지요. 끊습니다." };
+  function mannerCheck(text) { // true = 무례 발언 감지 → 원장이 끊는다 (전 모드 공통 관문)
+    if (G.mannerFoul || !RUDE_RE.test(text || "")) return false;
+    G.mannerFoul = true;
+    stamp("bad", "매너 위반!");
+    moodSet(-4); pgSet(0);
+    toast("🚫 원장에게 해서는 안 될 말 — 통화가 끊깁니다");
+    try { if (G.elClient) { G.elClient.endSession(); G.elClient = null; } } catch (e) {} // 일레븐 세션 즉시 종료 — 원장의 마지막 말은 우리가 한다
+    var bye = MANNER_BYE[G.doc.nm] || MANNER_BYE["신혁주"];
+    setTimeout(function () { if (G.inCall) drSay(bye, "angry", "angry"); }, 500);
+    setTimeout(function () { if (G.inCall) endCall(false); }, 3400);
+    return true;
+  }
+  function mannerAdjust(sc) { // 매너 위반 판 — 대화·클로징 축 몰수, 총점 상한 25 (순수 함수)
+    sc.D = 0; sc.E = Math.min(sc.E, 2);
+    sc.total = Math.min(sc.total, 25);
+    sc.grade = "항해 시작";
+    sc.mannerFoul = true;
+    return sc;
+  }
   function stamp(kind, label) {
     var el = $("stamp");
     el.className = "stamp " + kind;
@@ -3253,6 +3293,7 @@ window.APP = (function () {
     $("sttLive").textContent = "";
     $("mrInput").value = "";
     if (G.llmBusy) { toast("원장님이 생각 중…"); return; }
+    if (mannerCheck(text)) { G.dlgLog.push({ w: "mr", t: text }); G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text) }); return; } // 욕설·모욕 = 즉시 통화 종료 (전 모드 공통)
     if (G.awaiting === "free" && elevenOn()) { // 일레븐 모드 타이핑 입력 — 대화는 일레븐에, 채점은 심판에
       try { if (G.elClient && G.elClient.sendUserMessage) G.elClient.sendUserMessage(text); } catch (e) {}
       elevenTurn(text);
@@ -3418,6 +3459,7 @@ window.APP = (function () {
       micVadStop(); ambStop();
       if (G.micHold) { try { G.micHold.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} G.micHold = null; } // 녹음이 다 멈춘 뒤에 마이크 반납
       var sc = scoreSession(G.turns, G.scen, nvReport);
+      if (G.mannerFoul) mannerAdjust(sc); // 매너 위반 판 — 점수 몰수
       renderResult(sc, nvReport, manual);
       show("scr-result");
       if (sc.total >= 80) jingle("win");
@@ -3623,7 +3665,7 @@ window.APP = (function () {
     $("rpMeta").textContent = G.user.name + " × " + G.doc.nm + " 원장 (" + G.doc.hosp + ")";
     var modeName = (G.elevenAgent && !G.elDead) ? "🎙 일레븐" : llmOn() ? "🧠 애드립" : "🎭 대본";
     var pd = G.persuade == null ? 50 : G.persuade;
-    $("rpMeta2").textContent = todayStr() + " · " + diffName + " 난이도 · " + modeName + " · " + Math.floor(durSec / 60) + "분 " + (durSec % 60) + "초" + (crits ? " · 크리티컬 ⚡" + crits : "") + " · 원장 설득도 " + pd + "%" + (G.drCommit ? " (원장 승낙)" : G.silenceEnd ? " (침묵 종료)" : manual ? " · 중도 종료" : "");
+    $("rpMeta2").textContent = todayStr() + " · " + diffName + " 난이도 · " + modeName + " · " + Math.floor(durSec / 60) + "분 " + (durSec % 60) + "초" + (crits ? " · 크리티컬 ⚡" + crits : "") + " · 원장 설득도 " + pd + "%" + (G.mannerFoul ? " · 🚫 매너 위반 — 원장이 끊음" : G.drCommit ? " (원장 승낙)" : G.silenceEnd ? " (침묵 종료)" : manual ? " · 중도 종료" : "");
     // 코치 3줄 총평 — 무기·병목·다음 한 수 (+조직 내 위치·지난 판 대비)
     var prevAx = G.prevAxes ? G.prevAxes.slice() : null;
     (function () {
@@ -3647,6 +3689,7 @@ window.APP = (function () {
       }
       chips += "<span class='cv-chip'>설득 게이지 " + pd + "%</span>" + (G.drCommit ? "<span class='cv-chip up'>원장 승낙 💘</span>" : "") + ((G.comboMax || 0) >= 3 ? "<span class='cv-chip up'>🔥 최대 콤보 ×" + G.comboMax + "</span>" : "");
       el.innerHTML =
+        (G.mannerFoul ? "<div class='cv gap' style='border-color:#B0392E;'><small>게임 오버 — 매너 위반</small>원장에게 해서는 안 될 말이 나왔습니다. 실전이었다면 이 병원은 영영 닫힌 문입니다 — 어떤 논리도 무례를 이기지 못합니다. 다음 판은 정중함부터 다시.</div>" : "") +
         "<div class='cv wpn'><small>이번 판의 무기</small>" + best[1] + " " + sc[best[0]] + "/" + best[2] + " · " + axGrade(sc[best[0]], best[2]) + "등급</div>" +
         "<div class='cv gap'><small>병목</small>" + worst[1] + " " + sc[worst[0]] + "/" + worst[2] + (missV.length ? " · 맥 끊김: " + missV.join("·") : "") + "</div>" +
         "<div class='cv nxt'><small>다음 한 수</small>" + nextMove + "</div>" +
@@ -3754,7 +3797,7 @@ window.APP = (function () {
     markPlayedToday(); // 🔥 연속 항해 스트릭 — 오늘의 훈련 도장
     G.rankRows = undefined; // 방금 판 반영 — 다음 랭킹 조회는 서버에서 새로
     if (newConq.length) setTimeout(function () { chestReveal(newConq); }, 1100); // 격파 보물상자 — 축포 뒤에 열린다
-    if (sc.total >= 80) { confetti(); jingle("win"); } // 캡틴 이상 — 축포 + 팡파레
+    if (sc.total >= 80) { confetti(); } // 캡틴 이상 — 축포 (팡파레는 endCall에서 1회)
     var wg = $("wGrade"); wg.classList.remove("slamin"); void wg.offsetWidth; wg.classList.add("slamin"); // 등급 도장 슬램
     persistAll(); // 이 기기의 훈련 기록 갱신 — 새로고침해도 유지
     cloudUpload("rp_sessions", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office, div: G.user && G.user.div,
@@ -4370,7 +4413,7 @@ window.APP = (function () {
   G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
-  var APP_VER = "3.0";
+  var APP_VER = "3.1";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
   try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
@@ -4425,7 +4468,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE } };
 })();
 
 </script>
