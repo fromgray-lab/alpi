@@ -446,6 +446,9 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
   <div class="deck">
     <div class="card">
       <h2>플레이어 등록</h2>
+      <label class="lbl">사번 <span class="small">— 명단 등록자는 이름·소속이 자동 입력됩니다</span></label>
+      <input type="text" id="regEmpno" placeholder="예: 2024123" inputmode="numeric" onblur="APP.empnoLookup()" onkeydown="if(event.key==='Enter')APP.empnoLookup()">
+      <div id="empnoStat" class="small" style="margin:-4px 0 8px;"></div>
       <label class="lbl">사업부</label>
       <select id="regDiv"><option>서울3사업부</option><option>서울4사업부</option><option>지방3사업부</option><option>지방4사업부</option><option>폴라리스사업부</option></select>
       <label class="lbl">사무소</label>
@@ -541,6 +544,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         </div>
       </details>
       <div id="gearBanner"></div>
+      <div class="small" style="margin-top:8px;"><a href="javascript:void(0)" onclick="APP.secInfo()" style="color:var(--acc);font-weight:700;">🔒 어떤 데이터가 저장되나요?</a> — 대화 내용·음성·영상은 서버에 올라가지 않습니다</div>
     </div>
   </div>
 </section>
@@ -815,6 +819,12 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
       <div class="card">
         <h2>🎯 코칭 처방 <span class="small">정량 옆의 정성 — 무엇이 왜 부족하고, 무엇부터 챙길지</span></h2>
         <div id="admCoach"></div>
+      </div>
+      <div class="card">
+        <h2>👥 명단 관리 <span class="small">사번 일괄 업로드 — 등록 화면에서 사번만 치면 이름·소속 자동 입력</span></h2>
+        <div class="small" style="margin-bottom:6px;">엑셀에서 <b>사번·이름·사무소·사업부</b> 4개 열을 복사해 그대로 붙여넣으세요 (한 줄에 한 명, 탭·쉼표 모두 인식). 같은 사번은 덮어씁니다.</div>
+        <textarea id="admRosterTxt" style="width:100%;min-height:110px;font-size:13px;" placeholder="2024123	홍길동	강남사무소	서울3사업부&#10;2024124	김영희	분당사무소	서울4사업부"></textarea>
+        <div style="margin-top:8px;"><button class="btn" style="padding:8px 18px;font-size:13px;margin:0 8px 0 0;" onclick="APP.admRosterUp()">⬆ 서버로 업로드</button><span id="admRosterOut" class="small"></span></div>
       </div>
       <div class="card">
         <h2>직원 랭킹</h2>
@@ -2264,7 +2274,7 @@ window.APP = (function () {
   function toPick() {
     var nm = $("regName").value.trim();
     if (!nm) { $("regBanner").innerHTML = "<div class='banner err'>성명을 입력해야 출항할 수 있습니다.</div>"; return; }
-    G.user = { div: $("regDiv").value, office: $("regOffice").value.trim() || "-", name: nm };
+    G.user = { div: $("regDiv").value, office: $("regOffice").value.trim() || "-", name: nm, empno: (($("regEmpno") && $("regEmpno").value) || "").trim() || null };
     store("user", G.user); // 플레이어 정보 보존 — 다음 접속엔 자동 채움
     toMap(); // 모험의 홈은 해도(海圖)다 — 섬을 고르고 → 상대(난이도)를 고르고 → 격파
   }
@@ -2744,6 +2754,56 @@ window.APP = (function () {
     return m ? { url: decodeURIComponent(m[1]).replace(/\/+$/, ""), key: decodeURIComponent(m[2]) } : null;
   }
   function sbOn() { return !!(G.sbUrl && G.sbKey); }
+  function empnoLookup() { // 사번 → 명단(rp_users) 조회 — 이름·소속 자동 입력
+    var em = (($("regEmpno") && $("regEmpno").value) || "").trim();
+    var st = $("empnoStat");
+    if (!em || !sbOn()) { if (st) st.textContent = ""; return; }
+    if (st) st.textContent = "명단 조회 중…";
+    fetch(G.sbUrl + "/rest/v1/rp_users?empno=eq." + encodeURIComponent(em) + "&select=*", { headers: sbHeaders() })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) {
+        if (rows && rows.length) {
+          var u = rows[0];
+          if ($("regName")) $("regName").value = u.name || "";
+          if ($("regOffice")) $("regOffice").value = u.office || "";
+          if ($("regDiv") && u.div) $("regDiv").value = u.div;
+          if (st) st.innerHTML = "<b style='color:#19B39B'>✓ " + esc(u.name || "") + "님 확인 — 소속 자동 입력</b>";
+        } else if (st) st.innerHTML = "<span style='color:#E8B44C'>명단에 없는 사번 — 아래에 직접 입력하고 시작하세요 (기록엔 사번이 함께 저장됩니다)</span>";
+      }).catch(function () { if (st) st.textContent = ""; });
+  }
+  function rosterParse(text) { // 관리자 명단 일괄 업로드 — 탭/쉼표 구분 (사번, 이름, 사무소, 사업부)
+    var out = [], bad = 0;
+    String(text || "").split(/\r?\n/).forEach(function (ln) {
+      ln = ln.trim(); if (!ln) return;
+      var c = ln.split(/\t|,/).map(function (x) { return x.trim(); });
+      if (c.length < 2 || !c[0] || !c[1]) { bad++; return; }
+      out.push({ empno: c[0], name: c[1], office: c[2] || null, div: c[3] || null, hq: c[3] ? hqOfDiv(c[3]) : null, active: true });
+    });
+    return { rows: out, bad: bad };
+  }
+  function admRosterUp() { // 명단 서버 업서트 — 같은 사번은 덮어쓴다
+    var p = rosterParse(($("admRosterTxt") && $("admRosterTxt").value) || "");
+    var out = $("admRosterOut");
+    if (!p.rows.length) { if (out) out.textContent = "형식: 사번[탭 또는 ,]이름[탭]사무소[탭]사업부 — 한 줄에 한 명"; return; }
+    if (out) out.textContent = "업로드 중… (" + p.rows.length + "명)";
+    fetch(G.sbUrl + "/rest/v1/rp_users?on_conflict=empno", { method: "POST", headers: Object.assign(sbHeaders(), { Prefer: "resolution=merge-duplicates,return=minimal" }), body: JSON.stringify(p.rows) })
+      .then(function (r) {
+        if (out) out.innerHTML = r.ok ? "<b style='color:#0B5B54'>✅ " + p.rows.length + "명 반영 완료</b>" + (p.bad ? " · 형식 오류 " + p.bad + "줄 건너뜀" : "") : "<b style='color:#B0392E'>실패 (HTTP " + r.status + ")</b>";
+      }).catch(function (e) { if (out) out.textContent = "실패: " + (e.message || e); });
+  }
+  function secInfo() { // 🔒 데이터 안내 — 무엇이 저장되고 무엇이 저장되지 않는가
+    var w = document.createElement("div");
+    w.style.cssText = "position:fixed;inset:0;background:rgba(4,14,24,.9);z-index:400;display:flex;align-items:center;justify-content:center;padding:16px;";
+    w.innerHTML = "<div style='background:#fff;color:#1A1F1C;border-radius:14px;max-width:520px;padding:24px 26px;line-height:1.8;font-size:14px;'>" +
+      "<b style='font-size:16px;'>🔒 훈련 데이터 안내</b><br><br>" +
+      "<b>서버에 저장:</b> 사번·이름·소속, 판별 점수(총점·5축)·등장 유형·크리티컬 수·난이도·기기 종류, 전문가 평가 입력값<br>" +
+      "<b>서버에 저장 안 함:</b> 대화 내용(전사)·음성·영상 — <b>전부 이 기기 안에서만</b> 처리되고 통화 종료와 함께 회원 기기에 남습니다<br>" +
+      "<b>보관 위치:</b> 회사 관리 클라우드 DB (Supabase 도쿄 리전)<br>" +
+      "<b>용도:</b> 코칭 피드백·훈련 현황 관리 — 인사평가 비연동 원칙<br>" +
+      "<b>삭제 요청:</b> 관리자(신사업전략팀)에게 사번 기재 후 요청<br><br>" +
+      "<button class='btn' style='padding:9px 20px;' onclick='this.closest(\"div\").parentNode.remove()'>확인</button></div>";
+    document.body.appendChild(w);
+  }
   function sbHeaders() { return { "content-type": "application/json", "apikey": G.sbKey, "Authorization": "Bearer " + G.sbKey, "Prefer": "return=minimal" }; }
   function cloudUpload(table, row) {
     if (!sbOn()) return;
@@ -2768,7 +2828,7 @@ window.APP = (function () {
   function cloudRoster(rows) { // 서버 세션 → 관리장 로스터 (사람별 평균·정복 유형)
     var by = {};
     rows.forEach(function (r) {
-      var k = (r.player || "무명") + "|" + (r.office || "미지정");
+      var k = r.empno ? "E|" + r.empno : (r.player || "무명") + "|" + (r.office || "미지정"); // 사번 우선 — 동명이인 분리
       if (!by[k]) by[k] = { nm: r.player || "무명", office: r.office || "미지정", div: r.div || "미지정", sum: 0, n: 0, types: {} };
       var p = by[k]; p.sum += (r.total || 0); p.n++;
       if ((r.total || 0) >= 80 && r.types && r.types.forEach) r.types.forEach(function (t) { p.types[t] = true; });
@@ -3542,7 +3602,7 @@ window.APP = (function () {
     if (sc.total >= 80) { confetti(); } // 캡틴 이상 — 축포
     var wg = $("wGrade"); wg.classList.remove("slamin"); void wg.offsetWidth; wg.classList.add("slamin"); // 등급 도장 슬램
     persistAll(); // 이 기기의 훈련 기록 갱신 — 새로고침해도 유지
-    cloudUpload("rp_sessions", { player: G.user && G.user.name, office: G.user && G.user.office, div: G.user && G.user.div,
+    cloudUpload("rp_sessions", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office, div: G.user && G.user.div,
       doc: G.doc.nm, types: types, total: sc.total, axes: { A: sc.A, B: sc.B, C: sc.C, D: sc.D, E: sc.E }, crits: crits,
       ht: G.scen.ht, diff: G.scen.diff, llm: elevenOn() ? "eleven" : llmOn() ? G.claudeModel : null, device: IS_MOBILE ? "mobile" : "desktop" });
     // 비언어 분석 표
@@ -3652,7 +3712,7 @@ window.APP = (function () {
       nv: s.nv || null };
     G.calib.push({ rule: s.sc, human: human });
     store("calib", G.calib); // 이 기기 보존
-    cloudUpload("rp_calib", { player: G.user && G.user.name, office: G.user && G.user.office, doc: s.doc, evaluator: rec.evaluator || "", rule: rec.rule, human: human, comment: (($("evComment") && $("evComment").value) || "").slice(0, 500) });
+    cloudUpload("rp_calib", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office, doc: s.doc, evaluator: rec.evaluator || "", rule: rec.rule, human: human, comment: (($("evComment") && $("evComment").value) || "").slice(0, 500) });
     var h = "<table class='ax'><tr><th>영역</th><th style='text-align:right;'>AI</th><th style='text-align:right;'>사람</th><th style='text-align:right;'>차이</th></tr>";
     res.rows.forEach(function (r) {
       h += "<tr><td class='axn'>" + r.name + "</td><td class='axv'>" + r.rule + "</td><td class='axv'>" + r.human + "</td><td class='axv' style='color:" + (r.diff === 0 ? "var(--sub)" : Math.abs(r.diff) >= 4 ? "var(--neg)" : "var(--warn)") + ";'>" + (r.diff > 0 ? "+" : "") + r.diff + "</td></tr>";
@@ -4061,8 +4121,8 @@ window.APP = (function () {
   return { toReg: toReg, toPick: toPick, choose: choose, gearGo: gearGo, takeCall: takeCall, denyCall: denyCall,
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
-    toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE } };
+    toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse } };
 })();
 
 </script>
