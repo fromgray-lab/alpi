@@ -1965,8 +1965,8 @@ window.APP = (function () {
           if (!msg) return;
           if (ev.source === "ai") {
             $("bWho").textContent = G.doc.nm + " 원장"; $("bText").textContent = msg; G.lastDoctor = msg; G.saidLog.push(msg); G.dlgLog.push({ w: "dr", t: msg });
-            if (checkDrCommit(msg)) setTimeout(function () { if (G.inCall) endCall(false); }, 4500); // 원장 승낙 — 그 말이 끝나면 통과
-            else pokeIdle();
+            if (G.drCommit && !G.drCommitEnded) { G.drCommitEnded = true; setTimeout(function () { if (G.inCall) endCall(false); }, 4000); } // 승낙 뒤 이어진 작별 인사가 끝나면 통과
+            else { checkDrCommit(msg); pokeIdle(); }
           }
           else if (ev.source === "user") { pokeIdle(); elevenTurn(msg); }
         },
@@ -2618,8 +2618,7 @@ window.APP = (function () {
     checkDrCommit(text); // 원장 입에서 "봅시다"가 나오면 — 거기서 통과
     speak(text, function () { // cb는 말이 '끝난 뒤' 호출 — 대사가 서로를 자르지 않는다
       if (cb) cb();
-      else if (G.drCommit && !G.drCommitEnded) { G.drCommitEnded = true; setTimeout(function () { if (G.inCall) endCall(false); }, 900); }
-      armIdle(); // 원장 말이 끝났다 — 이제 침묵 시계가 돈다
+      armIdle(); // 원장 말이 끝났다 — 이제 침묵 시계가 돈다 (승낙 후에도 확인·작별 인사를 나눈 뒤에 끝난다)
     }, emo);
   }
 
@@ -2697,10 +2696,10 @@ window.APP = (function () {
     heartBurst(8);
     moodSet(4);
     pgSet(100); // 게이지 만렙 — 설득 완성
-    $("hudProg").textContent = "합의 성립 — 원장이 먼저 일정을 잡았습니다!";
+    $("hudProg").textContent = "합의 성립! 확인 인사로 통화를 마무리하세요 (예: \"네, 화요일 2시에 뵙겠습니다\")";
     return true;
   }
-  var IDLE_NUDGE_MS = 14000, IDLE_END_MS = 11000, IDLE_ELEVEN_MS = 40000;
+  var IDLE_NUDGE_MS = 22000, IDLE_END_MS = 15000, IDLE_ELEVEN_MS = 75000;
   var IDLE_NUDGE = { "장인석": "여보세요? …듣고 있어요? 바쁘면 끊고요.", "강지은": "여보세요~? 안 들리세요? 편하게 말씀하셔도 돼요~", "신혁주": "…응답이 없네요. 연결 문제인가요?", "김민우": "여보세요. 듣고 있으면 말씀하세요." };
   var IDLE_BYE = { "장인석": "…시간만 갔네요. 오늘은 여기까지 합시다. 끊어요.", "강지은": "음~ 바쁘신가 보다. 오늘은 여기까지 하고, 다음에 또 얘기해요~", "신혁주": "응답이 없으니 통화는 여기서 정리하죠. 준비되면 다시 거세요.", "김민우": "오늘은 아닌가 보네요. 끊습니다." };
   function disarmIdle() { if (G.idleT) { clearTimeout(G.idleT); G.idleT = null; } }
@@ -3124,14 +3123,16 @@ window.APP = (function () {
       (function () { var ef = echoFrag(text); return ef ? "\n[반응 재료] 이번 말에서 되받을 구절: \"" + ef + "\" — 이 단어를 그대로 짚으며 시작하면 산다" : ""; })() +
       (G.freeN === 1 ? "\n[관찰] 첫 인사·오프닝이다 — 캐릭터답게 받고, 걱정 하나를 자연스럽게 꺼내라" : "") +
       "\n[진행] " + G.scen.objs.map(function (o) { return "[" + o.n + "]" + (G.resolved[o.n] ? "풀림" : "미해소"); }).join(" · ") +
-      (okc && done === total ? "\n[신호] 걱정이 다 풀렸고 MR이 날짜·주체까지 제시했다 — 조건 한 번 확인하고 합의를 받아들여 통화를 정리하라" : okc ? "\n[신호] MR이 일정을 제시했지만 아직 안 풀린 걱정이 있다 — 그것부터 짚어라" : "") +
+      (wrapNow ? "\n[신호] 합의는 이미 성립했다 — 방금 말에 짧게 화답하고, 날짜를 한 번 되짚는 작별 인사로 통화를 기분 좋게 끝내라" : okc && done === total ? "\n[신호] 걱정이 다 풀렸고 MR이 날짜·주체까지 제시했다 — 조건 한 번 확인하고 합의를 받아들여 통화를 정리하라" : okc ? "\n[신호] MR이 일정을 제시했지만 아직 안 풀린 걱정이 있다 — 그것부터 짚어라" : "") +
       (done < total ? "\n[규칙] 아직 안 풀린 걱정이 남았다 — 당신이 먼저 통화를 정리하거나 일정을 잡지 마라. 반응한 뒤 남은 걱정을 이어서 캐물어라." : "");
     if (okc && done === total) stamp("crit", "합의 성립!");
+    var wrapNow = G.drCommit && !G.drCommitEnded; // 원장이 이미 승낙했다 — 이번 원장 대사는 작별 인사, 끝나면 통과
+    if (wrapNow) G.drCommitEnded = true;
     var expr = j.numsBad ? "angry" : (att.typeN && j.crit) ? "happy" : "interest";
     var fb = function () { // LLM 응답 실패 시에도 대화는 죽지 않는다
       drSay(withBeat((att.typeN && j.keyHit >= 2) ? reactLine("good") : reactLine("mild")), "think", "think");
     };
-    llmTurn(text, obs, expr, expr, fb, null, (okc && done === total) ? function () { setTimeout(function () { endCall(false); }, 2200); } : null);
+    llmTurn(text, obs, expr, expr, fb, null, (wrapNow || (okc && done === total)) ? function () { setTimeout(function () { endCall(false); }, 2200); } : null);
   }
 
   /* ── 턴 전송 ── */
