@@ -465,7 +465,6 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
     <div style="text-align:center;color:#fff;margin-bottom:14px;">
       <div style="font-size:24px;font-weight:900;color:var(--gold);letter-spacing:.1em;">— 수 배 전 단 —</div>
       <div class="small" style="color:#BFD3E3;">상대할 원장을 고르세요. 현상금이 높을수록 거센 바다입니다. (인물은 사내 오마주·가공 캐릭터)</div>
-      <div id="misLine" class="small" style="color:#E8B44C;font-weight:800;margin-top:6px;"></div>
       <div style="margin-top:8px;">
         <button class="btn ghost" style="padding:8px 16px;font-size:13px;" onclick="APP.toMap()">🗺 정복 지도로</button>
         <button class="btn ghost" style="padding:8px 16px;font-size:13px;" onclick="APP.numDrill()">🍖 원피스 특훈 60초</button>
@@ -751,12 +750,11 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <section class="scr" id="scr-map">
   <div class="deck">
     <div class="card">
-      <h2>🗺 그랜드라인 정복 지도 <span class="small" id="mapCount"></span></h2>
+      <h2>🗺 웰체크 그랜드라인 지도 <span class="small" id="mapCount"></span></h2>
       <div class="small" style="font-weight:800;color:var(--acc);margin:2px 0 6px;">① 섬(반대유형) 선택 → ② 상대(난이도) 선택 → ③ 80점(A)으로 격파(CLEAR) — 전 섬 격파 시 알피왕</div>
-      <div id="mapMission" class="small" style="margin-bottom:6px;color:#8A6A2B;font-weight:700;"></div>
       <div id="mapSvg" style="text-align:center;"></div>
       <div style="margin-top:10px;">
-        <button class="btn" style="margin:0 6px 6px 0;padding:9px 18px;" onclick="APP.freeSail()">⚓ 자유 출항 — 무작위 유형</button>
+        <button class="btn" style="margin:0 6px 6px 0;padding:9px 18px;" onclick="APP.freeSail()">⚓ 시작 — 무작위 유형</button>
         <button class="btn ghost" style="margin:0 6px 6px 0;padding:9px 16px;font-size:13px;" onclick="APP.numDrill()">🍖 원피스 특훈 60초</button>
         <button class="btn ghost" style="margin:0 0 6px 0;padding:9px 16px;font-size:13px;" onclick="APP.toLib()">🎓 코칭 튜토리얼</button>
       </div>
@@ -2015,6 +2013,7 @@ window.APP = (function () {
       "[캐릭터] " + d.nm + " 원장 · " + d.hosp + " · 성향: " + d.plabel + " · 말투 예시: \"" + d.open + "\" / \"" + d.reacts.vague[0] + "\"\n" +
       "[상황] " + G.scen.sit + "\n" +
       "[당신의 진짜 걱정들 — 이게 풀려야만 마음이 움직인다]\n" + objList + (G.scen.variant ? "\n+) 변형 카드: \"" + G.scen.variant.dr + "\"" : "") + "\n" +
+      "[첫 걱정 고정] 인사가 끝나면 반드시 걱정 1)부터 당신 말투로 꺼내라 — 이 통화가 성사된 이유가 바로 그 걱정이다. 다른 걱정은 그다음이다.\n" +
       (STD_RP[d.stdType] ? "[이 병원의 표준 유형] " + STD_RP[d.stdType].title + " — " + STD_RP[d.stdType].cs + "\n[이 유형 원장들이 실제로 하는 반대] " + STD_RP[d.stdType].obs.join(" / ") + "\n" : "") +
       "[대화 정책 — 이것이 당신의 전부다]\n" +
       "- 매 턴, 무엇보다 먼저 MR이 '방금 한 말'의 내용에 반응한다. 그의 단어를 직접 짚어라. 그 다음에 당신 걱정 상태에 따라 자연스럽게 이어간다.\n" +
@@ -2235,9 +2234,13 @@ window.APP = (function () {
     claudeKey: "", claudeModel: "claude-sonnet-4-5", proxyUrl: "", elevenAgent: "", elevenVoiceM: "", elevenVoiceF: "", elClient: null, elDead: false, dlg: [], saidLog: [], llmBusy: false, llmDead: false,
     sessions: [], conquered: {}, badges: {}, prevAxes: null, awaiting: false, calib: [], recIsVideo: false, admin: false, adminReturn: null, curScreen: 'scr-start', admSort: 'prog', forceType: null, micHold: null, nvOn: false, resolved: {}, freeN: 0, combo: 0, mem: {}, sbUrl: "", sbKey: "", cloud: [], cloudCalib: [], dlgLog: [] };
   var BADGE_DEFS = [
-    ["클로저", "클로징 축 13점 이상"], ["수치 장인", "수치 축 18점+ · 정수치 2회+"], ["폭풍 항해사", "지옥 난이도 80점+"],
-    ["명사수", "한 판 크리티컬 ⚡ 2회+"], ["그랜드라인 완주", "20유형 전부 정복 — 루피왕 후보"]
+    ["클로징 마스터", "고객이 공감한 유의미한 클로징(합의) 10판 달성"],
+    ["근거 마스터", "데이터·근거로 고객을 공감시킨 판 10회 (정수치 2개+ · 오수치 0)"],
+    ["장인석 원장이 인정한 MR", "지옥 난이도(★★★)를 80점 이상으로 통과"],
+    ["하트 브레이커", "한 판에 크리티컬 ⚡ 2회 이상 — 연속으로 심장을 저격"],
+    ["그랜드라인 마스터", "20유형 전부 공감 격파 — 알피왕 후보"]
   ];
+  var BADGE_MIGRATE = { "명사수": "하트 브레이커", "폭풍 항해사": "장인석 원장이 인정한 MR", "그랜드라인 완주": "그랜드라인 마스터" }; // 구칭호 보유자 이관
   var RANK_SEED = [
     { nm: "박성용", org: "광주2사무소", bounty: 261000000, grade: "루피왕", mine: false },
     { nm: "강성윤", org: "남부3사무소", bounty: 243000000, grade: "캡틴", mine: false },
@@ -2267,7 +2270,6 @@ window.APP = (function () {
   }
   function toPickScreen() { // 수배전단 진입 공통 — 지도에서 섬을 고른 뒤(또는 자유 출항으로) 온다
     renderPick();
-    renderMission();
     show("scr-pick");
     if (!loadK("tut", false)) showTut(); // 첫 항해자 30초 안내
   }
@@ -2292,7 +2294,7 @@ window.APP = (function () {
     var fv = G.forceType ? V22.filter(function (x) { return x.n === G.forceType; })[0] : null;
     if ($("pickBanner")) $("pickBanner").innerHTML = fv
       ? "<div class='banner info'>🏝 <b>STEP 2/2 — [" + G.forceType + "] " + esc(fv.t) + "</b> 섬 공략: 난이도(상대)를 고르세요. <b>80점(A)이면 격파(CLEAR)</b>, 격파한 섬도 언제든 재도전 가능합니다.</div>"
-      : "<div class='banner warn'>⚓ 자유 출항(무작위 유형) — 특정 섬을 공략하려면 <b>🗺 정복 지도</b>에서 섬을 먼저 고르세요.</div>";
+      : "<div class='banner warn'>⚓ 무작위 유형으로 시작 — 특정 섬을 공략하려면 <b>🗺 정복 지도</b>에서 섬을 먼저 고르세요.</div>";
   }
   function choose(i) {
     G.doc = DOCTORS[i];
@@ -2796,16 +2798,11 @@ window.APP = (function () {
     out.totalMae = Math.round(tot.reduce(function (x, y) { return x + y; }, 0) / tot.length * 10) / 10;
     return out;
   }
-  /* ── 오늘의 미션 · 수치 특훈 · 튜토리얼 ── */
+  /* ── 원피스 특훈 · 튜토리얼 ── */
   function dayMission() { var d = new Date(); return 1 + ((d.getFullYear() * 372 + (d.getMonth() + 1) * 31 + d.getDate()) % 20); }
   function missionDoneToday() {
     var n = dayMission(), today = todayStr();
     return G.sessions.some(function (s) { return s.date === today && s.sc.total >= 80 && s.types && s.types.indexOf(n) >= 0; });
-  }
-  function renderMission() {
-    var el = $("misLine"); if (!el) return;
-    var n = dayMission(), v = V22.filter(function (x) { return x.n === n; })[0];
-    el.innerHTML = "📅 오늘의 미션: <b>[" + n + "] " + esc(v ? v.t : "") + "</b>를 80점+로 클리어 " + (missionDoneToday() ? "— <span style='color:#19B39B;'>✓ 완수!</span>" : "— <span style='color:#BFD3E3;font-weight:400;'>정복 지도에서 [" + n + "]섬을 누르면 바로 도전</span>");
   }
   function numDrill() { // 수치 특훈 60초 — 숫자가 무기다
     var cards = NUMCARDS.slice().sort(function () { return Math.random() - 0.5; });
@@ -2844,7 +2841,7 @@ window.APP = (function () {
     var steps = [
       ["🗺️", "수배전단에서 원장을 고르면<br><b>원장이 영상통화 콜백</b>을 걸어옵니다", "받으면 RP 실전 시작 — 인사와 오프닝은 당신 몫입니다"],
       ["🎙️", "버튼 없이 <b>그냥 말하면 됩니다</b>", "말을 마치면 자동 전송 · 원장 말에 끼어들면 원장이 멈춥니다<br>화면의 도장: ⚡크리티컬 · 적중 · 무효 · 오수치"],
-      ["🏝️", "목표는 <b>반대 20개의 섬 정복</b>", "80점 이상으로 그 유형을 꺾으면 정복 — 20개를 모두 꺾으면 알피왕.<br>매일 '오늘의 미션' 섬이 바뀝니다"]
+      ["🏝️", "목표는 <b>반대 20개의 섬 정복</b>", "80점 이상으로 그 유형을 꺾으면 격파(CLEAR) — 20개를 모두 꺾으면 알피왕.<br>격파한 섬도 언제든 재도전해 최고 기록을 경신할 수 있습니다"]
     ];
     function draw() {
       var s = steps[step];
@@ -3486,10 +3483,12 @@ window.APP = (function () {
     G.lastResult = { sc: sc, fb: null, s5: s5, next: next, crits: crits, pd: pd, drCommit: !!G.drCommit }; // 공유 리포트용 스냅샷 (fb는 아래에서 채움)
     // 칭호
     var earned = [];
-    if (sc.E >= 13) earned.push("클로저");
-    if (sc.B >= 18 && sc.okN >= 2) earned.push("수치 장인");
-    if (G.scen.diff === 3 && sc.total >= 80) earned.push("폭풍 항해사");
-    if (crits >= 2) earned.push("명사수");
+    var closeWins = G.sessions.filter(function (s) { return s.sc && s.sc.E >= 13; }).length + (sc.E >= 13 ? 1 : 0); // 유의미한 클로징 누적 (이번 판 포함)
+    var proofWins = G.sessions.filter(function (s) { return s.sc && s.sc.okN >= 2 && s.sc.badN === 0; }).length + (sc.okN >= 2 && sc.badN === 0 ? 1 : 0); // 근거로 공감시킨 판 누적
+    if (closeWins >= 10) earned.push("클로징 마스터");
+    if (proofWins >= 10) earned.push("근거 마스터");
+    if (G.scen.diff === 3 && sc.total >= 80) earned.push("장인석 원장이 인정한 MR");
+    if (crits >= 2) earned.push("하트 브레이커");
     earned.forEach(function (b) { G.badges[b] = true; });
     $("badgeLine").innerHTML = earned.map(function (b) { return "<span class='badge'>\uD83C\uDF96 " + b + "</span>"; }).join("");
     // WANTED
@@ -3502,7 +3501,7 @@ window.APP = (function () {
     var types = G.turns.filter(function (t) { return t.typeN; }).map(function (t) { return t.typeN; });
     var newConq = [];
     if (sc.total >= 80) types.forEach(function (n) { if (!G.conquered[n]) { G.conquered[n] = true; newConq.push(n); } });
-    if (Object.keys(G.conquered).length >= 20) G.badges["그랜드라인 완주"] = true;
+    if (Object.keys(G.conquered).length >= 20) G.badges["그랜드라인 마스터"] = true;
     G.sessions.push({ no: G.sessions.length + 1, doc: G.doc.nm, types: types.slice(), sc: sc, crits: crits, bounty: bounty, date: todayStr(),
       turns: G.turns.slice(), nv: nv, llm: llmOn() ? G.claudeModel : null, ht: G.scen.ht, diff: G.scen.diff }); // 캘리브레이션 스냅샷
     var cum = G.sessions.reduce(function (a, s) { return a + s.bounty; }, 0);
@@ -3541,7 +3540,6 @@ window.APP = (function () {
         : "<div style='margin:5px 0;color:#444;'><b style='color:#8A6A2B;'>" + esc(G.doc.nm) + "</b> — " + esc(d.t) + "</div>";
     }).join("") : "<div class='small'>기록 없음</div>";
     if (sc.total >= 80) { confetti(); } // 캡틴 이상 — 축포
-    if (missionDoneToday() && sc.total >= 80 && types.indexOf(dayMission()) >= 0) toast("📅 오늘의 미션 완수! [" + dayMission() + "]섬 정복");
     var wg = $("wGrade"); wg.classList.remove("slamin"); void wg.offsetWidth; wg.classList.add("slamin"); // 등급 도장 슬램
     persistAll(); // 이 기기의 훈련 기록 갱신 — 새로고침해도 유지
     cloudUpload("rp_sessions", { player: G.user && G.user.name, office: G.user && G.user.office, div: G.user && G.user.div,
@@ -3741,7 +3739,7 @@ window.APP = (function () {
   function coachRx(u) { // u: {n, avgScore, avgProg, saPct, ax|null} → 우선순위 처방 최대 3건
     var out = [];
     if (!u || !u.n) return out;
-    if (u.avgProg < 7) out.push({ t: "훈련량 확보가 최우선 — 판수 부족", why: "정복 " + u.avgProg + "/20. 유형 노출 자체가 부족해 축 진단 이전 단계입니다. 실력은 판수에서 나옵니다.", act: "주 3판 의무 러닝 — 오늘의 미션 섬부터, 입문(NORMAL)으로 완주 습관 먼저" });
+    if (u.avgProg < 7) out.push({ t: "훈련량 확보가 최우선 — 판수 부족", why: "정복 " + u.avgProg + "/20. 유형 노출 자체가 부족해 축 진단 이전 단계입니다. 실력은 판수에서 나옵니다.", act: "주 3판 의무 러닝 — 약한 섬부터, NORMAL(강지은)로 완주 습관 먼저" });
     if (u.ax) {
       var order = Object.keys(AX_MAX).map(function (k) { return { k: k, r: u.ax[k] / AX_MAX[k] }; }).sort(function (a, b) { return a.r - b.r; });
       order.slice(0, 2).forEach(function (o) {
@@ -3980,10 +3978,6 @@ window.APP = (function () {
     s += '</svg>';
     $("mapSvg").innerHTML = s;
     $("mapCount").textContent = "격파 " + Object.keys(G.conquered).length + "/20 · 도전 " + G.sessions.length + "판";
-    if ($("mapMission")) { // 오늘의 미션 — 해도가 홈이니 미션도 여기에
-      var mn = dayMission(), mv = V22.filter(function (x) { return x.n === mn; })[0];
-      $("mapMission").innerHTML = "📅 <b>오늘의 미션:</b> [" + mn + "] " + esc(mv ? mv.t : "") + " 섬을 80점+로 격파 " + (missionDoneToday() ? "<span style='color:#19B39B;font-weight:800;'>✓ 완수!</span>" : "— 아래 지도에서 [" + mn + "]섬을 누르세요");
-    }
     $("badgeRow").innerHTML = BADGE_DEFS.map(function (b) {
       return "<span class='badge" + (G.badges[b[0]] ? "" : " off") + "'>" + (G.badges[b[0]] ? "🎖 " : "🔒 ") + b[0] + "</span><span class='small'> " + b[1] + "</span><br>";
     }).join("");
@@ -4015,6 +4009,7 @@ window.APP = (function () {
   G.sessions = loadK("sessions", []);
   G.conquered = loadK("conquered", {});
   G.badges = loadK("badges", {});
+  Object.keys(BADGE_MIGRATE).forEach(function (k) { if (G.badges[k]) { G.badges[BADGE_MIGRATE[k]] = true; delete G.badges[k]; } }); // 구칭호 → 신칭호 이관
   G.prevAxes = loadK("prevAxes", null);
   G.calib = loadK("calib", []);
   if (G.user) {
