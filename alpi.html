@@ -456,6 +456,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 .rdoc .pax .tr u{position:absolute;left:80%;top:-3px;bottom:-3px;width:2px;background:#B9932B;text-decoration:none;}
 .rdoc .pax .sc{width:80px;text-align:right;font-size:12px;font-weight:800;color:#33403B;flex:none;}
 .rdoc .pstat{margin-top:10px;background:#F4F9F7;border-radius:8px;padding:8px 12px;font-size:12.5px;color:#33403B;}
+.rdoc .pdeduct{margin-top:10px;background:#FDF3F1;border-left:4px solid #B0392E;border-radius:0 8px 8px 0;padding:9px 13px;font-size:13px;color:#7A2318;}
+.rdoc .pdeduct-why{margin-top:4px;font-size:12px;color:#8A5A50;font-weight:400;line-height:1.6;}
 .rdoc .psec{margin-top:20px;}
 .rdoc .psec h2{font-size:17px;font-weight:900;color:#0B2F2A;border-left:5px solid #0B5B54;padding-left:9px;margin-bottom:9px;}
 .rdoc .psum{background:#F4F9F7;border-radius:10px;padding:12px 15px;font-size:14px;line-height:1.75;}
@@ -543,6 +545,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
   #printSheet .pt{page-break-inside:avoid;}
   #printSheet .ps-radar{display:none;} /* 지면에선 축 바가 레이더보다 정확히 읽힌다 */
   #printSheet .pstat{margin-top:7pt;background:#F4F9F7;border-radius:5pt;padding:5pt 8pt;font-size:9pt;color:#33403B;}
+  #printSheet .pdeduct{margin-top:7pt;background:#FDF3F1;border-left:3pt solid #B0392E;padding:5pt 8pt;font-size:9pt;color:#7A2318;}
+  #printSheet .pdeduct-why{margin-top:2pt;font-size:8pt;color:#8A5A50;font-weight:400;}
   #printSheet .pt-std{margin-top:4pt;font-size:8.5pt;color:#4A5550;background:#FAFAF7;border-radius:5pt;padding:5pt 7pt;line-height:1.6;}
   #printSheet .pt-std b{color:#0B2F2A;} #printSheet .pt-bd{color:#8A948F;font-size:8pt;}
   #printSheet .p5row{display:flex;align-items:center;gap:4pt;flex-wrap:wrap;margin-bottom:5pt;}
@@ -2032,9 +2036,11 @@ window.APP = (function () {
     } catch (e) { quiet(); if (cb) cb(); }
   }
   // 크롬 킵얼라이브 — 긴 발화가 ~15초에서 이벤트 없이 끊기는 것을 예방 (pause/resume이 워치독을 리셋한다)
-  setInterval(function () {
-    try { if (window.speechSynthesis && speechSynthesis.speaking && !speechSynthesis.paused) { speechSynthesis.pause(); speechSynthesis.resume(); } } catch (e) {}
-  }, 8000);
+  if (typeof window !== "undefined" && window.speechSynthesis) { // 음성 엔진이 없는 환경(테스트 하니스)에선 타이머를 만들지 않는다
+    setInterval(function () {
+      try { if (speechSynthesis.speaking && !speechSynthesis.paused) { speechSynthesis.pause(); speechSynthesis.resume(); } } catch (e) {}
+    }, 8000);
+  }
 
   /* ── 사운드 (WebAudio — 외부 파일 0) ── */
   var bellCtx = null, bellTimer = null;
@@ -2479,9 +2485,30 @@ window.APP = (function () {
     19: [/직관.*(알림|알려)|당장.*할\s?일|점검|평가|시기|놓치/, /페이퍼리스|보관\s?부담|전자서류|3종|동의서|문진표/, /무료|유료화|정기\s?방문|교육\s?간호사/],
     20: [/수수료.*(없|떼|아껴|zero|제로)|전액|귀속/i, /보안|인증|암호화|원격\s?접속|의료법/, /페이퍼리스|자동\s?제출/]
   };
-  var NUM_OK = [/385,?000|385,?290|38\.?5\s?만|38만\s?5천|^38\s?만/, /1\.9\s?억/, /^2\s?억/, /2,?320/, /15,?560|1만\s?5천/, /13,?000|1만\s?3천/, /10\s?초|12\s?초/, /20\s?명/, /65\s?세/, /12월\s?15일/, /2,?019|19년|2,?021|21년/, /1\/3|3분의\s?1/, /2\s?분/, /10\s?%|십\s?퍼/, /27001/, /500\s?명/, /^1\s?억/, /98,?080/, /^4,?900\s?만/, /80,?000|^8\s?만\s?원?$/, /77,?058/, /^37\s?만/, /^5\s?만\s?원?$/, /^12\s?만/, /^80\s?만/, /^100\s?만/, /1,?500\s?원/, /^5\s?명/, /^0\.5/, /^100\s?%/, /^0\s?원/, /^0\s?건/, /^2,?000\s?(처|곳|명|개)?$/]; // 2,000처 — 웰체크 일만사 실참여 거래처 (실증 수치, 돈 단위는 제외)
+  // 인당 최대 38만원(385,290원) — 현장에서 '약 40만원'으로 반올림해 말하는 것도 정답 / 500명 = 연 1.9억(약 2억)
+  var NUM_OK = [/385,?000|385,?290|38\.?5\s?만|38만\s?5천|^38\s?만|^40\s?만/, /1\.9\s?억/, /^2\s?억/, /2,?320/, /15,?560|1만\s?5천/, /13,?000|1만\s?3천/, /10\s?초|12\s?초/, /20\s?명/, /65\s?세/, /12월\s?15일/, /2,?019|19년|2,?021|21년/, /1\/3|3분의\s?1/, /2\s?분/, /10\s?%|십\s?퍼/, /27001/, /500\s?명/, /^1\s?억/, /98,?080/, /^4,?900\s?만/, /80,?000|^8\s?만\s?원?$/, /77,?058/, /^37\s?만/, /^5\s?만\s?원?$/, /^12\s?만/, /^80\s?만/, /^100\s?만/, /1,?500\s?원/, /^5\s?명/, /^0\.5/, /^100\s?%/, /^0\s?원/, /^0\s?건/, /^2,?000\s?(처|곳|명|개)?$/]; // 2,000처 — 웰체크 일만사 실참여 거래처 (실증 수치, 돈 단위는 제외)
   var NUM_CLAIM = /(\d[\d,\.]*)\s*(만\s?원|만|천\s?원|억|원|명|초|세|%|퍼센트|포인트)/g;
   var ANALOGY_RE = /내시경|위내시경|대장내시경|검진|독감|백신|주사|엑스레이|X-?ray|초음파|채혈|처방전|커피|아메리카노|택시|담배|김밥|점심|밥값|치킨|짜장|버스|지하철|월세|시급|알바|폰\s?요금|넷플/; // 생활·의료 비유 기준어
+  // 표준 수치를 '주장'하는 맥락 — 이 단어들이 숫자 주변에 있을 때만 정오답을 따진다.
+  // (이게 없으면 병원 규모를 묻는 평범한 질문의 숫자까지 오수치로 잡혀 좋은 판이 0점이 된다)
+  // ⚠ 단위(만원·억)는 넣지 않는다 — 단위를 넣으면 "3만원 정도 차이가 납니다" 같은 지나가는 말까지 검증 대상이 되어
+  //   화이트리스트 방식의 오탐이 그대로 되살아난다. '표준 수치를 주장한다'는 신호어만 남긴다.
+  var NUM_CLAIM_CTX = /수가|수익|청구|급여|지원금|보상|단가|인당|1인당|최대|매출|환수|삭감|보전|절감|이익|건당|행위당|월\s?수입|연\s?수입|받으실|받으시|벌\s?수|버실|나옵니다|나와요|참여처|활성처|가입처|시범사업/;
+  function numVal(c) { // "38만원"→380000, "385,290원"→385290, "1.9억"→190000000 (금액 비교용)
+    var s = String(c).replace(/[\s,]/g, "");
+    var m = /^([\d.]+)\s*(억|만\s?원|만|천\s?원|원)/.exec(s);
+    if (!m) return null;
+    var v = parseFloat(m[1]); if (isNaN(v)) return null;
+    var u = m[2].replace(/\s/g, "");
+    return v * ({ "억": 100000000, "만원": 10000, "만": 10000, "천원": 1000, "원": 1 }[u] || 1);
+  }
+  // 대표 수치의 정답 구간 — 맥락이 분명하면 전역 화이트리스트보다 이 규칙이 우선한다.
+  // (100만원은 '의협회비 80~100만원 상쇄' 맥락에선 표준집 정답이지만, '인당 수가'로 말하면 오답이다.
+  //  전역 목록은 맥락을 모르므로 이 충돌을 못 거른다 — 그래서 대표 수치만 따로 규칙을 둔다)
+  var NUM_CTX_RULES = [
+    { ctx: /인당|1인당|한\s?명당|환자\s?당|1명당/, unit: /(억|만|원)/, lo: 380000, hi: 400000, fix: "인당 최대 38만원(385,290원) — 약 40만원까지" },
+    { ctx: /500\s?명/, unit: /억/, lo: 190000000, hi: 200000000, fix: "500명 최대 관리 시 연 1.9억(약 2억)" }
+  ];
   var EMPATHY = /(맞|그렇|이해|공감|힘드|바쁘|걱정|부담되|당연|충분히)/;
   var GENERIC_RE = /제가|저희가?|도와\s?드리|해\s?드리|지원|세팅|대신|책임지|보장|보전|사례|다른\s?병원|옆\s?병원|원장님들?|후기|만족|검증|경험|입장|상황|맞춤|같이|함께|천천히|부담\s?없|일단|먼저|작게|시작|보여\s?드리|설명\s?드리|정리해|안내|말씀드리|추천|제안|혜택|장점|이점|수익|도움|효율|간단|쉽|편하|빠르/g; // 일반 설득 어휘 — 정답 명분은 아니어도 '설득 시도'는 맞다
   var CONFIRM_LATER = /(확인(해|하고)?.*(알려|드리|말씀)|정확한\s?건.*확인)/;
@@ -2501,12 +2528,27 @@ window.APP = (function () {
     while ((m2 = NUM_CLAIM.exec(t)) !== null) claims.push({ c: m2[0], i: m2.index });
     claims.forEach(function (cl) {
       var c = cl.c, ok = false;
+      var ctx = t.slice(Math.max(0, cl.i - 16), cl.i + c.length + 8);
+      // 비유·외부 비교 수치 (내시경 수가, 커피값 등) — 표준집 대상이 아니므로 채점 중립
+      if (ANALOGY_RE.test(ctx)) { numsRef++; return; }
+      // ① 대표 수치 맥락 규칙이 최우선 — 전역 목록에 있어도 맥락이 맞지 않으면 오답이다
+      for (var r = 0; r < NUM_CTX_RULES.length; r++) {
+        var R = NUM_CTX_RULES[r];
+        if (!R.ctx.test(ctx) || !R.unit.test(c)) continue;
+        var v = numVal(c);
+        if (v === null) break;
+        if (v >= R.lo && v <= R.hi) { numsOk++; return; }
+        numsBad++; badClaims.push(c.trim() + " → 정답: " + R.fix); // 무엇이 맞는지까지 알려줘야 코칭이 된다
+        return;
+      }
+      // ② 전역 표준 수치 목록
       for (var i = 0; i < NUM_OK.length; i++) if (NUM_OK[i].test(c.replace(/\s/g, ""))) { ok = true; break; }
       if (ok) { numsOk++; return; }
-      // 비유·외부 비교 수치 (내시경 수가, 커피값 등) — 표준집 대상이 아니므로 채점 중립
-      var ctx = t.slice(Math.max(0, cl.i - 16), cl.i + c.length + 8);
-      if (ANALOGY_RE.test(ctx)) { numsRef++; return; }
-      if (/(초|분)\s*$/.test(c.trim())) { numsRef++; return; } // 소요시간류(30초·5분 등)는 말버릇 범주 — 위험 수치(돈·명수·비율)만 오수치로 잡는다
+      if (/(초|분)\s*$/.test(c.trim())) { numsRef++; return; } // 소요시간류(30초·5분 등)는 말버릇 범주
+      // ⚠ 핵심 수정: 화이트리스트에 없다고 전부 '틀린 수치'로 처벌하면
+      //    "원장님 환자분 한 30명 되시죠?", "참여율 50% 정도입니다" 같은 평범한 대화가 -15점씩 맞는다.
+      //    오수치로 잡을 대상은 '표준 수치를 주장한 것'뿐이다 — 주장 맥락(수가·수익·청구·인당…)이 있을 때만 검증한다.
+      if (!NUM_CLAIM_CTX.test(ctx)) { numsRef++; return; } // 맥락 없는 일상 숫자 = 채점 중립 (감점도 가점도 없음)
       numsBad++; badClaims.push(c.trim());
     });
     var confirmLater = CONFIRM_LATER.test(t);
@@ -2568,7 +2610,15 @@ window.APP = (function () {
     var C = inter >= 2 ? 19 : inter === 1 ? 15 : (used.length ? 9 : 4);
     if (inter >= 2 && /38|385|1\.9|500명/.test(allText)) C = 20;
     var qN = 0, empN = 0, pushN = 0, mono = 0;
-    turns.forEach(function (x) { if (x.judge) { if (x.judge.question) qN++; if (x.judge.empathy) empN++; if (x.judge.pushy) pushN++; if (x.judge.len > 350) mono++; } });
+    // 장광설 기준은 입력 방식에 따라 다르다 — 음성 인식은 말을 통째로 이어붙여 길게 나오므로
+    // 타이핑과 같은 잣대(350자)를 대면 '말을 많이 할수록 감점'이 된다 (실제로 대화운영 1/15이 나온 원인)
+    turns.forEach(function (x) {
+      if (!x.judge) return;
+      if (x.judge.question) qN++;
+      if (x.judge.empathy) empN++;
+      if (x.judge.pushy) pushN++;
+      if (x.judge.len > ((x.eleven || x.voice) ? 700 : 350)) mono++;
+    });
     var D = 6 + (qN >= 2 ? 4 : qN === 1 ? 2 : 0) + (empN >= Math.ceil(turns.length / 2) ? 3 : 1) + 2 - pushN * 3 - mono * 2;
     D = Math.max(0, Math.min(15, D));
     var lastTexts = turns.slice(-2).map(function (x) { return x.text; }).join(" ");
@@ -2579,10 +2629,17 @@ window.APP = (function () {
     else E = 4;
     if (G.drCommit) E = Math.max(E, 14); // 원장이 먼저 일정을 잡았다 — 클로징 성립로 인정
     if (/한\s?달만|배수진|두\s?번\s?다시/.test(allText)) E = Math.min(15, E + 2);
-    var total = Math.max(0, A + B + C + D + E - badN * 15);
+    // 오수치 감점 — 틀린 수치를 원장에게 말하는 건 실제로 위험하므로 아프게 간다.
+    // 다만 ① 수치정확(B) 축이 이미 20→5로 깎여 한 번 처벌받고 ② 총점에서 또 -15씩 빼면 이중 처벌이고,
+    //     세 번 걸리면 아무리 잘해도 0점이 되어 리포트가 코칭 자료로서 의미를 잃는다. 상한을 둔다.
+    var earned = A + B + C + D + E;
+    var penalty = Math.min(25, badN * 12); // 1건 -12 / 2건 -24 / 3건 이상 -25 (상한)
+    var total = Math.max(0, earned - penalty);
     var grade = total >= 90 ? "루피왕" : total >= 80 ? "캡틴" : total >= 65 ? "에이스" : total >= 50 ? "크루" : "항해 시작";
     var xp = Math.round(total / 10) + (scen.diff === 3 ? 5 : scen.diff === 2 ? 2 : 0);
-    return { A: A, B: B, C: C, D: D, E: E, total: total, grade: grade, xp: xp, badN: badN, okN: okN, confirmN: confirmN, usedMb: used, fitMb: fit };
+    var badList = []; turns.forEach(function (x) { if (x.judge && x.judge.badClaims) badList = badList.concat(x.judge.badClaims); });
+    return { A: A, B: B, C: C, D: D, E: E, total: total, grade: grade, xp: xp, badN: badN, okN: okN, confirmN: confirmN, usedMb: used, fitMb: fit,
+      earned: earned, penalty: penalty, badList: badList.slice(0, 6) }; // 리포트가 감점을 '보여줄' 수 있게 함께 넘긴다
   }
 
   /* ── 시나리오 (출제 랜덤 / 채점 결정론) ── */
@@ -3986,6 +4043,10 @@ window.APP = (function () {
       "<div class='ph-avwrap'><div class='ph-av'><svg viewBox='0 0 120 140'>" + portraitSvg(d.av || {}) + "</svg></div><div class='ph-avcap'>vs " + esc(d.nm || "-") + " 원장 · " + esc(d.hosp || "") + "</div></div></div>" +
       "<div class='pscore'><div class='ps-num'>" + sc.total + "<small>/100</small></div><div class='ps-grade' style='background:" + (GR_COL[LG] || "#5B6663") + ";'>" + LG + "</div><div class='ps-axes'>" + axHtml + "</div>" +
       (ctx.radar ? "<div class='ps-radar'>" + ctx.radar + "</div>" : "") + "</div>" +
+      // 감점이 있으면 반드시 드러낸다 — 축 합계와 총점이 다른데 설명이 없으면 리포트를 신뢰할 수 없다
+      (sc.penalty ? "<div class='pdeduct'><b>항목 합계 " + sc.earned + "점</b> − <b>확인 안 된 수치 감점 " + sc.penalty + "점</b>" +
+        (sc.badN ? " (" + sc.badN + "건" + (sc.badList && sc.badList.length ? ": " + sc.badList.map(esc).join(", ") : "") + ")" : "") +
+        " = <b>최종 " + sc.total + "점</b><div class='pdeduct-why'>표준집에 없는 수치를 근거로 제시하면 감점됩니다. 확실하지 않은 숫자는 “확인해서 알려드리겠습니다”로 넘기는 것이 정답입니다.</div></div>" : "") +
       (ctx.statLine ? "<div class='pstat'>" + ctx.statLine + "</div>" : "") +
       "<div class='psec'><h2>코치 총평</h2><div class='psum'>" + printTone(coachSummary(turns, sc)) + "</div></div>" +
       "<div class='psec'><h2>유형별 R/P 리포트</h2>" + themes + "</div>" +
@@ -5087,7 +5148,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES } };
 })();
 
 </script>
