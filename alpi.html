@@ -1079,6 +1079,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <table class="voy" id="admTable"></table>
         <button class="btn ghost" onclick="APP.admExport()">세션 기록 일괄 내보내기 (JSON)</button>
       </div>
+      <div class="card"><h2>📣 데모 현황 <span class="small">링크 받은 분들이 실제로 어디까지 갔나 — ☁ 불러오기 후 표시</span></h2><div id="admDemo"></div></div>
       <div class="card"><h2>캘리브레이션 현황</h2><div id="admCalib" class="small"></div></div>
       <div class="card"><h2>🌱 제품 성장 로그 <span class="small">사용자·면접관 의견 — 다음 버전의 백로그</span></h2><div id="admGrowth"></div>
         <button class="btn ghost" onclick="APP.growthExport()">의견 일괄 내보내기 (JSON)</button></div>
@@ -2577,7 +2578,7 @@ window.APP = (function () {
     rec: null, recChunks: [], recUrl: null, sr: null, srOn: false, t0: 0, timerId: null, inCall: false,
     voiceOn: false, silT: null, ttsSpeaking: false, lastDoctor: "", voiceName: "",
     claudeKey: "", claudeModel: "claude-sonnet-4-5", proxyUrl: "", elevenAgent: "", elevenVoiceM: "", elevenVoiceF: "", elClient: null, elDead: false, dlg: [], saidLog: [], llmBusy: false, llmDead: false,
-    sessions: [], conquered: {}, badges: {}, prevAxes: null, awaiting: false, calib: [], recIsVideo: false, admin: false, adminReturn: null, curScreen: 'scr-start', admSort: 'prog', forceType: null, micHold: null, nvOn: false, resolved: {}, freeN: 0, combo: 0, mem: {}, sbUrl: "", sbKey: "", cloud: [], cloudCalib: [], dlgLog: [] };
+    sessions: [], conquered: {}, badges: {}, prevAxes: null, awaiting: false, calib: [], recIsVideo: false, admin: false, adminReturn: null, curScreen: 'scr-start', admSort: 'prog', forceType: null, micHold: null, nvOn: false, resolved: {}, freeN: 0, combo: 0, mem: {}, sbUrl: "", sbKey: "", cloud: [], cloudCalib: [], cloudFb: null, dlgLog: [] };
   var BADGE_DEFS = [
     ["클로징 마스터", "고객이 공감한 유의미한 클로징(합의) 10판 달성"],
     ["근거 마스터", "데이터·근거로 고객을 공감시킨 판 10회 (정수치 2개+ · 오수치 0)"],
@@ -3153,10 +3154,12 @@ window.APP = (function () {
     $("cloudStat").textContent = "☁ 불러오는 중…";
     Promise.all([
       fetch(G.sbUrl + "/rest/v1/rp_sessions?select=*&order=created_at.desc&limit=2000", { headers: sbHeaders() }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); }),
-      fetch(G.sbUrl + "/rest/v1/rp_calib?select=*&order=created_at.desc&limit=500", { headers: sbHeaders() }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
+      fetch(G.sbUrl + "/rest/v1/rp_calib?select=*&order=created_at.desc&limit=500", { headers: sbHeaders() }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
+      // 🌱 남의 기기에서 올라온 경험 의견 — 이걸 안 읽어서 관리자 화면엔 내 기기 기록만 보였다
+      fetch(G.sbUrl + "/rest/v1/rp_feedback?select=*&order=created_at.desc&limit=500", { headers: sbHeaders() }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
     ]).then(function (res) {
-      G.cloud = res[0] || []; G.cloudCalib = res[1] || [];
-      $("cloudStat").textContent = "☁ 실데이터 모드 — 세션 " + G.cloud.length + "건 · 전문가 평가 " + G.cloudCalib.length + "건";
+      G.cloud = res[0] || []; G.cloudCalib = res[1] || []; G.cloudFb = res[2] || [];
+      $("cloudStat").textContent = "☁ 실데이터 모드 — 세션 " + G.cloud.length + "건 · 전문가 평가 " + G.cloudCalib.length + "건 · 경험 의견 " + G.cloudFb.length + "건";
       renderAdmin();
     }).catch(function (e) { $("cloudStat").textContent = "☁ 불러오기 실패: " + (e.message || e) + " — URL·키·RLS 정책 확인"; });
   }
@@ -4305,6 +4308,52 @@ window.APP = (function () {
   }
   function growthLog() { return loadK("growth", []); }
   function saveGrowth(rec) { var g = growthLog(); g.push(rec); store("growth", g.slice(-200)); return g.length; }
+  function fbRowToGrowth(r) { // 서버 rp_feedback 행 → 성장 기록 형태 (like_txt는 SQL 예약어 회피용 이름)
+    return { at: String(r.created_at || "").slice(0, 10), role: r.role || "mr", by: r.evaluator || r.player || "익명",
+      sat: r.sat || null, like: r.like_txt || "", wish: r.wish || "", miss: r.miss || "",
+      doc: r.doc && r.doc !== "-" ? r.doc : "", total: typeof r.total === "number" && r.total > 0 ? r.total : null,
+      src: "server", has: !!(r.like_txt || r.wish || r.miss || r.sat) };
+  }
+  function growthKey(r) { // 같은 제출이 rp_calib(코멘트 동봉)·rp_feedback 양쪽에 쌓이므로 중복 제거 키가 필요하다
+    return [r.at || "", r.role || "", r.by || "", r.sat || "", String(r.like || "").slice(0, 40), String(r.wish || "").slice(0, 40)].join("|");
+  }
+  function growthMerge(local, calibRows, fbRows) { // 내 기기 + 서버 대조기록 동봉분 + 서버 의견 → 하나의 목록 (순수 함수)
+    var out = [], seen = {};
+    var push = function (r) { if (!r || !r.has) return; var k = growthKey(r); if (seen[k]) return; seen[k] = 1; out.push(r); };
+    (local || []).forEach(push);
+    (calibRows || []).forEach(function (r) {
+      try { var c = typeof r.comment === "string" && r.comment.charAt(0) === "{" ? JSON.parse(r.comment) : null; if (c && c.growth) push(c.growth); } catch (e) {}
+    });
+    (fbRows || []).forEach(function (r) { push(fbRowToGrowth(r)); });
+    return out.sort(function (a, b) { return String(a.at || "").localeCompare(String(b.at || "")); });
+  }
+  var DEMO_EXCLUDE = ["ddd", "test", "테스트", "보이스체크", "캐스팅확인", "결제확인", "연결테스트"]; // 개발 중 남긴 흔적 — 관리자가 편집 가능 (실명은 기본값에 넣지 않는다)
+  function demoExList() { var v = loadK("demoEx", null); return v && v.length ? v : DEMO_EXCLUDE.slice(); }
+  function demoStatus(rows, ex) { // 📣 데모 현황 — 링크 받은 사람들이 실제로 어디까지 갔나 (순수 함수)
+    var R = (rows || []).filter(function (r) { return r && r.player; });
+    var names = {}; (ex && ex.length ? ex : DEMO_EXCLUDE).forEach(function (n) { names[String(n).trim().toLowerCase()] = 1; });
+    var isTest = function (r) { return !!names[String(r.player).trim().toLowerCase()]; };
+    var real = R.filter(function (r) { return !isTest(r); });
+    var by = {};
+    real.forEach(function (r) {
+      var k = (r.player || "무명") + "|" + (r.office || "미지정");
+      if (!by[k]) by[k] = { nm: r.player, office: r.office || "미지정", n: 0, best: 0, sum: 0, silent: 0, mobile: 0, last: "" };
+      var p = by[k]; p.n++; p.sum += (r.total || 0);
+      if ((r.total || 0) > p.best) p.best = r.total || 0;
+      if (!(r.types && r.types.length)) p.silent++; // 판은 열었는데 반대 한 번도 안 받아친 판 = 사실상 이탈
+      if (r.device === "mobile") p.mobile++;
+      var t = String(r.created_at || "").slice(0, 16).replace("T", " ");
+      if (t > p.last) p.last = t;
+    });
+    var people = Object.keys(by).map(function (k) { var p = by[k]; p.avg = p.n ? Math.round(p.sum / p.n) : 0; return p; })
+      .sort(function (a, b) { return b.n - a.n; });
+    var silentN = real.filter(function (r) { return !(r.types && r.types.length); }).length;
+    var exSeen = {}; R.forEach(function (r) { if (isTest(r)) exSeen[String(r.player).trim()] = (exSeen[String(r.player).trim()] || 0) + 1; });
+    return { people: people, plays: real.length, testPlays: R.length - real.length,
+      silent: silentN, silentPct: real.length ? Math.round(100 * silentN / real.length) : 0,
+      mobile: real.filter(function (r) { return r.device === "mobile"; }).length,
+      excluded: Object.keys(exSeen).map(function (n) { return { nm: n, n: exSeen[n] }; }).sort(function (a, b) { return b.n - a.n; }) };
+  }
   function calibPick(ax, lv) { // 면접관이 고른 등급 — 칩 상태 반영
     G.calibPick = G.calibPick || {};
     G.calibPick[ax] = lv;
@@ -4557,20 +4606,46 @@ window.APP = (function () {
     })();
     // 🌱 제품 성장 로그 — 사람들이 남긴 경험이 다음 버전의 백로그가 된다
     if ($("admGrowth")) (function () {
-      var recs = growthLog().slice();
-      (G.cloudCalib || []).forEach(function (r) { // 서버 대조 기록에 동봉된 의견도 회수
-        try { var c = typeof r.comment === "string" && r.comment.charAt(0) === "{" ? JSON.parse(r.comment) : null; if (c && c.growth && c.growth.has) recs.push(c.growth); } catch (e) {}
-      });
-      if (!recs.length) { $("admGrowth").innerHTML = "<div class='small'>아직 수집된 의견이 없습니다 — 결과 화면의 <b>🌱 AI 코치 경험 평가</b>에서 쌓입니다.</div>"; return; }
+      var recs = growthMerge(growthLog(), G.cloudCalib, G.cloudFb); // 내 기기 + 서버 두 경로 전부 — 남의 폰에서 온 의견이 여기 보인다
+      var srvN = recs.filter(function (r) { return r.src === "server"; }).length;
+      if (!recs.length) {
+        $("admGrowth").innerHTML = "<div class='small'>아직 수집된 의견이 없습니다 — 결과 화면의 <b>🌱 AI 코치 경험 평가</b>에서 쌓입니다." +
+          (G.cloudFb ? "" : " <b>다른 사람 기기에서 남긴 의견은 위 [☁ 서버 데이터 불러오기]를 눌러야 보입니다.</b>") + "</div>";
+        return;
+      }
       var sats = recs.filter(function (r) { return r.sat; }).map(function (r) { return r.sat; });
       var avg = sats.length ? Math.round(10 * sats.reduce(function (a, b) { return a + b; }, 0) / sats.length) / 10 : null;
       var roleNm = { mr: "MR", coach: "면접관·코치", mgr: "관리자" };
-      var h = "<div class='small' style='margin-bottom:6px;'>누적 <b>" + recs.length + "건</b>" + (avg ? " · AI 코치 만족도 평균 <b>" + avg + "/5</b> (" + sats.length + "명)" : "") + " — 보완 요청은 다음 버전 백로그로 이관합니다.</div>";
+      var h = "<div class='small' style='margin-bottom:6px;'>누적 <b>" + recs.length + "건</b>" + (srvN ? " (서버 " + srvN + "건 포함)" : "") + (avg ? " · AI 코치 만족도 평균 <b>" + avg + "/5</b> (" + sats.length + "명)" : "") + " — 보완 요청은 다음 버전 백로그로 이관합니다.</div>";
       recs.slice(-12).reverse().forEach(function (r) {
-        h += "<div class='fb-item'><div class='fb-head'><span class='fb-chip c-log'>" + esc(roleNm[r.role] || "MR") + "</span><b>" + esc(r.by || "익명") + "</b>" + (r.sat ? " <span class='small'>만족도 " + r.sat + "/5</span>" : "") + " <span class='small'>" + esc(r.at || "") + (r.doc ? " · vs " + esc(r.doc) + " 원장" : "") + (typeof r.total === "number" ? " · " + r.total + "점" : "") + "</span></div><div class='fb-why'>" +
+        h += "<div class='fb-item'><div class='fb-head'><span class='fb-chip c-log'>" + esc(roleNm[r.role] || "MR") + "</span><b>" + esc(r.by || "익명") + "</b>" + (r.sat ? " <span class='small'>만족도 " + r.sat + "/5</span>" : "") + " <span class='small'>" + esc(r.at || "") + (r.doc ? " · vs " + esc(r.doc) + " 원장" : "") + (typeof r.total === "number" ? " · " + r.total + "점" : "") + (r.src === "server" ? " · ☁" : "") + "</span></div><div class='fb-why'>" +
           (r.like ? "👍 " + esc(r.like) + "<br>" : "") + (r.wish ? "🔧 " + esc(r.wish) + "<br>" : "") + (r.miss ? "⚖ 채점 이견: " + esc(r.miss) : "") + "</div></div>";
       });
       $("admGrowth").innerHTML = h;
+    })();
+    // 📣 데모 현황 — 링크 보낸 사람들이 실제로 들어와서 어디까지 갔나
+    if ($("admDemo")) (function () {
+      var ex = demoExList(), d = demoStatus(G.cloud || [], ex);
+      var exBox = "<div class='small' style='margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);'>" +
+        "<b>집계 제외 이름</b> <span style='color:var(--sub);'>쉼표로 구분 — 개발·테스트 흔적을 실사용 통계에서 뺍니다. 서버 데이터는 지우지 않고 화면에서만 제외합니다.</span>" +
+        "<div style='display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;'>" +
+        "<input type='text' id='admDemoEx' value='" + esc(ex.join(", ")) + "' style='flex:1;min-width:220px;'>" +
+        "<button class='btn ghost' style='margin:0;padding:8px 14px;' onclick='APP.demoExSet()'>적용</button></div>" +
+        (d.excluded.length ? "<div style='margin-top:6px;'>지금 제외 중: " + d.excluded.map(function (e) { return "<span class='chip'>" + esc(e.nm) + " " + e.n + "판</span>"; }).join("") + "</div>" : "") +
+        "</div>";
+      if (!d.plays) {
+        $("admDemo").innerHTML = "<div class='small'>아직 실사용 기록이 없습니다 — 링크를 받은 분이 한 판을 마치면 이 자리에 자동으로 잡힙니다. <b>[☁ 서버 데이터 불러오기]를 먼저 누르세요.</b></div>" + exBox;
+        return;
+      }
+      var h = "<div class='small' style='margin-bottom:8px;'>실사용 <b>" + d.people.length + "명 · " + d.plays + "판</b>" +
+        (d.testPlays ? " <span style='color:var(--sub);'>(제외 " + d.testPlays + "건)</span>" : "") +
+        " · 모바일 " + d.mobile + "판 · <b style='color:" + (d.silentPct >= 40 ? "var(--red)" : "var(--acc)") + ";'>무발화 이탈 " + d.silentPct + "%</b> (" + d.silent + "/" + d.plays + "판)</div>";
+      if (d.silentPct >= 40) h += "<div class='chip warn' style='display:block;margin:0 0 8px;'>⚠ 판을 열고 한 마디도 못 한 비율이 높습니다 — 첫 발화 진입장벽(무엇을 말해야 하는지)을 의심하세요.</div>";
+      h += "<table class='voy'><tr><th>참여자</th><th>사무소</th><th>판수</th><th>최고</th><th>평균</th><th>무발화</th><th>최근</th></tr>";
+      d.people.forEach(function (p) {
+        h += "<tr><td><b>" + esc(p.nm) + "</b></td><td>" + esc(p.office) + "</td><td>" + p.n + "</td><td>" + p.best + "</td><td>" + p.avg + "</td><td>" + (p.silent ? p.silent + "판" : "-") + "</td><td class='small'>" + esc(p.last) + "</td></tr>";
+      });
+      $("admDemo").innerHTML = h + "</table>" + exBox;
     })();
     $("admSilence").value = VOICE_SILENCE_MS / 1000;
     $("admCrit").value = CRIT_OVERRIDE || "";
@@ -4608,6 +4683,12 @@ window.APP = (function () {
     })();
   }
   function admRankSort(mode) { G.admSort = mode; renderAdmin(); }
+  function demoExSet() { // 제외 명단 저장 — 서버 데이터는 건드리지 않고 집계에서만 뺀다
+    var raw = (($("admDemoEx") || {}).value || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    store("demoEx", raw.length ? raw : DEMO_EXCLUDE.slice());
+    toast(raw.length ? "제외 명단 " + raw.length + "개 적용" : "기본 제외 명단으로 되돌림");
+    renderAdmin();
+  }
   function challengeType(n) { // 지도에서 섬 클릭 → 그 유형 직접 도전 (다음: 상대·난이도 선택)
     G.forceType = n;
     var v = V22.filter(function (x) { return x.n === n; })[0];
@@ -4924,8 +5005,8 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, expRole: expRole, expSat: expSat, growthExport: growthExport,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec } };
+    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE } };
 })();
 
 </script>
