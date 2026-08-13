@@ -428,13 +428,140 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 }
 @media(hover:none){ .poster:hover{transform:none;} .btn{min-height:44px;} } /* 터치 기기 — 호버 잔상 제거·탭 타깃 보장 */
 @media(prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;} } /* 모션 민감·저사양 배려 */
-#printSheet{display:none;} /* A4 전용 코칭 문서 — 화면에는 없다, 인쇄에만 존재한다 */
+/* ══ 코칭 리포트 지면 — 화면(.rdoc)과 인쇄(#printSheet)가 같은 문서를 본다 ══ */
+#printSheet{display:none;}
+.rdoc-card{background:#fff;border-radius:14px;padding:26px 30px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);}
+.rdoc{color:#1A2420;font-size:14px;line-height:1.62;}
+.rdoc .ph{display:flex;justify-content:space-between;align-items:center;gap:18px;border-bottom:3px solid #0B2F2A;padding-bottom:12px;}
+.rdoc .ph h1{font-size:30px;font-weight:900;letter-spacing:-.02em;margin:4px 0 3px;color:#0B2F2A;line-height:1.18;}
+.rdoc .ph h1 .ph-rp{color:#B9932B;}
+.rdoc .ph-brand{font-size:11px;font-weight:800;letter-spacing:.28em;color:#0B5B54;}
+.rdoc .ph-sub{font-size:12.5px;color:#5A6763;font-weight:600;margin-top:2px;}
+.rdoc .ph-meta2{font-size:12px;color:#33403B;font-weight:700;margin-top:6px;}
+.rdoc .ph-avwrap{flex:none;text-align:center;}
+.rdoc .ph-av{width:112px;height:128px;border:3px solid #0B2F2A;border-radius:12px;background:#F6EDD2;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;}
+.rdoc .ph-av svg{width:108px;height:124px;display:block;}
+.rdoc .ph-avcap{font-size:11px;font-weight:800;color:#5A6763;margin-top:4px;}
+.rdoc .pscore{display:flex;gap:22px;align-items:center;margin:16px 0 4px;flex-wrap:wrap;}
+.rdoc .ps-num{font-size:54px;font-weight:900;color:#0B2F2A;line-height:1;}
+.rdoc .ps-num small{font-size:16px;color:#8A948F;font-weight:700;}
+.rdoc .ps-grade{width:50px;height:50px;border-radius:12px;color:#fff;font-size:29px;font-weight:900;display:flex;align-items:center;justify-content:center;flex:none;}
+.rdoc .ps-axes{flex:1;min-width:260px;}
+.rdoc .ps-radar{flex:none;}
+.rdoc .ps-radar svg{width:170px;height:auto;}
+.rdoc .pax{display:flex;align-items:center;gap:10px;margin:5px 0;}
+.rdoc .pax b{width:66px;font-size:12px;font-weight:800;color:#33403B;flex:none;}
+.rdoc .pax .tr{flex:1;height:11px;background:#EBF0EE;border-radius:6px;position:relative;}
+.rdoc .pax .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:#0B5B54;}
+.rdoc .pax .tr u{position:absolute;left:80%;top:-3px;bottom:-3px;width:2px;background:#B9932B;text-decoration:none;}
+.rdoc .pax .sc{width:80px;text-align:right;font-size:12px;font-weight:800;color:#33403B;flex:none;}
+.rdoc .pstat{margin-top:10px;background:#F4F9F7;border-radius:8px;padding:8px 12px;font-size:12.5px;color:#33403B;}
+.rdoc .psec{margin-top:20px;}
+.rdoc .psec h2{font-size:17px;font-weight:900;color:#0B2F2A;border-left:5px solid #0B5B54;padding-left:9px;margin-bottom:9px;}
+.rdoc .psum{background:#F4F9F7;border-radius:10px;padding:12px 15px;font-size:14px;line-height:1.75;}
+.rdoc .pt{border:1px solid #DCE4E1;border-radius:10px;padding:11px 14px;margin:9px 0;}
+.rdoc .pt-hd{display:flex;align-items:center;gap:9px;font-weight:900;font-size:15px;color:#16211D;flex-wrap:wrap;}
+.rdoc .pt-full{font-size:11.5px;color:#7A8681;font-weight:600;}
+.rdoc .pt-st{margin-left:auto;font-size:11px;font-weight:900;border-radius:99px;padding:2px 11px;color:#fff;white-space:nowrap;}
+.rdoc .pt-q{margin:7px 0 5px;font-size:13px;color:#3A4540;border-left:3px solid #B7C9C2;padding-left:9px;line-height:1.6;}
+.rdoc .pt-keys{font-size:12.5px;color:#4A5550;line-height:1.8;}
+.rdoc .pt-keys .ok{color:#0B5B54;font-weight:800;}
+.rdoc .pt-keys .no{color:#9A7B18;}
+.rdoc .pt-rx{margin-top:6px;font-size:13px;color:#0B5B54;font-weight:700;}
+.rdoc .pt-std{margin-top:7px;font-size:12px;color:#4A5550;background:#FAFAF7;border-radius:8px;padding:7px 10px;line-height:1.65;}
+.rdoc .pt-std b{color:#0B2F2A;}
+.rdoc .pt-bd{color:#8A948F;font-size:11px;}
+.rdoc .pcols{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rdoc .pbox{border:1px solid #DCE4E1;border-radius:10px;padding:11px 14px;}
+.rdoc .pcols h3{font-size:14px;font-weight:900;margin-bottom:5px;}
+.rdoc .pcols .g h3{color:#0B5B54;} .rdoc .pcols .r h3{color:#8A5A10;}
+.rdoc .pit{font-size:13px;margin:7px 0;line-height:1.6;}
+.rdoc .pit b{display:block;color:#16211D;}
+.rdoc .pit span{color:#5A6763;}
+.rdoc ol.prx{margin:4px 0 0 18px;font-size:13.5px;}
+.rdoc ol.prx li{margin:7px 0;line-height:1.65;}
+.rdoc ol.prx b{color:#0B2F2A;}
+.rdoc .p5row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:7px;}
+.rdoc .p5{font-size:12px;font-weight:800;border-radius:99px;padding:3px 11px;}
+.rdoc .p5.on{background:#E4F0EC;color:#0B5B54;} .rdoc .p5.off{background:#F3EEE4;color:#9A7B18;}
+.rdoc .p5arr{color:#B7C9C2;font-weight:900;}
+.rdoc .pnv{width:100%;border-collapse:collapse;font-size:12.5px;}
+.rdoc .pnv th{background:#F1F6F4;color:#0B5B54;font-weight:800;padding:5px 8px;border:1px solid #E1E9E6;text-align:left;font-size:11.5px;}
+.rdoc .pnv td{padding:5px 8px;border:1px solid #E9EEEC;vertical-align:top;}
+.rdoc .pnv .nvv{font-weight:800;color:#16211D;white-space:nowrap;}
+.rdoc .pnv .nvb{color:#7A8681;white-space:nowrap;}
+.rdoc .pnv .nvc{color:#5A6763;font-size:12px;}
+.rdoc .nvp{font-size:11px;font-weight:900;border-radius:99px;padding:1px 9px;white-space:nowrap;}
+.rdoc .nvp.ok{background:#E4F0EC;color:#0B5B54;} .rdoc .nvp.no{background:#F6EFDC;color:#8A6410;}
+.rdoc .pnvsum{margin-top:6px;font-size:12px;color:#5A6763;}
+.rdoc .pdlgbox{border:1px solid #DCE4E1;border-radius:10px;padding:10px 13px;max-height:420px;overflow:auto;}
+.rdoc .pdlg{font-size:12.5px;margin:5px 0;line-height:1.6;color:#3A4540;}
+.rdoc .pdlg b{color:#0B5B54;margin-right:5px;}
+.rdoc .pdlg.dr b{color:#8A6A2B;}
+.rdoc .pjl{font-size:10.5px;font-weight:900;border-radius:99px;padding:1px 8px;margin-left:4px;white-space:nowrap;}
+.rdoc .pjl.crit{background:#B8860B;color:#fff;} .rdoc .pjl.hit{background:#0B5B54;color:#fff;}
+.rdoc .pjl.half{background:#DCE8E5;color:#2A5A52;} .rdoc .pjl.vague{background:#EFEADF;color:#7A6A4A;} .rdoc .pjl.bad{background:#B0392E;color:#fff;}
+.rdoc .pfoot{margin-top:20px;border-top:1px solid #DCE4E1;padding-top:7px;font-size:11px;color:#8A948F;display:flex;justify-content:space-between;gap:10px;letter-spacing:.04em;}
+.detail-acc{background:#fff;border-radius:12px;margin-bottom:14px;}
+/* 전문가 평가 패널 */
+.calib-card{border:2px solid var(--acc);}
+.cbhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.cbhead b{font-size:16px;color:var(--acc);}
+.cbgate{background:var(--soft);color:var(--acc);font-weight:800;font-size:12.5px;border-radius:99px;padding:5px 13px;white-space:nowrap;}
+.cbscale{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--sub);background:#F7FAF9;border-radius:8px;padding:7px 10px;margin-bottom:10px;}
+.cbscale b{color:var(--acc);}
+.cbrow{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:9px 0;flex-wrap:wrap;}
+.cbax{min-width:210px;flex:1;}
+.cbax b{font-size:14px;display:block;color:var(--ink);}
+.cbax span{font-size:11.5px;color:var(--sub);}
+.cblv{display:flex;gap:5px;}
+.lvb{width:46px;height:44px;border:1.5px solid var(--line);background:#fff;border-radius:10px;font-family:inherit;font-size:16px;font-weight:900;color:var(--ink);cursor:pointer;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+.lvb small{font-size:9.5px;font-weight:800;color:var(--sub);}
+.lvb.on{background:var(--acc);border-color:var(--acc);color:#fff;}
+.lvb.on small{color:#CDE7E1;}
+.cbtx{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:10px 0;}
+.cbexp{margin-top:12px;border-top:2px dashed var(--line);padding-top:10px;}
+.cbexp-hd{font-size:14px;margin-bottom:6px;}
+.cbexp-hd b{color:var(--acc);}
+.cbrole{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--sub);font-weight:700;}
+.rlb{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:5px 13px;font-family:inherit;font-size:12.5px;font-weight:800;color:var(--ink);cursor:pointer;}
+.rlb.on{background:var(--acc);border-color:var(--acc);color:#fff;}
+.cbsat{margin-left:auto;display:flex;align-items:center;gap:2px;}
+.stb{border:none;background:none;font-size:21px;color:#D8DEDB;cursor:pointer;padding:0 1px;line-height:1;font-family:inherit;}
+.stb.on{color:var(--gold2);}
+@media(max-width:760px){.cbtx{grid-template-columns:1fr;} .rdoc .pcols{grid-template-columns:1fr;} .rdoc-card{padding:18px 16px;} .rdoc .ph{flex-direction:column;align-items:flex-start;} .rdoc .ph h1{font-size:23px;}}
 @media print{
   @page{size:A4;margin:12mm 13mm 14mm;}
   html,body{background:#fff!important;height:auto!important;}
   .scr,.adminbtn,#btnQR,#btnAdmin,.toast,.flashcrit,#chestOv,#verOv,.grainov,#fxLayer,video{display:none!important;}
-  #printSheet{display:block!important;color:#1A2420;font-size:10.5pt;line-height:1.62;font-family:'Pretendard',-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;}
+  #printSheet{display:block!important;color:#1A2420;font-size:10pt;line-height:1.6;font-family:'Pretendard',-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;}
   #printSheet *{box-shadow:none!important;}
+  #printSheet .psec{page-break-inside:avoid;}
+  #printSheet .pbreak{page-break-before:always;}
+  #printSheet .pdlgbox{max-height:none;overflow:visible;}
+  #printSheet .pt{page-break-inside:avoid;}
+  #printSheet .ps-radar{display:none;} /* 지면에선 축 바가 레이더보다 정확히 읽힌다 */
+  #printSheet .pstat{margin-top:7pt;background:#F4F9F7;border-radius:5pt;padding:5pt 8pt;font-size:9pt;color:#33403B;}
+  #printSheet .pt-std{margin-top:4pt;font-size:8.5pt;color:#4A5550;background:#FAFAF7;border-radius:5pt;padding:5pt 7pt;line-height:1.6;}
+  #printSheet .pt-std b{color:#0B2F2A;} #printSheet .pt-bd{color:#8A948F;font-size:8pt;}
+  #printSheet .p5row{display:flex;align-items:center;gap:4pt;flex-wrap:wrap;margin-bottom:5pt;}
+  #printSheet .p5{font-size:8.5pt;font-weight:800;border-radius:99pt;padding:1.5pt 8pt;}
+  #printSheet .p5.on{background:#E4F0EC;color:#0B5B54;} #printSheet .p5.off{background:#F3EEE4;color:#9A7B18;}
+  #printSheet .p5arr{color:#B7C9C2;font-weight:900;}
+  #printSheet .pnv{width:100%;border-collapse:collapse;font-size:8.5pt;}
+  #printSheet .pnv th{background:#F1F6F4;color:#0B5B54;font-weight:800;padding:3pt 5pt;border:.6pt solid #E1E9E6;text-align:left;font-size:8pt;}
+  #printSheet .pnv td{padding:3pt 5pt;border:.6pt solid #E9EEEC;vertical-align:top;}
+  #printSheet .pnv .nvv{font-weight:800;color:#16211D;white-space:nowrap;}
+  #printSheet .pnv .nvb{color:#7A8681;white-space:nowrap;}
+  #printSheet .nvp{font-size:7.5pt;font-weight:900;border-radius:99pt;padding:.5pt 6pt;}
+  #printSheet .nvp.ok{background:#E4F0EC;color:#0B5B54;} #printSheet .nvp.no{background:#F6EFDC;color:#8A6410;}
+  #printSheet .pnvsum{margin-top:4pt;font-size:8.5pt;color:#5A6763;}
+  #printSheet .pdlg{font-size:8.5pt;margin:2.5pt 0;line-height:1.55;color:#3A4540;}
+  #printSheet .pdlg b{color:#0B5B54;margin-right:3pt;} #printSheet .pdlg.dr b{color:#8A6A2B;}
+  #printSheet .pdlgbox{border:.6pt solid #DCE4E1;border-radius:5pt;padding:6pt 9pt;}
+  #printSheet .pjl{font-size:7.5pt;font-weight:900;border-radius:99pt;padding:.5pt 5pt;margin-left:3pt;}
+  #printSheet .pjl.crit{background:#B8860B;color:#fff;} #printSheet .pjl.hit{background:#0B5B54;color:#fff;}
+  #printSheet .pjl.half{background:#DCE8E5;color:#2A5A52;} #printSheet .pjl.vague{background:#EFEADF;color:#7A6A4A;} #printSheet .pjl.bad{background:#B0392E;color:#fff;}
   .ph{display:flex;justify-content:space-between;align-items:center;gap:14pt;border-bottom:3pt solid #0B2F2A;padding-bottom:10pt;}
   .ph h1{font-size:25pt;font-weight:900;letter-spacing:-.02em;margin:3pt 0 2pt;color:#0B2F2A;line-height:1.18;}
   .ph h1 .ph-rp{color:#B9932B;}
@@ -738,19 +865,27 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <!-- ═══════ 결과 — RP 결과 리포트 ═══════ -->
 <section class="scr" id="scr-result">
   <div class="deck" style="max-width:780px;">
-    <div class="card rp-head">
-      <div class="rp-title">RP 결과 리포트</div>
-      <div class="rp-scorewrap">
-        <div class="rp-score"><span id="bigScore">0</span><small>/100</small></div>
-        <div class="rp-letter" id="bigGrade">-</div>
-        <div>
-          <div class="rp-meta" id="rpMeta">—</div>
-          <div class="rp-meta2" id="rpMeta2">—</div>
+    <!-- 📄 코칭 리포트 지면 — 화면과 인쇄가 같은 문서 -->
+    <div class="rdoc-card"><div id="docReport" class="rdoc"></div></div>
+
+    <!-- 🎓 전문가 평가 — 숨기지 않는다, 이 제품의 심장 -->
+    <div class="card calib-card" id="calibPanel"></div>
+
+    <details class="acc2 detail-acc">
+      <summary>📊 상세 지표 · 원본 데이터 (레이더 · 축 테이블 · 타임라인)</summary>
+      <div class="bd2">
+        <div class="rp-scorewrap" style="margin-bottom:10px;">
+          <div class="rp-score"><span id="bigScore">0</span><small>/100</small></div>
+          <div class="rp-letter" id="bigGrade">-</div>
+          <div>
+            <div class="rp-meta" id="rpMeta">—</div>
+            <div class="rp-meta2" id="rpMeta2">—</div>
+          </div>
         </div>
+        <div class="coach-sum" id="coachSum"></div>
+        <div id="coachVerdict"></div>
       </div>
-      <div class="coach-sum" id="coachSum"></div>
-      <div id="coachVerdict"></div>
-    </div>
+    </details>
 
     <div class="wanted">
       <div class="w-top">WANTED</div>
@@ -761,43 +896,24 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
       <div class="w-bounty">₿ <span id="wBounty">0</span> <small>베리 (누적 현상금)</small></div>
     </div>
 
-    <div class="card" id="isleCard">
-      <h2>🏝 유형별 R/P 리포트 <span class="small">테마별 — 무엇을 맞혔고, 무엇이 비었나</span></h2>
-      <div id="isleRep"></div>
-    </div>
-
-    <div class="card">
-      <h2>역량 프로필</h2>
-      <div class="prof-grid">
-        <div id="radarBox" style="text-align:center;"></div>
-        <table class="ax" id="axTable"></table>
+    <details class="acc2 detail-acc">
+      <summary>📈 역량 프로필 · 유형별 상세 · 비언어 원본</summary>
+      <div class="bd2">
+        <div class="prof-grid">
+          <div id="radarBox" style="text-align:center;"></div>
+          <table class="ax" id="axTable"></table>
+        </div>
+        <div class="small" id="scoreLine" style="margin-top:6px;"></div>
+        <div class="small" id="gradeSim" style="margin-top:2px;font-weight:700;color:var(--acc);"></div>
+        <div style="margin-top:12px;"><b style="font-size:13px;">대화 타임라인</b>
+          <div class="tl" id="rtTimeline"></div>
+        </div>
+        <div id="badgeLine" style="margin-top:6px;"></div>
+        <div id="isleRep" style="margin-top:12px;"></div>
+        <div class="fb" style="margin-top:10px;"><div id="fbGood"></div><div id="fbImprove"></div><div id="fbAdvice"></div></div>
+        <div id="nvCard" style="margin-top:10px;"><table class="ax" id="nvTable"></table><div id="nvComments" style="margin-top:8px;"></div></div>
       </div>
-      <div class="small" id="scoreLine" style="margin-top:6px;"></div>
-      <div class="small" id="gradeSim" style="margin-top:2px;font-weight:700;color:var(--acc);"></div>
-      <div style="margin-top:12px;"><b style="font-size:13px;">대화 타임라인</b> <span class="small">(칩에 올리면 발언 표시 · 금⚡크리티컬 · 초록 적중 · 회색 무효 · 빨강 오수치)</span>
-        <div class="tl" id="rtTimeline"></div>
-      </div>
-      <div id="badgeLine" style="margin-top:6px;"></div>
-    </div>
-
-    <div class="card fb good-card">
-      <h2><span class="fb-ico ok">✓</span>잘한 점</h2>
-      <div id="fbGood"></div>
-    </div>
-    <div class="card fb warn-card">
-      <h2><span class="fb-ico wn">!</span>개선할 점</h2>
-      <div id="fbImprove"></div>
-    </div>
-    <div class="card fb tip-card">
-      <h2><span class="fb-ico tp">→</span>피드백 · 조언</h2>
-      <div id="fbAdvice"></div>
-    </div>
-
-    <div class="card" id="nvCard">
-      <h2>비언어 분석 <span class="small">코칭 참고 — 본점수에 넣지 않습니다</span></h2>
-      <table class="ax" id="nvTable"></table>
-      <div id="nvComments" style="margin-top:8px;"></div>
-    </div>
+    </details>
 
     <div class="card">
       <h2>다시 듣기 · 기록</h2>
@@ -811,22 +927,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <div class="bd2" id="vidBox"><span class="small">영상 없음 (캠 미허용 세션)</span></div>
       </details>
       <details class="acc2">
-        <summary>전문가 평가 입력 — AI 채점과 대조 (캘리브레이션)</summary>
-        <div class="bd2">
-          <label class="lbl">평가자</label>
-          <input type="text" id="evName" placeholder="예: 김코치" style="width:100%;">
-          <div class="ev-grid">
-            <div><span class="small">반대극복 /30</span><input type="number" id="evA" min="0" max="30"></div>
-            <div><span class="small">수치 /20</span><input type="number" id="evB" min="0" max="20"></div>
-            <div><span class="small">명분 /20</span><input type="number" id="evC" min="0" max="20"></div>
-            <div><span class="small">대화 /15</span><input type="number" id="evD" min="0" max="15"></div>
-            <div><span class="small">클로징 /15</span><input type="number" id="evE" min="0" max="15"></div>
-          </div>
-          <label class="lbl">총평 (선택)</label>
-          <textarea class="tsv" id="evComment" style="min-height:44px;"></textarea>
-          <button class="btn" onclick="APP.calibSubmit()">대조표 생성 + 기록 저장(JSON)</button>
-          <div id="calibOut" style="margin-top:8px;"></div>
-        </div>
+        <summary>표준 스크립트 원문 — 이번에 만난 유형의 답안</summary>
+        <div class="bd2" id="stdReview2"><span class="small">위 리포트의 유형별 섹션에 원문이 실려 있습니다.</span></div>
       </details>
       <details class="acc2">
         <summary>점수 기록 내보내기 (TSV → 점수원장)</summary>
@@ -977,6 +1079,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <button class="btn ghost" onclick="APP.admExport()">세션 기록 일괄 내보내기 (JSON)</button>
       </div>
       <div class="card"><h2>캘리브레이션 현황</h2><div id="admCalib" class="small"></div></div>
+      <div class="card"><h2>🌱 제품 성장 로그 <span class="small">사용자·면접관 의견 — 다음 버전의 백로그</span></h2><div id="admGrowth"></div>
+        <button class="btn ghost" onclick="APP.growthExport()">의견 일괄 내보내기 (JSON)</button></div>
       <div class="card">
         <h2>채점·판정 파라미터 <span class="small">이 세션 한정 — 정식 반영은 결정 절차(거버넌스)</span></h2>
         <div class="adm-grid">
@@ -3729,8 +3833,20 @@ window.APP = (function () {
       .replace(/같은 상대 재도전/g, "같은 원장 재훈련")
       .replace(/격파/g, "극복");
   }
-  function buildPrintSheet(turns, sc, LG, fb, meta) { // 🖨 A4 전용 코칭 문서 — 잡지식 마스트헤드 + 축 대시보드 + 테마별 R/P (게임 화면과 별개의 '팔리는 지면')
-    var u = G.user || {}, d = G.doc || {};
+  var NV_ROWS = [ // 비언어 지표 — [키, 표시명, 단위, 적정 밴드, 판정함수, 한 줄 코칭]
+    ["응시율", "시선 접촉", "%", "55~90%", function (v) { return v >= 55 && v <= 90; }, "핵심 문장에서는 화면을 보고 말하세요. 시선이 실린 숫자가 기억에 남습니다."],
+    ["응시율_경청중", "경청 중 시선", "%", "70% 이상", function (v) { return v >= 70; }, "들을 때 눈을 떼지 않는 것 — 경청의 신뢰는 여기서 만들어집니다."],
+    ["미소비율", "표정(미소)", "%", "10~45%", function (v) { return v >= 10 && v <= 45; }, "오프닝·클로징엔 미소, 수치 설명 구간은 진지하게. 완급이 프로의 표정입니다."],
+    ["피치변동성_퍼센트", "목소리 생동감", "%", "7~25%", function (v) { return v >= 7 && v <= 25; }, "핵심 숫자 직전 0.5초 멈추고 반 톤 올리세요 — 멈춤이 숫자를 각인시킵니다."],
+    ["끄덕임_분당", "끄덕임", "회/분", "2~4회", function (v) { return v >= 1 && v <= 8; }, "천천히 큰 끄덕임 2~4회가 '이해했다'는 신호입니다."],
+    ["침묵비율", "침묵 비율", "%", "20~45%", function (v) { return v <= 45; }, "침묵을 메우려 하지 마세요. 반대 직후 1초 침묵 후 공감 한 문장이 급한 반박보다 강합니다."],
+    ["필러횟수", "필러(\"어…\")", "회", "분당 2회 이하", function (v) { return v <= 4; }, "'어…' 대신 멈추세요. 침묵 1초가 '어' 세 번보다 전문적입니다."],
+    ["얼굴터치_횟수", "얼굴 터치", "회", "0~1회", function (v) { return v <= 1; }, "코·턱을 만지는 순간 '자신 없음'으로 읽힙니다. 손은 책상 위에."],
+    ["깜빡임_분당", "깜빡임", "회/분", "10~25회", function (v) { return v >= 8 && v <= 28; }, "분당 30회를 넘으면 긴장 신호입니다. 말 시작 전 어깨 숨을 한 번 내리세요."]
+  ];
+  function buildReportDoc(turns, sc, LG, fb, ctx) { // 📄 코칭 리포트 지면 — 화면과 인쇄가 같은 문서를 본다 (ctx: nv·설득도·시간·5단계 등)
+    ctx = ctx || {};
+    var u = G.user || {}, d = G.doc || {}, nv = ctx.nv;
     var isl = isleReport(turns);
     var stNm = { crit: ["완벽 극복", "#B8860B"], clear: ["극복 완료", "#0B5B54"], half: ["부분 극복", "#8a6d1a"], miss: ["미극복", "#B0392E"] };
     var axes = [["반대극복", sc.A, 30], ["수치정확", sc.B, 20], ["명분설계", sc.C, 20], ["대화운영", sc.D, 15], ["클로징", sc.E, 15]];
@@ -3741,24 +3857,65 @@ window.APP = (function () {
     var themes = isl.length ? isl.map(function (r) {
       var st = stNm[r.status];
       var keys = r.keys.map(function (k) { return "<span class='" + (k.hit ? "ok" : "no") + "'>" + (k.hit ? "✓ " : "○ ") + esc(String(k.t).split(" — ")[0].split("(")[0].trim()) + "</span>"; }).join(" &nbsp;·&nbsp; ");
+      var v = V22.filter(function (x) { return x.n === r.n; })[0];
       return "<div class='pt'><div class='pt-hd'><span>" + esc(ISLE_NM[r.n] || r.t) + " R/P</span><span class='pt-full'>" + esc(r.t) + " · 응수 " + r.tries + "회</span><span class='pt-st' style='background:" + st[1] + ";'>" + st[0] + "</span></div>" +
-        (r.quote ? "<div class='pt-q'>“" + esc(r.quote.slice(0, 110)) + (r.quote.length > 110 ? "…" : "") + "”</div>" : "") +
+        (r.quote ? "<div class='pt-q'>“" + esc(r.quote.slice(0, 160)) + (r.quote.length > 160 ? "…" : "") + "”</div>" : "") +
         "<div class='pt-keys'>" + keys + "</div>" +
-        (r.status === "miss" || r.status === "half" ? "<div class='pt-rx'>처방 — “" + esc(r.nextLine) + "”</div>" : "") + "</div>";
+        (r.status === "miss" || r.status === "half" ? "<div class='pt-rx'>처방 — “" + esc(r.nextLine) + "”</div>" : "") +
+        (v ? "<div class='pt-std'><b>표준 스크립트</b> " + esc(v.script) + "<br><span class='pt-bd'>활용물: " + esc(v.bd) + "</span></div>" : "") + "</div>";
     }).join("") : "<div class='pit'><span>기록된 반대 유형 응수가 없습니다 — 본론 전에 통화가 종료되었습니다.</span></div>";
     var li = function (x) { return "<div class='pit'><b>" + esc(printTone(x.t)) + "</b><span>" + esc(printTone(firstSent(x.why || ""))) + "</span></div>"; };
+    // 대화 진행 5단계 + 스피치 리듬
+    var s5 = ctx.s5 || step5Check(turns, sc);
+    var s5Html = s5.map(function (x) { return "<span class='p5 " + (x[1] ? "on" : "off") + "'>" + (x[1] ? "✓ " : "✗ ") + esc(x[0]) + "</span>"; }).join("<span class='p5arr'>→</span>");
+    var s5miss = s5.filter(function (x) { return !x[1]; });
+    var objT = turns.filter(function (t) { return t.typeN; });
+    var avgLen = objT.length ? Math.round(objT.reduce(function (a, t) { return a + (t.text || "").length; }, 0) / objT.length) : 0;
+    var spOk = avgLen >= 180 && avgLen <= 430;
+    // 비언어
+    var nvHtml;
+    if (nv && nv.얼굴검출률 >= 30) {
+      var rows = NV_ROWS.map(function (r) {
+        var v = nv[r[0]];
+        if (v === null || v === undefined) return "";
+        var ok = r[4](v);
+        return "<tr><td>" + r[1] + "</td><td class='nvv'>" + v + r[2] + "</td><td class='nvb'>" + r[3] + "</td><td><span class='nvp " + (ok ? "ok" : "no") + "'>" + (ok ? "양호" : "개선") + "</span></td><td class='nvc'>" + (ok ? "" : r[5]) + "</td></tr>";
+      }).join("");
+      nvHtml = "<table class='pnv'><tr><th>지표</th><th>측정</th><th>적정 구간</th><th>판정</th><th>코칭</th></tr>" + rows + "</table>" +
+        (ctx.nvScore !== null && ctx.nvScore !== undefined ? "<div class='pnvsum'>전달력 종합 <b>" + ctx.nvScore + "/20</b> — 참고 지표이며 본 점수에는 반영하지 않습니다.</div>" : "");
+    } else nvHtml = "<div class='pit'><span>카메라 미사용 또는 얼굴 검출 부족으로 이번 세션은 측정하지 않았습니다. 본 점수에는 영향이 없습니다.</span></div>";
+    // 대화 전문 — 코칭 면담의 증거
+    var jLabel = function (t) {
+      if (!t || !t.judge) return "";
+      var j = t.judge;
+      return j.numsBad ? "<span class='pjl bad'>확인 안 된 수치</span>" : j.crit ? "<span class='pjl crit'>정답 명분+수치</span>" : (t.typeN && j.keyHit >= 2) ? "<span class='pjl hit'>정답 명분</span>" : (t.typeN && j.keyHit === 1) ? "<span class='pjl half'>절반</span>" : (t.typeN && j.vague) ? "<span class='pjl vague'>근거 부족</span>" : "";
+    };
+    var tSeq = turns.filter(function (t) { return t.text; }), mi = 0;
+    var dlg = (G.dlgLog || []).map(function (x) {
+      if (x.w !== "mr") return "<div class='pdlg dr'><b>" + esc(d.nm || "원장") + "</b> " + esc(x.t) + "</div>";
+      var t = tSeq[mi++];
+      return "<div class='pdlg mr'><b>" + esc(u.name || "MR") + "</b> " + esc(x.t) + " " + jLabel(t) + "</div>";
+    }).join("");
     return "<div class='ph'><div><div class='ph-brand'>WELLCHECK R/P TRAINING · COACHING REPORT</div>" +
       "<h1>나는 루피<span class='ph-rp'>(R/P)</span>, 내 꿈은 알피왕!</h1>" +
       "<div class='ph-sub'>반대극복 실전 훈련 리포트 · 표준 가이드(V22) 기준 자동 채점 + 코칭 엔진</div>" +
-      "<div class='ph-meta2'>" + esc(u.name || "-") + " · " + esc((u.div || "") + " " + (u.office || "")) + " · " + todayStr() + " · " + esc(meta || "") + "</div></div>" +
+      "<div class='ph-meta2'>" + esc(u.name || "-") + " · " + esc(((u.div || "") + " " + (u.office || "")).trim()) + " · " + todayStr() + " · " + esc(ctx.meta || "") + "</div></div>" +
       "<div class='ph-avwrap'><div class='ph-av'><svg viewBox='0 0 120 140'>" + portraitSvg(d.av || {}) + "</svg></div><div class='ph-avcap'>vs " + esc(d.nm || "-") + " 원장 · " + esc(d.hosp || "") + "</div></div></div>" +
-      "<div class='pscore'><div class='ps-num'>" + sc.total + "<small>/100</small></div><div class='ps-grade' style='background:" + (GR_COL[LG] || "#5B6663") + ";'>" + LG + "</div><div class='ps-axes'>" + axHtml + "</div></div>" +
+      "<div class='pscore'><div class='ps-num'>" + sc.total + "<small>/100</small></div><div class='ps-grade' style='background:" + (GR_COL[LG] || "#5B6663") + ";'>" + LG + "</div><div class='ps-axes'>" + axHtml + "</div>" +
+      (ctx.radar ? "<div class='ps-radar'>" + ctx.radar + "</div>" : "") + "</div>" +
+      (ctx.statLine ? "<div class='pstat'>" + ctx.statLine + "</div>" : "") +
       "<div class='psec'><h2>코치 총평</h2><div class='psum'>" + printTone(coachSummary(turns, sc)) + "</div></div>" +
       "<div class='psec'><h2>유형별 R/P 리포트</h2>" + themes + "</div>" +
       "<div class='psec'><div class='pcols'><div class='pbox g'><h3>잘한 점</h3>" + fb.S.map(li).join("") + "</div><div class='pbox r'><h3>개선할 점</h3>" + fb.I.map(li).join("") + "</div></div></div>" +
+      "<div class='psec'><h2>대화 진행 진단</h2><div class='p5row'>" + s5Html + "</div>" +
+      "<div class='pit'><span>" + (s5miss.length ? "빠진 고리 — " + s5miss.map(function (m) { return "<b>" + esc(m[0]) + "</b>: " + esc(m[2]); }).join(" / ") : "다섯 고리를 모두 밟았습니다. 이제 한 턴의 밀도(공감+명분+근거+질문)를 높일 차례입니다.") + "</span></div>" +
+      (objT.length ? "<div class='pit'><b>발화 길이 — 반대당 평균 " + avgLen + "자(약 " + Math.round(avgLen / 5) + "초) · " + (spOk ? "적정" : avgLen < 180 ? "짧음" : "김") + "</b><span>기준은 반대당 40~85초입니다. 공식은 공감 1문장 → 명분 1문장 → 근거·수치 2개 → 확인 질문 1개." + (spOk ? " 지금 리듬을 유지하세요." : avgLen < 180 ? " 근거가 실리기 전에 끝납니다 — 수치 하나와 질문 하나를 더 얹으세요." : " 길어지면 요점이 묻힙니다 — 한 반대엔 한 명분만.") + "</span></div>" : "") + "</div>" +
+      "<div class='psec'><h2>비언어 커뮤니케이션 분석</h2>" + nvHtml + "</div>" +
       "<div class='psec'><h2>알피 마스터를 위한 조언</h2><ol class='prx'>" + fb.A.map(function (x) { return "<li><b>" + esc(printTone(x.t)) + "</b> — " + esc(printTone(x.how || "")) + "</li>"; }).join("") + "</ol></div>" +
-      "<div class='pfoot'><span>표준 반대극복 가이드(V22) 기준 자동 채점 · 세션 기록 서버 보존</span><span>NEW BUSINESS STRATEGY TEAM PRESENTS</span></div>";
+      (dlg ? "<div class='psec pbreak'><h2>대화 전문 · 턴별 판정</h2><div class='pdlgbox'>" + dlg + "</div></div>" : "") +
+      "<div class='pfoot'><span>표준 반대극복 가이드(V22) 기준 자동 채점 · 코칭 면담 자료</span><span>NEW BUSINESS STRATEGY TEAM PRESENTS</span></div>";
   }
+  function buildPrintSheet(turns, sc, LG, fb, meta) { return buildReportDoc(turns, sc, LG, fb, { meta: meta }); } // 하위 호환
   function buildFeedback(turns, sc, scen, nv, aborted) {
     var S = [], I = [], A = [];
     var objTurns = turns.filter(function (t) { return t.typeN; });
@@ -3898,7 +4055,8 @@ window.APP = (function () {
       { k: "대화운영", key: "D", v: sc.D, max: 15 }, { k: "클로징", key: "E", v: sc.E, max: 15 },
       { k: "전달력", key: "NV", v: nvScore === null ? 0 : nvScore, max: 20, ref: true }
     ];
-    $("radarBox").innerHTML = radar(axes.map(function (a) { return { k: a.k + (a.ref ? "\u2727" : ""), v: a.v, max: a.max, ref: a.ref }; }), G.prevAxes);
+    var radarSvg = radar(axes.map(function (a) { return { k: a.k + (a.ref ? "\u2727" : ""), v: a.v, max: a.max, ref: a.ref }; }), G.prevAxes);
+    if ($("radarBox")) $("radarBox").innerHTML = radarSvg;
     G.prevAxes = axes.map(function (a) { return { k: a.k, v: a.v, max: a.max, ref: a.ref }; });
     var at = "<tr><th>영역</th><th style='text-align:right;'>점수</th><th style='width:26%;'></th><th>진단</th></tr>";
     axes.forEach(function (a) {
@@ -3945,7 +4103,17 @@ window.APP = (function () {
     var aborted = !hasClose && Object.keys(handled).length < G.scen.objs.length && sc.total < 80; // 클로징도 없고 반대도 남긴 저득점 판 = 중도 종료
     var fb = buildFeedback(G.turns, sc, G.scen, nv, aborted);
     if (G.lastResult) G.lastResult.fb = fb;
-    if ($("printSheet")) $("printSheet").innerHTML = buildPrintSheet(G.turns, sc, LG, fb, diffName + " 난이도 · " + modeName.replace(/[^가-힣A-Za-z0-9 ]/g, "").trim() + " 모드 · " + Math.floor(durSec / 60) + "분 " + (durSec % 60) + "초"); // 🖨 A4 지면은 여기서 조판된다
+    // 📄 코칭 리포트 지면 — 화면(#docReport)과 인쇄(#printSheet)가 같은 문서를 본다
+    (function () {
+      var statLine = "<b>훈련 조건</b> " + diffName + " 난이도 · " + modeName.replace(/[^가-힣A-Za-z0-9 ]/g, "").trim() + " 모드 · " + Math.floor(durSec / 60) + "분 " + (durSec % 60) + "초 &nbsp;|&nbsp; <b>원장 설득도</b> " + pd + "% &nbsp;|&nbsp; <b>정답 명분+수치</b> " + crits + "회" +
+        (G.mannerFoul ? " &nbsp;|&nbsp; <b style='color:#B0392E;'>매너 위반으로 통화 중단</b>" : G.drCommit ? " &nbsp;|&nbsp; <b style='color:#0B5B54;'>원장 승낙 — 일정 합의</b>" : G.silenceEnd ? " &nbsp;|&nbsp; 침묵으로 통화 종료" : manual ? " &nbsp;|&nbsp; 중도 종료" : "") +
+        (earned.length ? " &nbsp;|&nbsp; <b>획득 칭호</b> " + earned.map(esc).join(" · ") : "");
+      var doc = buildReportDoc(G.turns, sc, LG, fb, { nv: nv, nvScore: nvScore, s5: s5, radar: radarSvg, statLine: statLine,
+        meta: diffName + " 난이도 · " + modeName.replace(/[^가-힣A-Za-z0-9 ]/g, "").trim() + " 모드 · " + Math.floor(durSec / 60) + "분 " + (durSec % 60) + "초" });
+      if ($("docReport")) $("docReport").innerHTML = doc;
+      if ($("printSheet")) $("printSheet").innerHTML = doc;
+      renderCalibPanel(sc, fb); // 🎓 전문가 평가 — 리포트 바로 아래, 눈에 보이는 자리에
+    })();
     $("fbGood").innerHTML = fbHtml(fb.S, "check");
     $("fbImprove").innerHTML = fbHtml(fb.I, "num");
     // RP 맥 진단 (5단계 중 빠진 고리) + 암기 카드 — 코치 처방의 뼈대
@@ -4088,19 +4256,76 @@ window.APP = (function () {
     document.body.appendChild(a); a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800);
   }
+  /* ══════════ 5점 척도 캘리브레이션 — 사람 면접관이 같은 언어로 채점한다 (S5=100 … D1=20) ══════════ */
+  var LV_META = [[5, "S", 100, "탁월 — 즉시 실전 투입 가능"], [4, "A", 80, "우수 — 표준을 지켰다"], [3, "B", 60, "보통 — 절반은 왔다"], [2, "C", 40, "미흡 — 핵심이 빠졌다"], [1, "D", 20, "부족 — 재훈련 필요"]];
+  function lvOf(v, max) { var g = axGrade(v, max); return g === "S" ? 5 : g === "A" ? 4 : g === "B" ? 3 : g === "C" ? 2 : 1; } // AI 점수 → 5점 척도 (리포트 등급과 같은 눈금)
+  var LV_BAND = { 5: 0.95, 4: 0.85, 3: 0.72, 2: 0.55, 1: 0.25 }; // 등급 대표값 — 각 밴드의 한가운데 (환산 왕복이 어긋나지 않게)
+  function lvToRaw(lv, max) { return Math.round(max * (LV_BAND[lv] || 0.25)); } // 5점 척도 → 축 원점수 (AI와 같은 자로 비교)
+  function renderCalibPanel(sc, fb) { // 결과 화면 전면에 배치되는 전문가 평가 패널 — 숨기지 않는다
+    var el = $("calibPanel"); if (!el) return;
+    G.calibPick = {};
+    var rows = AX_META.map(function (m) {
+      var aiLv = lvOf(sc[m[0]], m[2]);
+      var chips = LV_META.map(function (l) {
+        return "<button type='button' class='lvb' data-ax='" + m[0] + "' data-lv='" + l[0] + "' onclick='APP.calibPick(\"" + m[0] + "\"," + l[0] + ")' title='" + l[3] + "'>" + l[0] + "<small>" + l[1] + "</small></button>";
+      }).join("");
+      return "<div class='cbrow'><div class='cbax'><b>" + m[1] + "</b><span>AI 판정 " + sc[m[0]] + "/" + m[2] + " · <b style='color:" + (GR_COL[axGrade(sc[m[0]], m[2])] || "#5B6663") + ";'>" + aiLv + "(" + axGrade(sc[m[0]], m[2]) + ")</b> · " + aiLv * 20 + "점</span></div>" +
+        "<div class='cblv' id='cblv_" + m[0] + "'>" + chips + "</div></div>";
+    }).join("");
+    el.innerHTML =
+      "<div class='cbhead'><div><b>🎓 전문가 평가 · 캘리브레이션</b><span class='small'> 면접관이 같은 5점 척도로 채점하면, AI 채점의 편향이 자동 진단되어 다음 판부터 보정됩니다.</span></div>" +
+      "<div class='cbgate'>누적 <b id='cbN'>" + ((G.calib || []).length + ((G.cloudCalib || []).length)) + "</b>/30판</div></div>" +
+      "<div class='cbscale'>" + LV_META.map(function (l) { return "<span><b>" + l[0] + "(" + l[1] + ")</b> " + l[2] + "점 · " + l[3] + "</span>"; }).join("") + "</div>" +
+      rows +
+      "<div class='cbgrid'><label class='lbl'>평가자</label><input type='text' id='evName' placeholder='예: 김코치' style='max-width:220px;'></div>" +
+      "<div class='cbtx'><div><label class='lbl'>잘한 점 <span class='small'>(AI 판정과 같은 항목 언어로)</span></label><textarea class='tsv' id='evGood' style='min-height:56px;' placeholder='" + esc((fb.S[0] && fb.S[0].t) || "예: 정답 명분에 정확한 수치를 실었다") + "'></textarea></div>" +
+      "<div><label class='lbl'>개선할 점</label><textarea class='tsv' id='evBad' style='min-height:56px;' placeholder='" + esc((fb.I[0] && fb.I[0].t) || "예: 클로징이 합의까지 가지 못했다") + "'></textarea></div>" +
+      "<div><label class='lbl'>피드백 · 조언</label><textarea class='tsv' id='evComment' style='min-height:56px;' placeholder='" + esc((fb.A[0] && fb.A[0].t) || "예: 근거 기반으로 대화하는 습관") + "'></textarea></div></div>" +
+      "<div class='cbexp'><div class='cbexp-hd'>🌱 <b>AI 코치 경험 평가</b> <span class='small'>여러분이 남긴 이 의견이 다음 버전의 설계도가 됩니다 — 알피왕은 여기서 자랍니다.</span></div>" +
+      "<div class='cbrole'>작성자 " + [["mr", "MR 본인"], ["coach", "면접관·코치"], ["mgr", "관리자"]].map(function (r) { return "<button type='button' class='rlb' data-r='" + r[0] + "' onclick='APP.expRole(\"" + r[0] + "\")'>" + r[1] + "</button>"; }).join("") +
+      "<span class='cbsat'>AI 코치 만족도 " + [1, 2, 3, 4, 5].map(function (n) { return "<button type='button' class='stb' data-s='" + n + "' onclick='APP.expSat(" + n + ")'>★</button>"; }).join("") + "</span></div>" +
+      "<div class='cbtx'><div><label class='lbl'>👍 이런 점이 좋았다</label><textarea class='tsv' id='evLike' style='min-height:52px;' placeholder='예: 원장 반응이 실제 개원가와 비슷했다 / 유형별 열쇠 피드백이 바로 써먹을 만했다'></textarea></div>" +
+      "<div><label class='lbl'>🔧 이런 기능·평가는 보완하면 좋겠다</label><textarea class='tsv' id='evWish' style='min-height:52px;' placeholder='예: 클로징 판정이 짜다 / 특정 유형 대사가 반복된다 / 이런 기능이 있으면 좋겠다'></textarea></div>" +
+      "<div><label class='lbl'>⚖ 채점이 어긋난 지점 (있다면 그 문장)</label><textarea class='tsv' id='evMiss' style='min-height:52px;' placeholder='예: \"2000처가 참여 중\"을 오수치로 잡았다 — 실제로는 맞는 수치'></textarea></div></div></div>" +
+      "<button class='btn' onclick='APP.calibSubmit()'>평가 제출 — AI 채점과 대조 + 개선 의견 기록</button>" +
+      "<div id='calibOut' style='margin-top:10px;'></div>";
+  }
+  function expRole(r) { G.expRole = r; var bs = document.querySelectorAll(".rlb"); for (var i = 0; i < bs.length; i++) bs[i].classList.toggle("on", bs[i].getAttribute("data-r") === r); }
+  function expSat(n) { G.expSat = n; var bs = document.querySelectorAll(".stb"); for (var i = 0; i < bs.length; i++) bs[i].classList.toggle("on", parseInt(bs[i].getAttribute("data-s"), 10) <= n); }
+  function buildGrowthRec(v) { // 🌱 성장 기록 — 사람이 남긴 경험이 다음 버전의 근거가 된다 (순수 함수)
+    var clip = function (s, n) { return String(s || "").trim().slice(0, n); };
+    return { at: v.date || todayStr(), role: v.role || "mr", by: clip(v.by, 40) || "익명", sat: v.sat || null,
+      like: clip(v.like, 600), wish: clip(v.wish, 600), miss: clip(v.miss, 600),
+      doc: clip(v.doc, 20), total: typeof v.total === "number" ? v.total : null, mode: clip(v.mode, 20),
+      has: !!(clip(v.like, 1) || clip(v.wish, 1) || clip(v.miss, 1) || v.sat) };
+  }
+  function growthLog() { return loadK("growth", []); }
+  function saveGrowth(rec) { var g = growthLog(); g.push(rec); store("growth", g.slice(-200)); return g.length; }
+  function calibPick(ax, lv) { // 면접관이 고른 등급 — 칩 상태 반영
+    G.calibPick = G.calibPick || {};
+    G.calibPick[ax] = lv;
+    var box = $("cblv_" + ax); if (!box) return;
+    var bs = box.querySelectorAll(".lvb");
+    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle("on", parseInt(bs[i].getAttribute("data-lv"), 10) === lv);
+  }
   function calibSubmit() {
     var s = G.sessions[G.sessions.length - 1];
     if (!s) { toast("평가할 세션이 없습니다"); return; }
-    var human = {}, missing = false;
+    var human = {}, missing = false, lvs = {};
     AX_META.forEach(function (m) {
-      var v = parseInt($("ev" + m[0]).value, 10);
-      if (isNaN(v)) missing = true;
-      human[m[0]] = Math.max(0, Math.min(m[2], isNaN(v) ? 0 : v));
+      var lv = (G.calibPick || {})[m[0]];
+      if (!lv) { var v0 = parseInt(($("ev" + m[0]) || {}).value, 10); if (!isNaN(v0)) { human[m[0]] = Math.max(0, Math.min(m[2], v0)); lvs[m[0]] = lvOf(human[m[0]], m[2]); return; } missing = true; return; }
+      lvs[m[0]] = lv;
+      human[m[0]] = lvToRaw(lv, m[2]); // 5점 척도를 AI와 같은 자(원점수)로 환산해 비교한다
     });
-    if (missing) { toast("5개 축 점수를 모두 입력하세요"); return; }
+    if (missing) { toast("5개 항목의 등급(5~1)을 모두 선택하세요"); return; }
     human.total = human.A + human.B + human.C + human.D + human.E;
-    var res = calcCalib(s.sc, human);
-    var rec = { version: "calib-1", date: todayStr(), evaluator: ($("evName").value || "익명").trim(), comment: $("evComment").value.trim(),
+    var ruleLv = {}; AX_META.forEach(function (m) { ruleLv[m[0]] = lvToRaw(lvOf(s.sc[m[0]], m[2]), m[2]); }); // AI 점수도 같은 등급 자로 환산해 비교 — 등급이 같으면 오차 0
+    ruleLv.total = AX_META.reduce(function (a, m) { return a + ruleLv[m[0]]; }, 0);
+    var res = calcCalib(ruleLv, human);
+    var evV = function (id) { var e = $(id); return e && e.value ? e.value.trim() : ""; };
+    var rec = { version: "calib-2", date: todayStr(), evaluator: evV("evName") || "익명", comment: evV("evComment"),
+      good: evV("evGood"), bad: evV("evBad"), levels: lvs, aiLevels: (function () { var o = {}; AX_META.forEach(function (m) { o[m[0]] = lvOf(s.sc[m[0]], m[2]); }); return o; })(),
       user: G.user, doctor: s.doc, ht: s.ht, diff: s.diff, types: s.types, llm: s.llm,
       rule: { A: s.sc.A, B: s.sc.B, C: s.sc.C, D: s.sc.D, E: s.sc.E, total: s.sc.total },
       human: human, delta: { mae: res.mae, total: human.total - s.sc.total },
@@ -4108,13 +4333,26 @@ window.APP = (function () {
       nv: s.nv || null };
     G.calib.push({ rule: s.sc, human: human });
     store("calib", G.calib); // 이 기기 보존
-    cloudUpload("rp_calib", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office, doc: s.doc, evaluator: rec.evaluator || "", rule: rec.rule, human: human, comment: (($("evComment") && $("evComment").value) || "").slice(0, 500) });
-    var h = "<table class='ax'><tr><th>영역</th><th style='text-align:right;'>AI</th><th style='text-align:right;'>사람</th><th style='text-align:right;'>차이</th></tr>";
+    // 🌱 성장 기록 — 사람의 경험·개선 요구를 남긴다 (채점 대조와 함께 축적)
+    var gr = buildGrowthRec({ role: G.expRole, by: rec.evaluator, sat: G.expSat, like: evV("evLike"), wish: evV("evWish"), miss: evV("evMiss"),
+      doc: s.doc, total: s.sc.total, mode: s.llm || "대본" });
+    rec.growth = gr;
+    if (gr.has) {
+      saveGrowth(gr);
+      cloudUpload("rp_feedback", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office,
+        role: gr.role, evaluator: gr.by, sat: gr.sat, like_txt: gr.like, wish: gr.wish, miss: gr.miss, doc: gr.doc, total: gr.total }); // like는 SQL 예약어 → like_txt · 테이블 없으면 조용히 무시(로컬·대조기록엔 항상 남는다)
+    }
+    cloudUpload("rp_calib", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office, doc: s.doc, evaluator: rec.evaluator || "", rule: rec.rule, human: human,
+      comment: JSON.stringify({ c: evV("evComment"), good: rec.good, bad: rec.bad, lv: lvs, growth: gr }).slice(0, 1800) }); // 서버 테이블이 rp_feedback 없이도 의견이 보존되도록 대조 기록에 동봉
+    var h = "<table class='ax'><tr><th>항목</th><th>AI 판정</th><th>전문가</th><th style='text-align:right;'>차이</th><th>합의</th></tr>";
     res.rows.forEach(function (r) {
-      h += "<tr><td class='axn'>" + r.name + "</td><td class='axv'>" + r.rule + "</td><td class='axv'>" + r.human + "</td><td class='axv' style='color:" + (r.diff === 0 ? "var(--sub)" : Math.abs(r.diff) >= 4 ? "var(--neg)" : "var(--warn)") + ";'>" + (r.diff > 0 ? "+" : "") + r.diff + "</td></tr>";
+      var aiLv = lvOf(s.sc[r.key], r.max), huLv = lvs[r.key], gap = huLv - aiLv;
+      h += "<tr><td class='axn'>" + r.name + "</td><td class='axv'>" + aiLv + "(" + axGrade(s.sc[r.key], r.max) + ") · " + aiLv * 20 + "점</td><td class='axv'>" + huLv + "(" + (LV_META.filter(function (l) { return l[0] === huLv; })[0] || [0, "-"])[1] + ") · " + huLv * 20 + "점</td>" +
+        "<td class='axv' style='color:" + (gap === 0 ? "var(--sub)" : Math.abs(gap) >= 2 ? "var(--neg)" : "var(--warn)") + ";'>" + (gap > 0 ? "+" : "") + gap + "</td><td>" + (gap === 0 ? "<span class='pill ok'>일치</span>" : Math.abs(gap) === 1 ? "<span class='pill wn'>근접</span>" : "<span class='pill wn' style='background:#F6DED9;color:#8A2E22;'>불일치</span>") + "</td></tr>";
     });
-    h += "<tr><td class='axn'>총점</td><td class='axv'>" + s.sc.total + "</td><td class='axv'>" + human.total + "</td><td class='axv'>" + (human.total - s.sc.total > 0 ? "+" : "") + (human.total - s.sc.total) + "</td></tr></table>";
-    h += "<div class='small' style='margin-top:6px;'>축 평균 오차(MAE) <b>" + res.mae + "점</b> — 기록이 저장되었습니다(JSON). 이 파일들이 모이면 채점 가중치·프롬프트 보정의 근거가 됩니다.</div>";
+    var agree = res.rows.filter(function (r) { return lvs[r.key] === lvOf(s.sc[r.key], r.max); }).length;
+    h += "<tr><td class='axn'>총점(환산)</td><td class='axv'>" + s.sc.total + "</td><td class='axv'>" + human.total + "</td><td class='axv'>" + (human.total - s.sc.total > 0 ? "+" : "") + (human.total - s.sc.total) + "</td><td>" + agree + "/5 일치</td></tr></table>";
+    h += "<div class='small' style='margin-top:6px;'>등급 일치율 <b>" + Math.round(100 * agree / 5) + "%</b> · 축 평균 오차(MAE) <b>" + res.mae + "점</b> — 이 기록이 30판 모이면 AI 채점의 신뢰구간을 제시할 수 있고, 축별 편향은 관리자 화면에서 자동 진단됩니다.</div>";
     var bias = biasSummary(G.calib);
     if (bias && bias.length) h += "<div class='hl' style='margin-top:6px;'><b>누적 편향 (" + G.calib.length + "건)</b><br>· " + bias.join("<br>· ") + "</div>";
     else if (G.calib.length >= 2 && bias && !bias.length) h += "<div class='small'>누적 " + G.calib.length + "건 — 축별 유의미한 편향 없음(±2점 미만).</div>";
@@ -4313,6 +4551,23 @@ window.APP = (function () {
         "<table style='width:100%;border-collapse:collapse;margin-top:6px;font-size:12px;'><tr>" + Object.keys(names).map(function (a) { return "<th style='padding:4px;background:#EFF3F2;border:1px solid #E3EAE7;'>" + names[a] + "</th>"; }).join("") + "</tr><tr>" + rowsH + "</tr></table>" +
         "<div style='margin-top:8px;'>" + st.advice.map(function (a) { return "<div class='chip warn' style='display:block;margin:3px 0;'>" + esc(a) + "</div>"; }).join("") + "</div>";
     })();
+    // 🌱 제품 성장 로그 — 사람들이 남긴 경험이 다음 버전의 백로그가 된다
+    if ($("admGrowth")) (function () {
+      var recs = growthLog().slice();
+      (G.cloudCalib || []).forEach(function (r) { // 서버 대조 기록에 동봉된 의견도 회수
+        try { var c = typeof r.comment === "string" && r.comment.charAt(0) === "{" ? JSON.parse(r.comment) : null; if (c && c.growth && c.growth.has) recs.push(c.growth); } catch (e) {}
+      });
+      if (!recs.length) { $("admGrowth").innerHTML = "<div class='small'>아직 수집된 의견이 없습니다 — 결과 화면의 <b>🌱 AI 코치 경험 평가</b>에서 쌓입니다.</div>"; return; }
+      var sats = recs.filter(function (r) { return r.sat; }).map(function (r) { return r.sat; });
+      var avg = sats.length ? Math.round(10 * sats.reduce(function (a, b) { return a + b; }, 0) / sats.length) / 10 : null;
+      var roleNm = { mr: "MR", coach: "면접관·코치", mgr: "관리자" };
+      var h = "<div class='small' style='margin-bottom:6px;'>누적 <b>" + recs.length + "건</b>" + (avg ? " · AI 코치 만족도 평균 <b>" + avg + "/5</b> (" + sats.length + "명)" : "") + " — 보완 요청은 다음 버전 백로그로 이관합니다.</div>";
+      recs.slice(-12).reverse().forEach(function (r) {
+        h += "<div class='fb-item'><div class='fb-head'><span class='fb-chip c-log'>" + esc(roleNm[r.role] || "MR") + "</span><b>" + esc(r.by || "익명") + "</b>" + (r.sat ? " <span class='small'>만족도 " + r.sat + "/5</span>" : "") + " <span class='small'>" + esc(r.at || "") + (r.doc ? " · vs " + esc(r.doc) + " 원장" : "") + (typeof r.total === "number" ? " · " + r.total + "점" : "") + "</span></div><div class='fb-why'>" +
+          (r.like ? "👍 " + esc(r.like) + "<br>" : "") + (r.wish ? "🔧 " + esc(r.wish) + "<br>" : "") + (r.miss ? "⚖ 채점 이견: " + esc(r.miss) : "") + "</div></div>";
+      });
+      $("admGrowth").innerHTML = h;
+    })();
     $("admSilence").value = VOICE_SILENCE_MS / 1000;
     $("admCrit").value = CRIT_OVERRIDE || "";
     $("admFix").value = ALPI_NV.CONFIG.fixSec;
@@ -4363,6 +4618,7 @@ window.APP = (function () {
     $("admApplied").textContent = "적용됨 (이 세션 한정 · 새로고침 시 기본값)";
     toast("파라미터 적용 — 정식 반영은 결정 절차");
   }
+  function growthExport() { dlFile("알피왕_성장의견_" + todayStr().replace(/-/g, "") + ".json", JSON.stringify({ version: "growth-1", date: todayStr(), records: growthLog() }, null, 1)); }
   function admExport() {
     dlFile("알피왕_운영기록_" + todayStr().replace(/-/g, "") + ".json",
       JSON.stringify({ version: "ops-1", date: todayStr(), user: G.user, sessions: G.sessions.map(function (ss) { return { no: ss.no, doc: ss.doc, types: ss.types, sc: ss.sc, crits: ss.crits, date: ss.date }; }), calibCount: G.calib.length }, null, 1));
@@ -4664,8 +4920,8 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, firstSent: firstSent, ISLE_NM: ISLE_NM } };
+    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, expRole: expRole, expSat: expSat, growthExport: growthExport,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec } };
 })();
 
 </script>
