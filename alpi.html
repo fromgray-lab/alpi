@@ -2594,6 +2594,14 @@ window.APP = (function () {
     return Math.round(Math.max(0, Math.min(30, cover + critB + q - whiffs * 2)));
   }
   function scoreSession(turns, scen, nv) {
+    // 참여하지 않은 판은 채점하지 않는다.
+    // 예전엔 한 마디도 안 해도 기본점(B8+C4+D11+E4)이 붙어 27점 · 대화운영 B등급이 나왔다 —
+    // 눌러만 보고 끈 사람이 전광판에 ₿27,000,000으로 올라가던 원인이기도 하다.
+    var spoke = (turns || []).filter(function (x) { return x && x.text && String(x.text).trim(); }).length;
+    if (!spoke) {
+      return { A: 0, B: 0, C: 0, D: 0, E: 0, total: 0, grade: "미참여", xp: 0, badN: 0, okN: 0, confirmN: 0,
+        usedMb: [], fitMb: (scen && scen.fits) || [], earned: 0, penalty: 0, badList: [], noPlay: true };
+    }
     var A = axAScore(turns, scen);
     var okN = 0, badN = 0, confirmN = 0;
     turns.forEach(function (x) { if (x.judge) { okN += x.judge.numsOk; badN += x.judge.numsBad; if (x.judge.confirmLater) confirmN++; } });
@@ -2619,7 +2627,9 @@ window.APP = (function () {
       if (x.judge.pushy) pushN++;
       if (x.judge.len > ((x.eleven || x.voice) ? 700 : 350)) mono++;
     });
-    var D = 6 + (qN >= 2 ? 4 : qN === 1 ? 2 : 0) + (empN >= Math.ceil(turns.length / 2) ? 3 : 1) + 2 - pushN * 3 - mono * 2;
+    // 공감 보너스는 '실제로 공감 표현을 했을 때'만 — empN=0, turns=0이면 0>=0이 참이 되어
+    // 아무 말도 안 한 판에 보너스가 붙던 버그(대화운영 11/15 B등급)를 막는다
+    var D = 6 + (qN >= 2 ? 4 : qN === 1 ? 2 : 0) + (empN > 0 && empN >= Math.ceil(turns.length / 2) ? 3 : 1) + 2 - pushN * 3 - mono * 2;
     D = Math.max(0, Math.min(15, D));
     var lastTexts = turns.slice(-2).map(function (x) { return x.text; }).join(" ");
     var E;
@@ -4043,6 +4053,9 @@ window.APP = (function () {
       "<div class='ph-avwrap'><div class='ph-av'><svg viewBox='0 0 120 140'>" + portraitSvg(d.av || {}) + "</svg></div><div class='ph-avcap'>vs " + esc(d.nm || "-") + " 원장 · " + esc(d.hosp || "") + "</div></div></div>" +
       "<div class='pscore'><div class='ps-num'>" + sc.total + "<small>/100</small></div><div class='ps-grade' style='background:" + (GR_COL[LG] || "#5B6663") + ";'>" + LG + "</div><div class='ps-axes'>" + axHtml + "</div>" +
       (ctx.radar ? "<div class='ps-radar'>" + ctx.radar + "</div>" : "") + "</div>" +
+      // 참여 자체가 없었던 판은 '점수'가 아니라 '왜 점수가 없는지'를 말해줘야 한다
+      (sc.noPlay ? "<div class='pdeduct'><b>이번 판은 채점 대상이 아닙니다</b> — 원장님과 대화를 시작하기 전에 통화가 종료되어, MR의 발언이 한 건도 기록되지 않았습니다." +
+        "<div class='pdeduct-why'>한 마디라도 응수하시면 그때부터 반대극복·수치정확·명분설계가 채점됩니다. 부담 없이 “안녕하세요 원장님, 대웅제약입니다”로 시작해 보세요.</div></div>" : "") +
       // 감점이 있으면 반드시 드러낸다 — 축 합계와 총점이 다른데 설명이 없으면 리포트를 신뢰할 수 없다
       (sc.penalty ? "<div class='pdeduct'><b>항목 합계 " + sc.earned + "점</b> − <b>확인 안 된 수치 감점 " + sc.penalty + "점</b>" +
         (sc.badN ? " (" + sc.badN + "건" + (sc.badList && sc.badList.length ? ": " + sc.badList.map(esc).join(", ") : "") + ")" : "") +
@@ -4310,7 +4323,9 @@ window.APP = (function () {
     if (sc.total >= 80) { confetti(); } // 캡틴 이상 — 축포 (팡파레는 endCall에서 1회)
     var wg = $("wGrade"); wg.classList.remove("slamin"); void wg.offsetWidth; wg.classList.add("slamin"); // 등급 도장 슬램
     persistAll(); // 이 기기의 훈련 기록 갱신 — 새로고침해도 유지
-    cloudUpload("rp_sessions", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office, div: G.user && G.user.div,
+    // 참여하지 않은 판(한 마디도 안 하고 종료)은 서버에 올리지 않는다 —
+    // 눌러만 보고 끈 사람이 전광판·통계에 실사용자로 잡히던 문제
+    if (!sc.noPlay) cloudUpload("rp_sessions", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office, div: G.user && G.user.div,
       doc: G.doc.nm, types: types, total: sc.total, axes: { A: sc.A, B: sc.B, C: sc.C, D: sc.D, E: sc.E }, crits: crits,
       ht: G.scen.ht, diff: G.scen.diff, llm: elevenOn() ? "eleven" : llmOn() ? G.claudeModel : null, device: IS_MOBILE ? "mobile" : "desktop" });
     // 비언어 분석 표
@@ -5093,7 +5108,7 @@ window.APP = (function () {
   G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
-  var APP_VER = "3.3";
+  var APP_VER = "3.4";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
   try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
