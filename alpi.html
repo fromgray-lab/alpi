@@ -428,13 +428,57 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 }
 @media(hover:none){ .poster:hover{transform:none;} .btn{min-height:44px;} } /* 터치 기기 — 호버 잔상 제거·탭 타깃 보장 */
 @media(prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;} } /* 모션 민감·저사양 배려 */
-@media print{ /* 결과 리포트 인쇄 — 코칭 면담용 */
-  body{background:#fff!important;color:#111!important;}
-  .adminbtn,.inrow,.btn,button,.pip,.grainov,.cfp,.combo,#btnQR,#btnAdmin,video,#chestOv,#verOv,#toast,.wanted{display:none!important;} /* 인쇄본은 코칭 문서 — 수배전단은 화면의 재미로만 */
-  .scr{display:none!important;}
-  #scr-result{display:block!important;min-height:auto;}
-  .card{box-shadow:none!important;border:1px solid #ccc!important;page-break-inside:avoid;}
-  .wanted{box-shadow:none!important;}
+#printSheet{display:none;} /* A4 전용 코칭 문서 — 화면에는 없다, 인쇄에만 존재한다 */
+@media print{
+  @page{size:A4;margin:12mm 13mm 14mm;}
+  html,body{background:#fff!important;height:auto!important;}
+  .scr,.adminbtn,#btnQR,#btnAdmin,.toast,.flashcrit,#chestOv,#verOv,.grainov,#fxLayer,video{display:none!important;}
+  #printSheet{display:block!important;color:#1A2420;font-size:10.5pt;line-height:1.62;font-family:'Pretendard',-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;}
+  #printSheet *{box-shadow:none!important;}
+  .ph{display:flex;justify-content:space-between;align-items:center;gap:14pt;border-bottom:3pt solid #0B2F2A;padding-bottom:10pt;}
+  .ph h1{font-size:25pt;font-weight:900;letter-spacing:-.02em;margin:3pt 0 2pt;color:#0B2F2A;line-height:1.18;}
+  .ph h1 .ph-rp{color:#B9932B;}
+  .ph-brand{font-size:8.5pt;font-weight:800;letter-spacing:.28em;color:#0B5B54;}
+  .ph-sub{font-size:9.5pt;color:#5A6763;font-weight:600;margin-top:1pt;}
+  .ph-meta2{font-size:9pt;color:#33403B;font-weight:700;margin-top:5pt;}
+  .ph-avwrap{flex:none;text-align:center;}
+  .ph-av{width:86pt;height:98pt;border:2.5pt solid #0B2F2A;border-radius:10pt;background:#F6EDD2;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;}
+  .ph-av svg{width:82pt;height:94pt;display:block;}
+  .ph-avcap{font-size:8pt;font-weight:800;color:#5A6763;margin-top:3pt;letter-spacing:.02em;}
+  .pscore{display:flex;gap:18pt;align-items:center;margin:12pt 0 2pt;}
+  .ps-num{font-size:40pt;font-weight:900;color:#0B2F2A;line-height:1;}
+  .ps-num small{font-size:12pt;color:#8A948F;font-weight:700;}
+  .ps-grade{width:36pt;height:36pt;border-radius:9pt;color:#fff;font-size:21pt;font-weight:900;display:flex;align-items:center;justify-content:center;}
+  .ps-axes{flex:1;}
+  .pax{display:flex;align-items:center;gap:8pt;margin:3.5pt 0;}
+  .pax b{width:52pt;font-size:9pt;font-weight:800;color:#33403B;flex:none;}
+  .pax .tr{flex:1;height:8pt;background:#EBF0EE;border-radius:4pt;position:relative;}
+  .pax .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:4pt;background:#0B5B54;}
+  .pax .tr u{position:absolute;left:80%;top:-2.5pt;bottom:-2.5pt;width:1pt;background:#B9932B;text-decoration:none;} /* 80점(A) 목표선 */
+  .pax .sc{width:58pt;text-align:right;font-size:9pt;font-weight:800;color:#33403B;flex:none;}
+  .psec{margin-top:13pt;}
+  .psec h2{font-size:12.5pt;font-weight:900;color:#0B2F2A;border-left:4pt solid #0B5B54;padding-left:7pt;margin-bottom:6pt;}
+  .psum{background:#F4F9F7;border-radius:8pt;padding:9pt 12pt;font-size:10.5pt;line-height:1.7;}
+  .pt{border:1pt solid #DCE4E1;border-radius:8pt;padding:8pt 11pt;margin:6pt 0;page-break-inside:avoid;}
+  .pt-hd{display:flex;align-items:center;gap:7pt;font-weight:900;font-size:11.5pt;color:#16211D;}
+  .pt-full{font-size:8.5pt;color:#7A8681;font-weight:600;}
+  .pt-st{margin-left:auto;font-size:8pt;font-weight:900;border-radius:99pt;padding:1.5pt 8pt;color:#fff;}
+  .pt-q{margin:5pt 0 4pt;font-size:9.5pt;color:#3A4540;border-left:2.5pt solid #B7C9C2;padding-left:7pt;line-height:1.6;}
+  .pt-keys{font-size:9pt;color:#4A5550;line-height:1.75;}
+  .pt-keys .ok{color:#0B5B54;font-weight:800;}
+  .pt-keys .no{color:#9A7B18;}
+  .pt-rx{margin-top:4pt;font-size:9.5pt;color:#0B5B54;font-weight:600;}
+  .pcols{display:grid;grid-template-columns:1fr 1fr;gap:10pt;}
+  .pcols .pbox{border:1pt solid #DCE4E1;border-radius:8pt;padding:8pt 11pt;page-break-inside:avoid;}
+  .pcols h3{font-size:10.5pt;font-weight:900;margin-bottom:4pt;}
+  .pcols .g h3{color:#0B5B54;} .pcols .r h3{color:#8A5A10;}
+  .pit{font-size:9.5pt;margin:4.5pt 0;line-height:1.55;}
+  .pit b{display:block;color:#16211D;}
+  .pit span{color:#5A6763;}
+  ol.prx{margin:2pt 0 0 14pt;font-size:10pt;}
+  ol.prx li{margin:4.5pt 0;line-height:1.6;}
+  ol.prx b{color:#0B2F2A;}
+  .pfoot{margin-top:14pt;border-top:1pt solid #DCE4E1;padding-top:5pt;font-size:8pt;color:#8A948F;display:flex;justify-content:space-between;letter-spacing:.04em;}
 }
 </style>
 </head>
@@ -718,7 +762,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
     </div>
 
     <div class="card" id="isleCard">
-      <h2>🏝 이번 항해 섬 리포트 <span class="small">내가 만난 반대 — 무엇을 맞혔고, 무엇이 비었나</span></h2>
+      <h2>🏝 유형별 R/P 리포트 <span class="small">테마별 — 무엇을 맞혔고, 무엇이 비었나</span></h2>
       <div id="isleRep"></div>
     </div>
 
@@ -986,6 +1030,9 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
     <button class="btn gold" style="margin-top:12px;padding:10px 22px;" onclick="APP.verClose()">⚓ 출항</button>
   </div>
 </div>
+
+<!-- 🖨 A4 전용 코칭 문서 — 결과 화면과 별개의 인쇄용 지면 (renderResult가 채운다) -->
+<div id="printSheet"></div>
 
 <script>
 /* ══════════ 데이터 — 표준집 V22 (standards.md와 동일 원문) ══════════ */
@@ -3650,6 +3697,7 @@ window.APP = (function () {
     else p.push("클로징 감각은 좋았어요. 이제 한 턴의 밀도(공감+명분+수치+질문)만 올리면 됩니다.");
     return p.join(" ");
   }
+  var ISLE_NM = { 1: "정책불신", 2: "행정과다", 3: "환자설득", 4: "수익성", 5: "관리부담", 6: "고당사업", 7: "고령·앱", 8: "의협회비", 9: "심평원", 10: "경쟁PG", 11: "참여설득", 12: "검진시즌", 13: "인력부족", 14: "시범악몽", 15: "가입설득", 16: "정보보안", 17: "삭감공포", 18: "고령혜택", 19: "닥터바이스", 20: "아임파인" }; // 테마 축약명 — 지도·리포트 공용
   var ISLE_ST = { crit: ["⚡ 크리티컬 격파", "ist-crit"], clear: ["✓ 격파", "ist-clear"], half: ["◐ 절반 — 한 발 남음", "ist-half"], miss: ["✗ 미격파", "ist-miss"] };
   function isleHtml(turns) { // 섬 리포트 렌더 — 내가 한 말 인용 + 명분 체크리스트 + 다음 한 문장
     var isl = isleReport(turns);
@@ -3660,13 +3708,56 @@ window.APP = (function () {
         var short = esc(String(k.t).split(" — ")[0]);
         return "<div class='" + (k.hit ? "kk-ok" : "kk-no") + "'>" + (k.hit ? "✓ " : "○ ") + short + (k.hit ? "" : " <span class='small'>(이번엔 안 실렸어요)</span>") + "</div>";
       }).join("");
-      return "<div class='isle'><div class='isle-hd'><span class='cdx-n'>" + r.n + "</span>" + esc(r.t) + "<span class='small'>응수 " + r.tries + "회</span><span class='isle-st " + st[1] + "'>" + st[0] + "</span></div>" +
+      return "<div class='isle'><div class='isle-hd'><span class='cdx-n'>" + r.n + "</span>" + esc(ISLE_NM[r.n] || r.t) + " R/P<span class='small'>" + esc(r.t) + " · 응수 " + r.tries + "회</span><span class='isle-st " + st[1] + "'>" + st[0] + "</span></div>" +
         (r.quote ? "<div class='isle-q'>내 응수: “" + esc(r.quote.slice(0, 120)) + (r.quote.length > 120 ? "…" : "") + "”</div>" : "") +
         "<div class='isle-keys'>" + keys + "</div>" +
         (r.status === "crit" || r.status === "clear" ? "<div class='isle-next'>💡 이 섬은 잡으셨어요. 다음엔 같은 논리를 <b>더 짧게</b> — 두 문장 안에 담아보세요.</div>"
           : "<div class='isle-next'>💬 다음엔 이 한 문장으로 시작해보세요: “" + esc(r.nextLine) + "”</div>") +
         "</div>";
     }).join("");
+  }
+  function firstSent(s) { s = String(s || ""); var m = s.match(/^.*?[.!?](?=\s|$)/); return m ? m[0] : s.slice(0, 90); } // 인쇄본 잔글 방지 — 첫 문장만
+  function printTone(s) { // 인쇄 지면은 대웅식 언어 — 게임 어휘를 코칭 어휘로 치환 (화면의 게임 연출은 그대로)
+    return String(s || "")
+      .replace(/크리티컬로/g, "정답 명분에 정확한 수치까지 실어")
+      .replace(/크리티컬/g, "완벽 극복")
+      .replace(/([가-힣·\s]{0,8})\s?섬에서/g, "$1 유형에서")
+      .replace(/섬(을|이|은|에|으로)/g, "유형$1")
+      .replace(/원피스 특훈 60초/g, "60초 수치 집중 훈련")
+      .replace(/정복 지도/g, "유형 훈련 지도")
+      .replace(/재장전/g, "재정비")
+      .replace(/같은 상대 재도전/g, "같은 원장 재훈련")
+      .replace(/격파/g, "극복");
+  }
+  function buildPrintSheet(turns, sc, LG, fb, meta) { // 🖨 A4 전용 코칭 문서 — 잡지식 마스트헤드 + 축 대시보드 + 테마별 R/P (게임 화면과 별개의 '팔리는 지면')
+    var u = G.user || {}, d = G.doc || {};
+    var isl = isleReport(turns);
+    var stNm = { crit: ["완벽 극복", "#B8860B"], clear: ["극복 완료", "#0B5B54"], half: ["부분 극복", "#8a6d1a"], miss: ["미극복", "#B0392E"] };
+    var axes = [["반대극복", sc.A, 30], ["수치정확", sc.B, 20], ["명분설계", sc.C, 20], ["대화운영", sc.D, 15], ["클로징", sc.E, 15]];
+    var axHtml = axes.map(function (a) {
+      var pct = Math.round(100 * a[1] / a[2]);
+      return "<div class='pax'><b>" + a[0] + "</b><span class='tr'><i style='width:" + pct + "%;'></i><u></u></span><span class='sc'>" + a[1] + "/" + a[2] + " · " + axGrade(a[1], a[2]) + "</span></div>";
+    }).join("");
+    var themes = isl.length ? isl.map(function (r) {
+      var st = stNm[r.status];
+      var keys = r.keys.map(function (k) { return "<span class='" + (k.hit ? "ok" : "no") + "'>" + (k.hit ? "✓ " : "○ ") + esc(String(k.t).split(" — ")[0].split("(")[0].trim()) + "</span>"; }).join(" &nbsp;·&nbsp; ");
+      return "<div class='pt'><div class='pt-hd'><span>" + esc(ISLE_NM[r.n] || r.t) + " R/P</span><span class='pt-full'>" + esc(r.t) + " · 응수 " + r.tries + "회</span><span class='pt-st' style='background:" + st[1] + ";'>" + st[0] + "</span></div>" +
+        (r.quote ? "<div class='pt-q'>“" + esc(r.quote.slice(0, 110)) + (r.quote.length > 110 ? "…" : "") + "”</div>" : "") +
+        "<div class='pt-keys'>" + keys + "</div>" +
+        (r.status === "miss" || r.status === "half" ? "<div class='pt-rx'>처방 — “" + esc(r.nextLine) + "”</div>" : "") + "</div>";
+    }).join("") : "<div class='pit'><span>기록된 반대 유형 응수가 없습니다 — 본론 전에 통화가 종료되었습니다.</span></div>";
+    var li = function (x) { return "<div class='pit'><b>" + esc(printTone(x.t)) + "</b><span>" + esc(printTone(firstSent(x.why || ""))) + "</span></div>"; };
+    return "<div class='ph'><div><div class='ph-brand'>WELLCHECK R/P TRAINING · COACHING REPORT</div>" +
+      "<h1>나는 루피<span class='ph-rp'>(R/P)</span>, 내 꿈은 알피왕!</h1>" +
+      "<div class='ph-sub'>반대극복 실전 훈련 리포트 · 표준 가이드(V22) 기준 자동 채점 + 코칭 엔진</div>" +
+      "<div class='ph-meta2'>" + esc(u.name || "-") + " · " + esc((u.div || "") + " " + (u.office || "")) + " · " + todayStr() + " · " + esc(meta || "") + "</div></div>" +
+      "<div class='ph-avwrap'><div class='ph-av'><svg viewBox='0 0 120 140'>" + portraitSvg(d.av || {}) + "</svg></div><div class='ph-avcap'>vs " + esc(d.nm || "-") + " 원장 · " + esc(d.hosp || "") + "</div></div></div>" +
+      "<div class='pscore'><div class='ps-num'>" + sc.total + "<small>/100</small></div><div class='ps-grade' style='background:" + (GR_COL[LG] || "#5B6663") + ";'>" + LG + "</div><div class='ps-axes'>" + axHtml + "</div></div>" +
+      "<div class='psec'><h2>코치 총평</h2><div class='psum'>" + printTone(coachSummary(turns, sc)) + "</div></div>" +
+      "<div class='psec'><h2>유형별 R/P 리포트</h2>" + themes + "</div>" +
+      "<div class='psec'><div class='pcols'><div class='pbox g'><h3>잘한 점</h3>" + fb.S.map(li).join("") + "</div><div class='pbox r'><h3>개선할 점</h3>" + fb.I.map(li).join("") + "</div></div></div>" +
+      "<div class='psec'><h2>알피 마스터를 위한 조언</h2><ol class='prx'>" + fb.A.map(function (x) { return "<li><b>" + esc(printTone(x.t)) + "</b> — " + esc(printTone(x.how || "")) + "</li>"; }).join("") + "</ol></div>" +
+      "<div class='pfoot'><span>표준 반대극복 가이드(V22) 기준 자동 채점 · 세션 기록 서버 보존</span><span>NEW BUSINESS STRATEGY TEAM PRESENTS</span></div>";
   }
   function buildFeedback(turns, sc, scen, nv, aborted) {
     var S = [], I = [], A = [];
@@ -3709,16 +3800,16 @@ window.APP = (function () {
     if (I.length < 3 && turns.some(function (t) { return t.text && detectIntent(t.text) === "reschedule"; })) I.push({ t: "먼저 통화를 접으려 한 순간이 있었어요", why: "\"바쁘시면 다음에…\"는 배려지만, 원장이 내준 시간을 스스로 반납하는 습관이기도 해요. 접는 대신 압축합시다 — \"딱 90초만 쓰겠습니다\"가 나아요." });
     if (!I.length) I.push({ t: "치명적인 실수는 없었어요", why: "이제 정확도가 아니라 밀도예요 — 한 턴에 논리+수치+질문을 같이 싣는 연습을 해봅시다." });
     // 피드백(조언) — 개선점에 대한 처방
-    if (badT.length || sc.B < 15) A.push({ t: "수치 카드부터 다시 장전합시다", how: "385,000원 · 500명=1.9억 · 2,320원 vs 15,560원 — 이 3종만 입에 붙이면 수치 축은 만점권이에요. 모르는 숫자는 확인 약속으로 넘기시고요." });
-    if (vagueT.length || weakT.length) { var tn = (vagueT[0] || weakT[0]).typeN, ts = std(tn); if (ts) A.push({ t: "[" + tn + "] " + ts.t + " 표준 스크립트, 소리 내어 3번만 읽어보세요", how: "\"" + ts.script.slice(0, 80) + "…\" — 낭독하고 바로 같은 섬에 재도전하는 게 정복 확률이 제일 높아요." }); }
-    if (sc.E < 13) A.push({ t: "클로징 공식을 몸에 붙입시다: 행동+날짜+주체", how: "\"다음 주 화요일 2시에 교육간호사와 함께 방문해서 시연 일정을 잡겠습니다\" — 이 문형 그대로, 오늘 세 번만 소리 내어 보세요." });
-    if (objTurns.length && empN < Math.ceil(turns.length * 0.5)) A.push({ t: "반대에는 2박자로 갑시다: 공감 한 문장 → 표준 근거", how: "\"바쁘신 거 압니다. 그런데…\" — 첫 문장이 원장 방어를 풀어요." });
-    if (A.length < 2) A.push({ t: "반대극복 5단계를 몸에 붙이기: 공감→명분→근거→설계→실행", how: "우려 인정 한 문장 → '한 문장' 명분 → 데이터·시연 근거 → 역할 분담 설계 → \"부담 없는 환자 5명부터\" 작은 실행 제안. 이 순서대로 진행될 때 가장 효과적입니다." });
+    if (badT.length || sc.B < 15) A.push({ t: "근거 기반으로 대화하는 습관을 들입시다", how: "핵심 수치 3종 — 인당 최대 385,000원 · 500명이면 연 1.9억 · 본인부담 2,320원 vs AH200 15,560원. 이 근거가 문장에 실릴 때 원장이 움직입니다. 모르는 숫자는 \"확인 후 회신드리겠습니다\"로 신뢰를 지키세요." });
+    if (vagueT.length || weakT.length) { var tn = (vagueT[0] || weakT[0]).typeN, ts = std(tn); if (ts) A.push({ t: "[" + tn + "] " + ts.t + " 표준 스크립트를 소리 내어 3번 읽어봅시다", how: "핵심 메시지: " + ts.key.map(function (k) { return String(k).split(" — ")[0].split("(")[0].trim(); }).join(" · ") + " / 스크립트: \"" + ts.script.slice(0, 90) + "…\" (전문은 결과 하단 '표준 스크립트 복습'과 📜 도감에 있습니다) — 낭독 후 같은 유형으로 바로 재도전하는 것이 가장 효과적입니다." }); }
+    if (sc.E < 13) A.push({ t: "클로징은 행동+날짜+주체 한 문장으로 끝냅시다", how: "\"다음 주 화요일 2시에 교육간호사와 함께 방문해서 시연 일정을 잡겠습니다\" — 이 문형 그대로, 오늘 세 번만 소리 내어 보세요." });
+    if (objTurns.length && empN < Math.ceil(turns.length * 0.5)) A.push({ t: "반대에는 Yes-But 화법이 기본입니다", how: "공감 한 문장(예: \"손이 모자라시는 거 충분히 압니다\") + 표준 근거(예: \"행위당 길어야 2분, 짧게는 10초입니다\"). 인정 먼저, 근거는 그다음 — 이 순서가 원장 방어를 풉니다." });
+    if (A.length < 2) A.push({ t: "반대극복 5단계를 몸에 붙입시다: 공감→명분→근거→설계→실행", how: "우려 인정 한 문장 → '한 문장' 명분 → 데이터·시연 근거 → 역할 분담 설계 → \"부담 없는 환자 5명부터\" 작은 실행 제안. 이 순서대로 진행될 때 가장 효과적입니다." });
     var axmin = [["A", sc.A / 30], ["B", sc.B / 20], ["C", sc.C / 20], ["D", sc.D / 15], ["E", sc.E / 15]].sort(function (a, b) { return a[1] - b[1]; })[0][0];
     var recDoc = axmin === "A" ? ["장인석", "연쇄 반대를 정면 돌파하는 반대극복 단련"] : axmin === "B" ? ["신혁주", "어림수가 즉시 발각되는 수치 단련"] :
       axmin === "C" ? ["김민우", "데인 사람을 다시 여는 명분 재구성 단련"] : axmin === "D" ? ["강지은", "웃는 거절을 뚫는 경청·공감 단련"] : ["김민우", "배수진 클로징 단련"];
     var libRec = axmin === "A" ? "반대극복 → 'Feel–Felt–Found 한국형'" : axmin === "B" ? "수치 → '병원 규모 환산 화법'" : axmin === "C" ? "오프닝 → '성향별 후킹'" : axmin === "D" ? "비언어 → '전경사 5~10도'" : "클로징 → '양자택일'";
-    A.push({ t: "추천 다음 상대: " + recDoc[0] + " 원장", how: recDoc[1] + " — 약점 축을 정면으로 때리는 상대입니다. 🎓 튜토리얼 카드: " + libRec });
+    A.push({ t: "다음 훈련 상대 추천: " + recDoc[0] + " 원장", how: recDoc[1] + " — 약점 축을 정면으로 단련하는 상대입니다. 🎓 튜토리얼 카드: " + libRec });
     return { S: S.slice(0, 3), I: I.slice(0, 3), A: A.slice(0, 3), recDoc: recDoc };
   }
   function fbHtml(list, mode) { // mode: "check"(\uC798\uD55C\uC810 \u2713) | "num"(\uAC1C\uC120 \uC6B0\uC120\uC21C\uC704 \u2460\u2461\u2462) | "rx"(\uCC98\uBC29 \uCE69)
@@ -3782,7 +3873,7 @@ window.APP = (function () {
       var s5v = step5Check(G.turns, sc), missV = s5v.filter(function (x) { return !x[1]; }).map(function (x) { return x[0]; });
       var nextMove = worst[0] === "E" ? "마지막 문장을 \"행동+날짜+주체\"로 — 한 문장이 등급을 바꿉니다."
         : worst[0] === "B" ? "원피스 특훈 60초 → 같은 상대 재도전. 오수치 0이면 " + Math.min(100, sc.total + 10) + "점권입니다."
-        : worst[0] === "A" ? "정복 지도에서 약한 섬을 지정 공략 — 정답 명분을 재장전하세요."
+        : worst[0] === "A" ? "약한 유형을 지도에서 지정해 다시 훈련하세요 — 정답 명분부터 재정비."
         : worst[0] === "D" ? "탐색 질문 2개를 미리 적고 입장하세요 — 대화는 묻는 쪽이 끕니다."
         : "코칭 튜토리얼 '비교 프레임' 카드 1장 낭독 후 같은 상대 재도전.";
       var chips = "", hist = [];
@@ -3854,6 +3945,7 @@ window.APP = (function () {
     var aborted = !hasClose && Object.keys(handled).length < G.scen.objs.length && sc.total < 80; // 클로징도 없고 반대도 남긴 저득점 판 = 중도 종료
     var fb = buildFeedback(G.turns, sc, G.scen, nv, aborted);
     if (G.lastResult) G.lastResult.fb = fb;
+    if ($("printSheet")) $("printSheet").innerHTML = buildPrintSheet(G.turns, sc, LG, fb, diffName + " 난이도 · " + modeName.replace(/[^가-힣A-Za-z0-9 ]/g, "").trim() + " 모드 · " + Math.floor(durSec / 60) + "분 " + (durSec % 60) + "초"); // 🖨 A4 지면은 여기서 조판된다
     $("fbGood").innerHTML = fbHtml(fb.S, "check");
     $("fbImprove").innerHTML = fbHtml(fb.I, "num");
     // RP 맥 진단 (5단계 중 빠진 고리) + 암기 카드 — 코치 처방의 뼈대
@@ -4455,9 +4547,8 @@ window.APP = (function () {
     s += '<text x="30" y="' + (H - 22) + '" font-size="11" font-weight="700" fill="#6E4F16">START ⚓ 격파 ' + Object.keys(G.conquered).length + '/20</text><text x="' + (W - 24) + '" y="' + (H - 22) + '" text-anchor="end" font-size="11" font-weight="700" fill="#6E4F16">GOAL 👑 루피왕</text>';
     pts.forEach(function (p, i) {
       var n = i + 1, conq = G.conquered[n], tried = G.sessions.some(function (ss) { return ss.types.indexOf(n) >= 0; });
-      var ISLE = { 1: "정책불신", 2: "행정과다", 3: "환자설득", 4: "수익성", 5: "관리부담", 6: "고당사업", 7: "고령·앱", 8: "의협회비", 9: "심평원", 10: "경쟁PG", 11: "참여설득", 12: "검진시즌", 13: "인력부족", 14: "시범악몽", 15: "가입설득", 16: "정보보안", 17: "삭감공포", 18: "고령혜택", 19: "닥터바이스", 20: "아임파인" };
       var v = V22.filter(function (x) { return x.n === n; })[0];
-      var nm = ISLE[n] || (v ? v.t.slice(0, 6) : "");
+      var nm = ISLE_NM[n] || (v ? v.t.slice(0, 6) : "");
       var best = bestOfType(n);
       var g = '<g style="cursor:pointer;" onclick="APP.challengeType(' + n + ')">';
       g += '<title>[' + n + '] ' + (v ? v.t : "") + (best !== null ? " · 최고 " + best + "점" : "") + " — " + (conq ? "격파 완료(CLEAR) · 재도전 가능" : "이 섬에 도전 (80점=격파)") + '</title>';
@@ -4574,7 +4665,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, firstSent: firstSent, ISLE_NM: ISLE_NM } };
 })();
 
 </script>
