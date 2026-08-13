@@ -502,7 +502,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 .rdoc .pjl.crit{background:#B8860B;color:#fff;} .rdoc .pjl.hit{background:#0B5B54;color:#fff;}
 .rdoc .pjl.half{background:#DCE8E5;color:#2A5A52;} .rdoc .pjl.vague{background:#EFEADF;color:#7A6A4A;} .rdoc .pjl.bad{background:#B0392E;color:#fff;}
 .rdoc .pfoot{margin-top:20px;border-top:1px solid #DCE4E1;padding-top:7px;font-size:11px;color:#8A948F;display:flex;justify-content:space-between;gap:10px;letter-spacing:.04em;}
-.detail-acc{background:#fff;border-radius:12px;margin-bottom:14px;}
+.detail-acc{background:#fff;color:var(--ink);border-radius:12px;margin-bottom:14px;} /* .card 밖에 홀로 있어 body의 흰 글자색을 그대로 물려받던 버그 — summary 라벨이 흰 배경에 흰 글자로 안 보였다 */
+.detail-acc summary{color:var(--ink);}
 /* 전문가 평가 패널 */
 .calib-card{border:2px solid var(--acc);}
 .cbhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
@@ -1131,6 +1132,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
     <div class="ver-it"><b>🔥 콤보 & 연속 항해</b>연속 유효타 콤보 보너스, 매일 훈련 스트릭이 지도에 새겨집니다.</div>
     <div class="ver-it"><b>🔊 효과음 · 🖨 리포트 인쇄</b>타격음·팡파레·보물상자 사운드(끄기 가능), 결과 리포트 A4 인쇄/PDF.</div>
     <div class="ver-it"><b>🎙 3.1 — 원장 목소리 전면 재캐스팅 · 매너 시스템</b>캐릭터 싱크로율 기준으로 유료 보이스 교체(장인석·강지은·신혁주). 욕설·모욕은 원장이 그 자리에서 끊습니다 — 게임 오버. 음성 중복 재생 버그 수정.</div>
+    <div class="ver-it"><b>📱 3.2 — 결과 리포트 잡지형 개편 · 전문가 캘리브레이션 · 모바일 점검</b>인쇄물과 화면이 같은 A4 코칭 문서로 통합, 5점 척도 전문가 캘리브레이션과 🌱 AI 코치 경험 평가 신설. 아이폰·갤럭시 전 화면 점검 — 상세 지표 아코디언이 흰 배경에 흰 글씨로 안 보이던 문제 수정.</div>
     <button class="btn gold" style="margin-top:12px;padding:10px 22px;" onclick="APP.verClose()">⚓ 출항</button>
   </div>
 </div>
@@ -1286,6 +1288,7 @@ var COACH_LIB = [
 ];
 
 </script>
+
 <script>
 
 /* ═══════ ALPI_NV — 알피왕 비언어 측정 모듈 (로컬 온리 · 코멘트 온리) ═══════ */
@@ -1679,6 +1682,7 @@ window.ALPI_NV = (function () {
 })();
 
 </script>
+
 <script>
 /* ═══════ 알피왕 통합 데모 v2 — 앱 로직 ═══════ */
 window.APP = (function () {
@@ -4866,7 +4870,7 @@ window.APP = (function () {
   G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
-  var APP_VER = "3.1";
+  var APP_VER = "3.2";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
   try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
