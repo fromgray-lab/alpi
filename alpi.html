@@ -305,8 +305,8 @@ table.rank td.nm{font-weight:800;}
 .rc-bad{background:#B0392E;color:#fff;}
 .rc-talk{background:#E8ECEA;color:#5A6E68;}
 .rc-star{background:#33250C;color:#F2C465;}
-#chestOv,#verOv{position:fixed;inset:0;background:rgba(8,18,26,.66);z-index:60;display:none;align-items:center;justify-content:center;padding:20px;}
-#chestOv.show,#verOv.show{display:flex;}
+#chestOv,#verOv,#onbOv{position:fixed;inset:0;background:rgba(8,18,26,.66);z-index:60;display:none;align-items:center;justify-content:center;padding:20px;}
+#chestOv.show,#verOv.show,#onbOv.show{display:flex;}
 .chest-box{background:linear-gradient(165deg,#243447,#101E2C);border:2.5px solid #C9A94E;border-radius:18px;color:#F5EFDC;text-align:center;padding:26px 30px;max-width:420px;position:relative;overflow:hidden;animation:chestin .5s cubic-bezier(.2,1.6,.4,1);}
 .chest-ico{font-size:56px;position:relative;z-index:2;animation:chestbounce 1.1s ease infinite alternate;}
 .chest-glow{position:absolute;left:50%;top:30px;width:190px;height:190px;transform:translateX(-50%);background:radial-gradient(circle,rgba(242,196,101,.55),rgba(242,196,101,0) 70%);animation:glowpulse 1.4s ease infinite alternate;}
@@ -314,7 +314,7 @@ table.rank td.nm{font-weight:800;}
 @keyframes chestbounce{from{transform:translateY(0) rotate(-3deg);}to{transform:translateY(-7px) rotate(3deg);}}
 @keyframes glowpulse{from{opacity:.5;}to{opacity:1;}}
 .ver-box{background:#FBF8F1;border:2px solid #C9A94E;border-radius:18px;max-width:470px;padding:22px 26px;box-shadow:0 18px 50px rgba(0,0,0,.4);animation:chestin .4s cubic-bezier(.2,1.4,.4,1);max-height:86vh;overflow:auto;color:var(--ink);}
-.ver-it{font-size:13.5px;line-height:1.6;margin:8px 0;padding:9px 12px;background:#fff;border:1px solid var(--line);border-radius:10px;}
+.ver-it{font-size:13.5px;line-height:1.6;margin:8px 0;padding:9px 12px;background:#fff;border:1px solid var(--line);border-radius:10px;color:var(--ink);}
 .ver-it b{display:block;color:var(--acc);margin-bottom:1px;}
 @media(max-width:700px){.cdx-grid{grid-template-columns:1fr;} .rkposter{width:132px;} .rkposter.top1{width:150px;}}
 /* ── 리포트 머니페이지: 종합 등급 · 코치 총평 · 섬 리포트 ── */
@@ -1169,6 +1169,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <div class="small" style="margin-top:2px;">우리 지역·상황 특수 논리를 <b>정답 명분</b>으로 추가합니다 (표준 명분은 그대로 + 추가 인정, 유형당 최대 4개).</div>
         <div style="margin-top:10px;">
           <button class="btn ghost" style="margin:0 8px 0 0;" onclick="APP.authPreview()">👁 미리보기</button>
+          <button class="btn ghost" style="margin:0 8px 0 0;" onclick="APP.authListen()">🔊 첫마디 미리듣기</button>
           <button class="btn gold" style="margin:0;" onclick="APP.authSave()">🎭 게시 — 전 직원에게</button>
           <span class="small" id="auMsg" style="margin-left:8px;"></span>
         </div>
@@ -1198,6 +1199,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <table class="voy" id="admTable"></table>
         <button class="btn ghost" onclick="APP.admExport()">세션 기록 일괄 내보내기 (JSON)</button>
       </div></details>
+      <details class="acc2 detail-acc"><summary>🧯 오류 로그 <span class="small">이 기기에서 잡힌 스크립트 오류 — 베타 원격 진단</span></summary><div class="bd2"><div id="admErr"></div></div></details>
       <details class="acc2 detail-acc"><summary>👥 명단 업로드 <span class="small">조직도 갱신 시에만 — 사번 입력 자동완성용</span></summary><div class="bd2">
         <div class="small" style="margin-bottom:6px;">엑셀에서 <b>사번·이름·사무소·사업부</b> 4개 열을 복사해 붙여넣으세요 (같은 사번은 덮어씀).</div>
         <textarea id="admRosterTxt" style="width:100%;min-height:90px;font-size:13px;" placeholder="2024123&#9;홍길동&#9;강남사무소&#9;서울3사업부"></textarea>
@@ -1213,6 +1215,19 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 
 <div class="flashcrit" id="flashcrit"></div>
 <div class="toast" id="toast"></div>
+
+<!-- 🧭 첫 항해 온보딩 — 통화 화면이 처음인 사람을 위한 20초 안내 -->
+<div id="onbOv" onclick="APP.onbClose()">
+  <div class="chest-box" onclick="event.stopPropagation()" style="max-width:460px;text-align:left;">
+    <div style="font-size:12px;font-weight:900;letter-spacing:.2em;color:#E8B44C;">FIRST VOYAGE</div>
+    <h2 style="margin:4px 0 10px;font-size:19px;">🧭 첫 통화, 딱 3가지만</h2>
+    <div class="ver-it"><b>1️⃣ 원장이 먼저 말합니다</b>전화를 받은 건 원장 — 인사가 끝나면 걱정거리를 하나 꺼냅니다. 끝까지 들어보세요.</div>
+    <div class="ver-it"><b>2️⃣ 막막하면 노란 도우미</b>입력창 위 💬 노란 상자의 문장을 누르면 그대로 들어갑니다. 고쳐 말해도, 그냥 보내도 됩니다.</div>
+    <div class="ver-it"><b>3️⃣ 말이 끝나면 자동 전송</b>🎙 자동 대화 중엔 말을 멈추면 알아서 전송됩니다. 타이핑이 편하면 [전송 ▶].</div>
+    <div class="small" style="margin-top:8px;opacity:.8;">점수는 연습일 뿐 — 오늘은 한 문장이라도 뱉는 게 승리입니다.</div>
+    <button class="btn gold" style="margin-top:12px;padding:10px 22px;" onclick="APP.onbClose()">⚓ 시작</button>
+  </div>
+</div>
 
 <!-- 💰 보물상자 — 섬 격파 시 비전서 해금 연출 -->
 <div id="chestOv" onclick="this.classList.remove('show')">
@@ -1395,7 +1410,6 @@ var COACH_LIB = [
 ];
 
 </script>
-
 <script>
 
 /* ═══════ ALPI_NV — 알피왕 비언어 측정 모듈 (로컬 온리 · 코멘트 온리) ═══════ */
@@ -1789,7 +1803,6 @@ window.ALPI_NV = (function () {
 })();
 
 </script>
-
 <script>
 /* ═══════ 알피왕 통합 데모 v2 — 앱 로직 ═══════ */
 window.APP = (function () {
@@ -3062,6 +3075,16 @@ window.APP = (function () {
     var totalObj = G.scen.objs.length + (G.scen.variant ? 1 : 0);
     $("hudProg").textContent = "반대 0/" + totalObj;
     setTimeout(faidRender, 300); // 💬 첫 발화 도우미 — 판이 열리자마자 무엇을 말할지 보여준다
+    // 🧭 첫 항해 온보딩 — 무발화 이탈의 마지막 방어선
+    if (!loadK("onb1", false)) { var ov = $("onbOv"); if (ov) { ov.classList.add("show"); } }
+    clearTimeout(G._onbT);
+    G._onbT = setTimeout(function () { // 첫 세션에서 14초째 아무 입력이 없으면 도우미로 시선을 끈다
+      if (!G.inCall || G.turns.length || (($("mrInput") || {}).value || "").trim()) return;
+      if ((G.sessions || []).length) return; // 유경험자는 방해하지 않는다
+      var fa = $("firstAid");
+      if (fa && !fa.classList.contains("hidden")) { fa.classList.add("pulse"); setTimeout(function () { fa.classList.remove("pulse"); }, 3400); }
+      toast("💬 막막하면 노란 도우미의 문장을 눌러 시작해보세요");
+    }, 14000);
     G.timerId = setInterval(function () {
       var s = Math.floor((Date.now() - G.t0) / 1000);
       $("hudTimer").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
@@ -5377,7 +5400,7 @@ window.APP = (function () {
      기존 '조직 현황·직원 랭킹'은 데모 시드가 섞인 로스터 기반이라 실데이터와 헷갈렸다.
      이 카드는 rp_sessions 실기록만 집계한다 — 등수(나래비)·축 강약점·단위별 코칭까지. */
   var AX_ACT = { A: "약점 유형의 표준 스크립트를 소리 내어 3회 낭독 → 같은 유형 즉시 재도전", B: "핵심 수치 3종(인당 385,290원 · 500명=연 1.9억 · 행위당 10초~2분) 암기 특훈", C: "병원 상황(경영난·인력부족·경쟁)별 명분 매칭 훈련 — 리포트의 명분 섹션 복습", D: "한 턴에 질문 1개 + 공감 1문장 룰로 재구성 — 발표가 아니라 대화", E: "“다음 주 화요일 2시, 교육간호사와 방문하겠습니다” 문형을 몸에 붙이기 — 날짜·주체 없는 마무리 금지" };
-  function orgInsight(rows) { // 순수 함수 — 테스트 대상
+  function orgInsight(rows, today) { // 순수 함수 — 테스트 대상. today를 주면 전주 대비 성장률(wkDelta)까지 계산
     var kept = rankFilter(rows || []);
     var mk = function () { return { n: 0, sum: 0, best: 0, silent: 0, ax: { A: 0, B: 0, C: 0, D: 0, E: 0 }, axN: 0, last: "", trend: [], types80: {} }; };
     var acc = function (u, r) {
@@ -5389,10 +5412,23 @@ window.APP = (function () {
       if ((r.total || 0) >= 80 && r.types) r.types.forEach(function (n) { u.types80[n] = 1; });
     };
     var fin = function (u, name, extra) {
+      var pairs = u.trend.sort(function (a, b) { return a.t < b.t ? -1 : 1; });
       var o = { name: name, n: u.n, avg: u.n ? Math.round(u.sum / u.n) : 0, best: u.best,
         silentPct: u.n ? Math.round(100 * u.silent / u.n) : 0, last: u.last.replace("T", " "),
-        trend: u.trend.sort(function (a, b) { return a.t < b.t ? -1 : 1; }).map(function (x) { return x.v; }).slice(-12),
+        trend: pairs.map(function (x) { return x.v; }).slice(-12),
         prog: Object.keys(u.types80).length };
+      if (today) { // 전주 대비: 최근 7일 평균 vs 그 전 7일 평균
+        var t0 = new Date(today + "T23:59:59").getTime();
+        var cur = [], prev = [];
+        pairs.forEach(function (x) {
+          var tt = new Date(String(x.t).slice(0, 10) + "T12:00:00").getTime();
+          var age = (t0 - tt) / 86400000;
+          if (age >= 0 && age < 7) cur.push(x.v); else if (age >= 7 && age < 14) prev.push(x.v);
+        });
+        var avg2 = function (a) { return a.length ? Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length) : null; };
+        o.wkCur = avg2(cur); o.wkPrev = avg2(prev);
+        o.wkDelta = (o.wkCur !== null && o.wkPrev !== null) ? o.wkCur - o.wkPrev : null;
+      }
       if (u.axN) {
         var m = {}; ["A","B","C","D","E"].forEach(function (k) { m[k] = u.ax[k] / u.axN; });
         var maxs = { A: 30, B: 20, C: 20, D: 15, E: 15 }, ratio = {};
@@ -5429,7 +5465,7 @@ window.APP = (function () {
   function renderOrgInsight() {
     var el = $("admInsight"); if (!el) return;
     var rows = G.cloud || [];
-    var ins = orgInsight(rows);
+    var ins = orgInsight(rows, todayStr());
     G._ins = ins;
     if (!ins.overall.n) { el.innerHTML = "<div class='small'>아직 서버 실기록이 없습니다 — 판이 끝나면 자동으로 쌓입니다. (개발·테스트 이름은 제외)</div>"; return; }
     var tab = G.insTab || "office";
@@ -5447,14 +5483,15 @@ window.APP = (function () {
       }).join("") +
       "<button class='rk-tab' onclick='APP.insCsv()'>⬇ CSV</button></div>";
     var list = insRowsOf(tab, ins);
-    h += "<table class='voy'><tr><th>순위</th><th>" + (tab === "person" ? "MR" : tab === "div" ? "사업부" : "사무소") + "</th>" + (tab === "person" ? "<th>사무소</th>" : "") + "<th>판수</th><th>평균</th><th>최고</th><th>정복</th><th>무발화</th><th>추세</th><th></th></tr>";
+    h += "<table class='voy'><tr><th>순위</th><th>" + (tab === "person" ? "MR" : tab === "div" ? "사업부" : "사무소") + "</th>" + (tab === "person" ? "<th>사무소</th>" : "") + "<th>판수</th><th>평균</th><th>최고</th><th>정복</th><th>무발화</th><th>주간</th><th>추세</th><th></th></tr>";
     list.slice(0, 30).forEach(function (u, i) {
       var medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
       h += "<tr><td>" + medal + "</td><td><b>" + esc(u.name) + "</b></td>" + (tab === "person" ? "<td>" + esc(u.office || "") + "</td>" : "") +
         "<td>" + u.n + "</td><td><b>" + u.avg + "</b></td><td>" + u.best + "</td><td>" + (u.prog || 0) + "/20</td><td>" + (u.silentPct ? u.silentPct + "%" : "-") + "</td>" +
+        "<td>" + (u.wkDelta === null || u.wkDelta === undefined ? "<span class='small'>—</span>" : (u.wkDelta > 0 ? "<b style='color:var(--acc);'>▲" + u.wkDelta + "</b>" : u.wkDelta < 0 ? "<b style='color:var(--red);'>▼" + (-u.wkDelta) + "</b>" : "0")) + "</td>" +
         "<td>" + (u.trend.length >= 2 ? sparkSvg(u.trend) : "-") + "</td>" +
         "<td><button class='btn ghost' style='margin:0;padding:4px 10px;font-size:11.5px;' onclick='APP.insCoach(" + i + ")'>코칭</button></td></tr>";
-      h += "<tr class='ins-detail hidden' id='insd_" + i + "'><td colspan='" + (tab === "person" ? 10 : 9) + "'></td></tr>";
+      h += "<tr class='ins-detail hidden' id='insd_" + i + "'><td colspan='" + (tab === "person" ? 11 : 10) + "'></td></tr>";
     });
     h += "</table><div class='small' style='margin-top:6px;'>평균 점수 순 정렬 · 정복 = 80점 이상으로 격파한 반대 유형 수 · 코칭 참고용 — 인사평가 비연동 원칙</div>";
     el.innerHTML = h;
@@ -5506,6 +5543,22 @@ window.APP = (function () {
       "<div class='p-name'>" + esc(d.nm) + " 원장</div><div class='p-hosp'>" + esc(d.hosp) + " · " + esc(d.plabel) + "</div>" +
       "<div class='p-tag'>" + esc(d.tag) + "</div><div class='p-diff'>" + (d.diff === 3 ? "★★★" : d.diff === 2 ? "★★" : "★") + " · 주력 [" + d.bias.join("][") + "]</div></div>" +
       "<div class='small' style='margin-top:6px;'>첫마디 — “" + esc(d.open.slice(0, 70)) + (d.open.length > 70 ? "…" : "") + "”</div>";
+  }
+  function authListen() { // 🔊 저작 중 첫마디를 프리셋 목소리로 — 게시 전에 캐릭터가 잡혔는지 귀로 확인
+    var base = presetDoc(($("auPreset") || {}).value || "명랑");
+    var txt = (($("auOpen") || {}).value || "").trim() || base.open;
+    if (!window.speechSynthesis) { toast("이 브라우저는 음성 미리듣기를 지원하지 않습니다"); return; }
+    var keepDoc = G.doc, keepVoice = koVoice, keepComp = voiceComp;
+    try {
+      G.doc = base; koVoice = pickVoice();
+      try { speechSynthesis.cancel(); } catch (e) {}
+      var u = new SpeechSynthesisUtterance(ttsClean(txt).slice(0, 160));
+      u.lang = "ko-KR"; u.rate = base.voice.rate; u.pitch = Math.max(0.35, Math.min(2, base.voice.pitch * voiceComp));
+      if (koVoice) u.voice = koVoice;
+      speechSynthesis.speak(u);
+      toast("🔊 " + base.nm + " 프리셋 목소리로 재생 중");
+    } catch (e) { toast("재생 실패"); }
+    finally { G.doc = keepDoc; koVoice = keepVoice; voiceComp = keepComp; }
   }
   function authSave() {
     var st = authState();
@@ -5688,6 +5741,14 @@ window.APP = (function () {
           (r.like ? "👍 " + esc(r.like) + "<br>" : "") + (r.wish ? "🔧 " + esc(r.wish) + "<br>" : "") + (r.miss ? "⚖ 채점 이견: " + esc(r.miss) : "") + "</div></div>";
       });
       $("admGrowth").innerHTML = h;
+    })();
+    if ($("admErr")) (function () { // 🧯 오류 로그 — 이 기기에서 잡힌 스크립트 오류 (베타 원격 진단용)
+      var log = loadK("errlog", []);
+      $("admErr").innerHTML = log.length
+        ? "<div class='small' style='margin-bottom:5px;'>최근 " + log.length + "건 (이 기기) — 사용자가 이 화면을 캡처해 보내면 재현 없이 진단할 수 있습니다.</div>" +
+          log.slice(-10).reverse().map(function (e) { return "<div class='small' style='font-family:ui-monospace,Menlo,monospace;padding:3px 0;border-bottom:1px dashed var(--line);'>[" + esc(e.at) + " v" + esc(e.v || "?") + "] " + esc(e.k) + ": " + esc(e.m) + (e.s ? " @" + esc(e.s) + ":" + e.l : "") + "</div>"; }).join("") +
+          "<button class='btn ghost' style='margin-top:7px;padding:5px 13px;font-size:12px;' onclick='localStorage.removeItem(\"alpi_errlog\");this.parentElement.innerHTML=\"<div class=small>비웠습니다</div>\"'>로그 비우기</button>"
+        : "<div class='small'>기록된 오류가 없습니다 — 깨끗합니다 ✨</div>";
     })();
     // 📣 데모 현황 — 링크 보낸 사람들이 실제로 들어와서 어디까지 갔나
     if ($("admDemo")) (function () {
@@ -6022,8 +6083,23 @@ window.APP = (function () {
   G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
-  var APP_VER = "4.3";
+  // 🧯 클라이언트 오류 링버퍼 — 베타에서 "안 돼요"를 재현 없이 진단한다 (로컬 저장, 서버 미전송)
+  function errPush(kind, msg, src2, line) {
+    try {
+      var log = loadK("errlog", []);
+      log.push({ at: new Date().toISOString().slice(0, 19), k: kind, m: String(msg).slice(0, 220), s: String(src2 || "").split("/").pop().slice(0, 60), l: line || 0, v: APP_VER });
+      store("errlog", log.slice(-30));
+    } catch (e) {}
+  }
+  try {
+    if (typeof window !== "undefined" && window.addEventListener) {
+      window.addEventListener("error", function (ev) { errPush("error", ev.message || ev, ev.filename, ev.lineno); });
+      window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
+    }
+  } catch (e) {}
+  var APP_VER = "4.4";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
+  function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
   try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
   if (G.user) {
@@ -6076,10 +6152,9 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText } };
+    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush } };
 })();
 
 </script>
-</body>
-</html>
+</body></html>
