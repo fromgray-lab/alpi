@@ -1159,6 +1159,9 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <label class="lbl">전단 소개 문구</label><input type="text" id="auTag" placeholder='예: "근거 없으면 3분 안에 끊습니다."'>
         <label class="lbl">첫마디 (비우면 프리셋 기본)</label><textarea id="auOpen" class="tsv" style="min-height:52px;" placeholder="예: 네, 오한별입니다. 5분 뒤 진료라 짧게 부탁해요."></textarea>
         <label class="lbl">추가 성향 지시 (AI에게 — 선택)</label><textarea id="auPersona" class="tsv" style="min-height:52px;" placeholder="예: 최근 옆 건물에 경쟁 의원이 개원해 예민하다. 비용 얘기가 나오면 유독 방어적."></textarea>
+        <label class="lbl">유형별 전용 반대 멘트 (선택) — 한 줄에 하나, <b>번호 | 대사</b></label>
+        <textarea id="auLines" class="tsv" style="min-height:64px;" placeholder="2 | 우리 간호사 둘뿐인데 그 서류를 누가 다 해요?&#10;17 | 옆 원장이 삭감 당했다던데, 그건 어떻게 설명할 거예요?"></textarea>
+        <div class="small" style="margin-top:2px;">쓴 유형은 이 원장이 그 걱정을 <b>이 문장으로</b> 말합니다. 안 쓴 유형은 표준집 기본 대사.</div>
         <div style="margin-top:10px;">
           <button class="btn ghost" style="margin:0 8px 0 0;" onclick="APP.authPreview()">👁 미리보기</button>
           <button class="btn gold" style="margin:0;" onclick="APP.authSave()">🎭 게시 — 전 직원에게</button>
@@ -2793,6 +2796,7 @@ window.APP = (function () {
       if (objs.length < nObj && used.indexOf(n) < 0) { var v = V22.filter(function (x) { return x.n === n; })[0]; if (v) { objs.push(v); used.push(n); } }
     });
     while (objs.length < nObj) { var t = pickType(used); objs.push(t); used.push(t.n); }
+    if (doc.lines) objs = objs.map(function (v) { return doc.lines[v.n] ? Object.assign({}, v, { dr: doc.lines[v.n] }) : v; }); // 🛠 커스텀 원장 전용 멘트 — 표준집 원본은 건드리지 않는다
     if (nObj > 1) objs = objs.slice(0, 1).concat(objs.slice(1).sort(function () { return Math.random() - 0.5; }));
     var variant = diff === 3 ? VARIANTS[Math.floor(Math.random() * VARIANTS.length)] : null;
     var fits = [];
@@ -2881,7 +2885,8 @@ window.APP = (function () {
       open: String(row.open || "").slice(0, 200) || base.open,
       bias: (row.bias && row.bias.length ? row.bias : base.bias).map(Number).filter(function (n) { return n >= 1 && n <= 20; }).slice(0, 3),
       voice: base.voice, elVoice: base.elVoice, av: base.av, reacts: base.reacts,
-      persona: String(row.persona || "").slice(0, 500), custom: true, _id: row.id };
+      persona: String(row.persona || "").slice(0, 500), custom: true, _id: row.id,
+      lines: (function () { var o = {}; var L = row.lines || {}; Object.keys(L).forEach(function (k) { var n = parseInt(k, 10); if (n >= 1 && n <= 20 && L[k]) o[n] = String(L[k]).slice(0, 200); }); return o; })() };
   }
   function allDocs() { return DOCTORS.concat(G.customDocs || []); }
   function fetchCustomDocs(cb) { // 부팅·선택화면 진입 시 — 실패해도 기본 4인은 항상 산다
@@ -2999,6 +3004,7 @@ window.APP = (function () {
     if (connT) { clearTimeout(connT); connT = null; }
     bellStop();
     G.llmBusy = false; G.ttsSpeaking = false; G.elDead = false; // 이전 판에서 굳은 플래그가 새 판을 죽이지 못하게 — 새로고침 없이도 회복된다
+    calibSync(); // 전문가 채점 당겨받기 — 이번 판 채점에 바로 반영
     G.stream = null;
     if (G.wantCam && G.gearStream) G.stream = G.gearStream;
     if (G.stream) {
@@ -4016,6 +4022,7 @@ window.APP = (function () {
       if (G.micHold) { try { G.micHold.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} G.micHold = null; } // 녹음이 다 멈춘 뒤에 마이크 반납
       var sc = scoreSession(G.turns, G.scen, nvReport);
       if (G.mannerFoul) mannerAdjust(sc); // 매너 위반 판 — 점수 몰수
+      applyCalib(sc, calibDeltas(calibRecords())); // 🎓 전문가 채점 1건부터 즉시 보정 — 30건 대기는 없다
       renderResult(sc, nvReport, manual);
       show("scr-result");
       if (sc.total >= 80) jingle("win");
@@ -4263,6 +4270,9 @@ window.APP = (function () {
       "<div class='ph-avwrap'><div class='ph-av'><svg viewBox='0 0 120 140'>" + portraitSvg(d.av || {}) + "</svg></div><div class='ph-avcap'>vs " + esc(d.nm || "-") + " 원장 · " + esc(d.hosp || "") + "</div></div></div>" +
       "<div class='pscore'><div class='ps-num'>" + sc.total + "<small>/100</small></div><div class='ps-grade' style='background:" + (GR_COL[LG] || "#5B6663") + ";'>" + LG + "</div><div class='ps-axes'>" + axHtml + "</div>" +
       (ctx.radar ? "<div class='ps-radar'>" + ctx.radar + "</div>" : "") + "</div>" +
+      (sc.calibApplied ? "<div class='pstat' style='background:#EFF4FB;color:#2A4A6B;'>🎓 <b>전문가 보정 반영</b> — " +
+        Object.keys(sc.calibApplied).map(function (k) { var nm = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" }[k]; var v = sc.calibApplied[k]; return nm + " " + (v > 0 ? "+" : "") + v; }).join(" · ") +
+        " <span style='opacity:.8;'>(코치 채점 " + sc.calibN + "건 기반 · 많을수록 정밀해집니다)</span></div>" : "") +
       // 참여 자체가 없었던 판은 '점수'가 아니라 '왜 점수가 없는지'를 말해줘야 한다
       (sc.noPlay ? "<div class='pdeduct'><b>이번 판은 채점 대상이 아닙니다</b> — 원장님과 대화를 시작하기 전에 통화가 종료되어, MR의 발언이 한 건도 기록되지 않았습니다." +
         "<div class='pdeduct-why'>한 마디라도 응수하시면 그때부터 반대극복·수치정확·명분설계가 채점됩니다. 부담 없이 “안녕하세요 원장님, 대웅제약입니다”로 시작해 보세요.</div></div>" : "") +
@@ -4622,6 +4632,63 @@ window.APP = (function () {
     var totalDiff = rows.reduce(function (a, r) { return a + r.diff; }, 0);
     return { rows: rows, mae: mae, totalDiff: totalDiff };
   }
+  /* ══════════ 🎓 점진적 캘리브레이션 — 30건을 기다리지 않는다 ══════════
+     전문가 1건이 들어오는 순간부터 보정이 시작되고, 쌓일수록 강해진다.
+     가중 = n/(n+5): 1건이면 관측 편차의 17%, 5건이면 50%, 30건이면 86%.
+     축별 보정 상한 ±(축 만점의 20%)로 안전판을 두고, 리포트에 보정 내역을 투명하게 밝힌다. */
+  var CALIB_K = 5, CALIB_CAP = { A: 6, B: 4, C: 4, D: 3, E: 3 };
+  function calibRecords() { // 로컬(내 기기 대면 채점) + 서버(CM 비동기 채점) — rule/human 쌍만 있으면 형식 무관
+    var out = [];
+    (G.calib || []).forEach(function (r) { if (r && r.rule && r.human) out.push(r); });
+    (G.cloudCalib || []).forEach(function (r) { if (r && r.rule && r.human) out.push(r); });
+    return out;
+  }
+  function calibDeltas(recs) { // 순수 함수 — 축별 {d: 평균편차(사람-AI), n: 근거 수}
+    var acc = { A: [], B: [], C: [], D: [], E: [] };
+    (recs || []).forEach(function (r) {
+      ["A", "B", "C", "D", "E"].forEach(function (k) {
+        var h = r.human && r.human[k], a = r.rule && r.rule[k];
+        if (typeof h === "number" && typeof a === "number") acc[k].push(h - a);
+      });
+    });
+    var out = {};
+    Object.keys(acc).forEach(function (k) {
+      var v = acc[k];
+      out[k] = { n: v.length, d: v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : 0 };
+    });
+    return out;
+  }
+  function applyCalib(sc, deltas) { // sc를 제자리 보정 — 적용 내역은 sc.calibApplied에 남긴다 (순수하진 않지만 결정론)
+    if (!sc || sc.noPlay || !deltas) return sc;
+    var applied = {}, any = false, nMax = 0;
+    ["A", "B", "C", "D", "E"].forEach(function (k) {
+      var e = deltas[k];
+      if (!e || !e.n) return;
+      if (e.n > nMax) nMax = e.n;
+      var w = e.n / (e.n + CALIB_K);
+      var adj = Math.round(e.d * w);
+      adj = Math.max(-CALIB_CAP[k], Math.min(CALIB_CAP[k], adj));
+      if (!adj) return;
+      var maxs = { A: 30, B: 20, C: 20, D: 15, E: 15 };
+      var nv2 = Math.max(0, Math.min(maxs[k], sc[k] + adj));
+      if (nv2 === sc[k]) return;
+      applied[k] = nv2 - sc[k]; sc[k] = nv2; any = true;
+    });
+    if (any) {
+      sc.earned = sc.A + sc.B + sc.C + sc.D + sc.E;
+      sc.total = Math.max(0, sc.earned - (sc.penalty || 0));
+      sc.grade = sc.total >= 90 ? "루피왕" : sc.total >= 80 ? "캡틴" : sc.total >= 65 ? "에이스" : sc.total >= 50 ? "크루" : "항해 시작";
+      sc.calibApplied = applied; sc.calibN = nMax;
+    }
+    return sc;
+  }
+  function calibSync() { // 플레이어도 판 시작 때 전문가 채점을 당겨받는다 — 보정은 관리자만의 것이 아니다
+    if (!sbOn()) return;
+    fetch(G.sbUrl + "/rest/v1/rp_calib?select=rule,human&order=created_at.desc&limit=100", { headers: sbHeaders() })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) { if (rows && rows.length) G.cloudCalib = rows; })
+      .catch(function () {});
+  }
   function biasSummary(calibs) { // 누적 축별 편향 자동 진단 — 조정의 '근거'까지만 (자동 적용은 거버넌스상 금지)
     if (calibs.length < 2) return null;
     var out = [];
@@ -4657,9 +4724,9 @@ window.APP = (function () {
     }).join("");
     el.innerHTML =
       "<div class='cbhead'><div><b>🎓 전문가 평가 · 캘리브레이션</b><span class='qfb-beta'>가장 중요</span><span class='small'> 면접관이 같은 5점 척도로 채점하면, AI 채점의 편향이 자동 진단되어 다음 판부터 보정됩니다.</span></div>" +
-      "<div class='cbgate'>누적 <b id='cbN'>" + ((G.calib || []).length + ((G.cloudCalib || []).length)) + "</b>/30판</div></div>" +
+      "<div class='cbgate'>코치 채점 <b id='cbN'>" + calibRecords().length + "</b>건 반영 중</div></div>" +
       "<div class='qfb-nudge'>👩‍🏫 <b>면접관·코치님께</b> — AI 채점이 현장 감각과 맞는지는 <b>사람이 한 번 채점해줘야만</b> 알 수 있습니다. " +
-      "<b>30건</b>이 쌓이면 채점 기준이 자동 보정됩니다. 5축을 클릭하는 데 1분이면 됩니다 — 초기 몇 건이 가장 값집니다.</div>" +
+      "<b>첫 1건부터 즉시 보정에 반영</b>되고, 쌓일수록 가중이 커집니다(1건 17% → 5건 50% → 30건 86%). 5축 클릭 1분 — 초기 몇 건이 가장 값집니다.</div>" +
       "<div class='cbscale'>" + LV_META.map(function (l) { return "<span><b>" + l[0] + "(" + l[1] + ")</b> " + l[2] + "점 · " + l[3] + "</span>"; }).join("") + "</div>" +
       rows +
       "<div class='cbgrid'><label class='lbl'>평가자</label><input type='text' id='evName' placeholder='예: 김코치' style='max-width:220px;'></div>" +
@@ -5181,7 +5248,51 @@ window.APP = (function () {
         return "<div class='cert-step" + (got ? " got" : "") + "'><div class='cb-badge'>" + m.badge + "</div><b>" + m.nm + "</b><span class='small'>" + m.req + "</span>" + (got ? "<span class='cert-ok'>✓ 달성</span>" : "") + "</div>";
       }).join("") + "</div>" +
       (c.lv < 3 ? "<div class='qfb-nudge' style='margin-top:9px;'>다음 인증까지 — " + c.next.map(esc).join(" · ") + "</div>"
-        : "<div class='qfb-nudge' style='margin-top:9px;'>🥇 최고 등급입니다. 이제 후배 코칭이 다음 레벨입니다 — 가르치면 가장 늘어납니다.</div>");
+        : "<div class='qfb-nudge' style='margin-top:9px;'>🥇 최고 등급입니다. 이제 후배 코칭이 다음 레벨입니다 — 가르치면 가장 늘어납니다.</div>") +
+      (c.lv ? "<div style='margin-top:9px;'><button class='btn ghost' style='margin:0;' onclick='APP.certPrint()'>🖨 " + c.badge + " 공식 인증서 출력 (A4)</button></div>" : "");
+  }
+  function certSerial(lv, nm) { // 인증서 일련번호 — 결정론(같은 사람·같은 날·같은 등급 = 같은 번호)
+    var d = todayStr().replace(/-/g, "");
+    var h = 0, s2 = String(nm || "") + lv + d;
+    for (var i = 0; i < s2.length; i++) h = (h * 31 + s2.charCodeAt(i)) % 46656;
+    return "WCK-" + lv + "-" + d + "-" + ("00" + h.toString(36).toUpperCase()).slice(-3);
+  }
+  function certPrint(nm, office, div, lvOverride) { // 🖨 공식 인증서 — 새 창 인쇄 (게임 화면과 완전 분리)
+    var c = lvOverride ? { lv: lvOverride, badge: CERT_META[lvOverride - 1].badge, nm: CERT_META[lvOverride - 1].nm } : certOf(myCertList());
+    if (!c.lv) { toast("아직 획득한 인증이 없습니다 — 완주 3판부터 시작해 보세요"); return; }
+    var who = nm || (G.user && G.user.name) || "-", off = office || (G.user && G.user.office) || "", dv = div || (G.user && G.user.div) || "";
+    var meta = CERT_META[c.lv - 1];
+    var html = "<!DOCTYPE html><html lang='ko'><head><meta charset='utf-8'><title>웰체크 R/P 인증서 — " + who + "</title><style>" +
+      "@page{size:A4 landscape;margin:0;}body{margin:0;font-family:Pretendard,-apple-system,'Malgun Gothic',sans-serif;color:#1A1F1C;}" +
+      ".cert{width:297mm;height:209mm;box-sizing:border-box;padding:18mm 22mm;background:#FDFBF5;position:relative;overflow:hidden;}" +
+      ".frame{position:absolute;inset:9mm;border:1.2mm solid #B9932B;border-radius:4mm;}" +
+      ".frame:after{content:'';position:absolute;inset:2mm;border:0.35mm solid #D8C48A;border-radius:3mm;}" +
+      ".inner{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}" +
+      ".brand{font-size:4mm;font-weight:800;letter-spacing:0.9mm;color:#0B5B54;}" +
+      ".badge{font-size:19mm;line-height:1;margin:4mm 0 1mm;}" +
+      "h1{font-size:11.5mm;margin:1mm 0 0;letter-spacing:0.5mm;}" +
+      ".certnm{font-size:6.2mm;font-weight:800;color:#8A6410;margin-top:1.5mm;}" +
+      ".who{font-size:8.4mm;font-weight:900;margin-top:7mm;}" +
+      ".org{font-size:4.2mm;color:#5B6663;margin-top:1mm;}" +
+      ".desc{font-size:4mm;line-height:1.85;color:#33403B;margin-top:6mm;max-width:200mm;}" +
+      ".crit{display:inline-block;background:#F4F9F7;border:0.3mm solid #CFE0DC;border-radius:2.5mm;padding:2.5mm 6mm;font-size:3.6mm;color:#0B5B54;font-weight:700;margin-top:4mm;}" +
+      ".foot{position:absolute;left:22mm;right:22mm;bottom:15mm;display:flex;justify-content:space-between;align-items:flex-end;font-size:3.4mm;color:#5B6663;}" +
+      ".sig{text-align:right;}.sig b{display:block;font-size:4.4mm;color:#1A1F1C;letter-spacing:0.6mm;}" +
+      ".serial{font-family:ui-monospace,Menlo,monospace;letter-spacing:0.3mm;}" +
+      "</style></head><body><div class='cert'><div class='frame'></div><div class='inner'>" +
+      "<div class='brand'>WELLCHECK R/P TRAINING · CERTIFICATION</div>" +
+      "<div class='badge'>" + meta.badge + "</div>" +
+      "<h1>인 증 서</h1><div class='certnm'>" + esc(meta.nm) + "</div>" +
+      "<div class='who'>" + esc(who) + "</div><div class='org'>" + esc((dv + " " + off).trim()) + "</div>" +
+      "<div class='desc'>위 사람은 웰체크·일만사 반대극복 실전 훈련(내꿈은 알피왕!)에서<br>표준 반대극복 가이드(V22) 기준의 아래 요건을 충족하여 <b>" + esc(meta.nm) + "</b> 자격을 인증합니다.</div>" +
+      "<div class='crit'>" + esc(meta.req) + "</div>" +
+      "<div class='foot'><div>발급일 " + todayStr() + " · <span class='serial'>" + certSerial(c.lv, who) + "</span><br>본 인증은 훈련 세션 기록에서 결정론적으로 재검증할 수 있습니다.</div>" +
+      "<div class='sig'>NEW BUSINESS STRATEGY TEAM<b>대웅제약 신사업전략</b></div></div>" +
+      "</div></body></html>";
+    var w = window.open("", "_blank", "width=980,height=720");
+    if (!w) { toast("팝업이 차단됐습니다 — 이 사이트의 팝업을 허용해 주세요"); return; }
+    w.document.write(html); w.document.close();
+    setTimeout(function () { try { w.focus(); w.print(); } catch (e) {} }, 350);
   }
   function renderCertBoard() { // 관리자 — 인증 현황판 (서버 실기록으로 재계산, 감사 가능)
     var el = $("admCert"); if (!el) return;
@@ -5200,9 +5311,10 @@ window.APP = (function () {
     var h = "<div class='ins-hero'>" + CERT_META.map(function (m) {
       return "<div class='ins-kpi'><small>" + m.badge + " " + m.nm + "</small><b>" + cnt[m.lv] + "</b><span>명</span></div>";
     }).join("") + "<div class='ins-kpi'><small>미인증</small><b>" + cnt[0] + "</b><span>명</span></div></div>";
-    h += "<table class='voy'><tr><th>인증</th><th>MR</th><th>사무소</th><th>최고</th><th>정복</th><th>80+판(CP클린)</th><th>다음 요건</th></tr>";
+    h += "<table class='voy'><tr><th>인증</th><th>MR</th><th>사무소</th><th>최고</th><th>정복</th><th>80+판(CP클린)</th><th>다음 요건</th><th></th></tr>";
     people.slice(0, 30).forEach(function (p) {
-      h += "<tr><td>" + (p.cert.badge || "—") + " " + esc(p.cert.nm) + "</td><td><b>" + esc(p.nm) + "</b></td><td>" + esc(p.office) + "</td><td>" + p.cert.best + "</td><td>" + p.cert.prog + "/20</td><td>" + p.cert.hi80Clean + "</td><td class='small'>" + (p.cert.lv >= 3 ? "—" : p.cert.next.join(" · ")) + "</td></tr>";
+      h += "<tr><td>" + (p.cert.badge || "—") + " " + esc(p.cert.nm) + "</td><td><b>" + esc(p.nm) + "</b></td><td>" + esc(p.office) + "</td><td>" + p.cert.best + "</td><td>" + p.cert.prog + "/20</td><td>" + p.cert.hi80Clean + "</td><td class='small'>" + (p.cert.lv >= 3 ? "—" : p.cert.next.join(" · ")) + "</td>" +
+        "<td>" + (p.cert.lv ? "<button class='btn ghost' style='margin:0;padding:4px 9px;font-size:11px;' onclick='APP.certPrint(" + JSON.stringify(p.nm) + "," + JSON.stringify(p.office) + ",\"\"," + p.cert.lv + ")'>🖨</button>" : "") + "</td></tr>";
     });
     el.innerHTML = h + "</table><div class='small' style='margin-top:6px;'>기준은 세션 기록에서 결정론적으로 재계산됩니다 — 발급 이력은 rp_certs에 보존 (감사 대응).</div>";
   }
@@ -5322,7 +5434,9 @@ window.APP = (function () {
       preset: ($("auPreset") || {}).value || "명랑", diff: parseInt(($("auDiff") || {}).value, 10) || 2,
       plabel: (($("auPlabel") || {}).value || "").trim(), tag: (($("auTag") || {}).value || "").trim(),
       open: (($("auOpen") || {}).value || "").trim(), persona: (($("auPersona") || {}).value || "").trim(),
-      bias: bias.slice(0, 3), author: (G.user && G.user.name) || "관리자", enabled: true } };
+      bias: bias.slice(0, 3), author: (G.user && G.user.name) || "관리자", enabled: true,
+      lines: (function () { var o = {}; (($("auLines") || {}).value || "").split("\n").forEach(function (ln) {
+        var m = /^\s*(\d{1,2})\s*[|:]\s*(.+)$/.exec(ln); if (m) { var n = parseInt(m[1], 10); if (n >= 1 && n <= 20) o[n] = m[2].trim().slice(0, 200); } }); return o; })() } };
   }
   function authPreview() {
     var st = authState();
@@ -5412,11 +5526,11 @@ window.APP = (function () {
       var recs = G.calib.slice();
       (G.cloudCalib || []).forEach(function (r) { if (r.rule && r.human) recs.push({ rule: r.rule, human: r.human }); });
       var st = calibStats(recs);
-      var gate2 = function (nn) { // 관문2 — 판매 신뢰도의 마지막 퍼즐: 전문가 대조 30판
-        var pct = Math.min(100, Math.round(100 * nn / 30));
-        return "<div style='display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;'><span>🎓 관문2 · 전문가 캘리브레이션 축적</span><b>" + nn + "/30판" + (nn >= 30 ? " ✓ 달성" : "") + "</b></div><div class='axbar" + (pct < 55 ? " lo" : "") + "' style='height:10px;margin:3px 0 8px;'><i style='width:" + pct + "%'></i></div>";
+      var gate2 = function (nn) { // 전문가 캘리브레이션 — 1건부터 즉시 반영, 게이지는 가중(n/(n+5))
+        var w = Math.min(100, Math.round(100 * nn / (nn + 5)));
+        return "<div style='display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;'><span>🎓 전문가 캘리브레이션 — 즉시 반영</span><b>" + nn + "건 · 가중 " + w + "%</b></div><div class='axbar" + (nn < 5 ? " lo" : "") + "' style='height:10px;margin:3px 0 8px;'><i style='width:" + w + "%'></i></div>";
       };
-      if (!st) { $("admCalib").innerHTML = gate2(0) + "<span class='small'>아직 전문가 평가 기록이 없습니다 — 결과 화면의 '전문가 평가 입력'에서 축적됩니다. 30판이 모이면 AI 채점의 신뢰구간을 공식 문서로 제시할 수 있습니다.</span>"; return; }
+      if (!st) { $("admCalib").innerHTML = gate2(0) + "<span class='small'>아직 전문가 평가 기록이 없습니다 — 위 평가 대기열에서 채점하면 그 1건부터 곧바로 전 직원 채점 보정에 반영됩니다.</span>"; return; }
       var names = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" };
       var rowsH = Object.keys(st.ax).map(function (a) {
         var m = st.ax[a].mean, col = m >= 2 ? "#B0392E" : m <= -2 ? "#8a6d1a" : "#0B5B54";
@@ -5779,7 +5893,7 @@ window.APP = (function () {
   G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
-  var APP_VER = "4.1";
+  var APP_VER = "4.2";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
   try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
@@ -5833,8 +5947,8 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES } };
+    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial } };
 })();
 
 </script>
