@@ -2810,17 +2810,41 @@ window.APP = (function () {
     pool.forEach(function (v) { var w = G.conquered[v.n] ? 1 : 3; for (var i = 0; i < w; i++) weighted.push(v); });
     return weighted[Math.floor(Math.random() * weighted.length)];
   }
+  function weakTypes(sessions) { // 🎯 설욕전 후보 — 붙어봤지만 아직 80을 못 넘긴 유형, 최고점 낮은 순 (순수 함수)
+    var best = {};
+    (sessions || []).forEach(function (ss) {
+      (ss.types || []).forEach(function (n) {
+        var t = (ss.sc && typeof ss.sc.total === "number") ? ss.sc.total : (typeof ss.total === "number" ? ss.total : 0);
+        if (!(n in best) || t > best[n]) best[n] = t;
+      });
+    });
+    return Object.keys(best).map(Number).filter(function (n) { return best[n] < 80; })
+      .sort(function (a, b) { return best[a] - best[b] || a - b; })
+      .map(function (n) { return { n: n, best: best[n] }; });
+  }
   function genScenario(doc) {
     var ht = doc.ht, diff = doc.diff;
     var small = Math.random() < 0.5, comp = Math.random() < 0.5;
     var nObj = diff === 1 ? 1 : diff === 3 ? 3 : 2 + (Math.random() < 0.5 ? 1 : 0);
     var used = [], objs = [];
-    var biasList = (G.forceType ? [G.forceType] : []).concat(doc.bias || []); // 지정 출제(관리자·섬 클릭) 우선
-    if (G.forceType) G.forceType = null; // 단발 소진
-    biasList.forEach(function (n) {
-      if (objs.length < nObj && used.indexOf(n) < 0) { var v = V22.filter(function (x) { return x.n === n; })[0]; if (v) { objs.push(v); used.push(n); } }
-    });
-    while (objs.length < nObj) { var t = pickType(used); objs.push(t); used.push(t.n); }
+    var hadForce = !!G.forceType;
+    var put = function (n) { // 유형 n을 빈 슬롯에 편성 (중복·정원 가드)
+      if (objs.length >= nObj || used.indexOf(n) >= 0) return false;
+      var v = V22.filter(function (x) { return x.n === n; })[0];
+      if (!v) return false;
+      objs.push(v); used.push(n); return true;
+    };
+    if (G.forceType) { put(G.forceType); G.forceType = null; } // ① 지정 출제(관리자·섬 클릭) — 최우선, 단발 소진
+    var weakPick = null;
+    if (!hadForce) { // ② 🎯 설욕전 — 최약 유형 1개를 원장 성향보다 먼저 확보 (3개 후보 순환)
+      var wl = weakTypes(G.sessions || []);
+      if (wl.length) {
+        var wsel = wl[(G.sessions || []).length % Math.min(3, wl.length)];
+        if (put(wsel.n)) weakPick = { n: wsel.n, best: wsel.best };
+      }
+    }
+    (doc.bias || []).forEach(put); // ③ 원장 성향 출제 — 남은 슬롯을 채운다
+    while (objs.length < nObj) { var t = pickType(used); objs.push(t); used.push(t.n); } // ④ 랜덤(미정복 가중)
     if (doc.lines) objs = objs.map(function (v) { return doc.lines[v.n] ? Object.assign({}, v, { dr: doc.lines[v.n] }) : v; }); // 🛠 커스텀 원장 전용 멘트 — 표준집 원본은 건드리지 않는다
     if (nObj > 1) objs = objs.slice(0, 1).concat(objs.slice(1).sort(function () { return Math.random() - 0.5; }));
     var variant = diff === 3 ? VARIANTS[Math.floor(Math.random() * VARIANTS.length)] : null;
@@ -2830,9 +2854,10 @@ window.APP = (function () {
     if (ht === "B") fits.push("admin", "trust");
     if (ht === "C") fits.push("timing", "trust", "consult");
     fits = fits.filter(function (v, i, a) { return a.indexOf(v) === i; });
-    return { ht: ht, doc: doc, name: doc.hosp, small: small, comp: comp, objs: objs, variant: variant, diff: diff, fits: fits,
+    return { ht: ht, doc: doc, name: doc.hosp, small: small, comp: comp, objs: objs, variant: variant, diff: diff, fits: fits, weakPick: weakPick,
       sit: doc.hosp + " (유형 " + ht + (ht === "A" ? " · 일만사 미진행" : ht === "B" ? " · 일만사 진행/웰체크 미진행" : " · 시범사업 중단처") + ") · " +
-        (small ? "환자 줄어 경영 고민" : "환자 많아 바쁨") + " · " + (comp ? "인근 의원 일만사 진행 중" : "인근 도입 없음") + " · 원장 성향: " + doc.plabel + (STD_RP[doc.stdType] ? " · " + STD_RP[doc.stdType].title : "") };
+        (small ? "환자 줄어 경영 고민" : "환자 많아 바쁨") + " · " + (comp ? "인근 의원 일만사 진행 중" : "인근 도입 없음") + " · 원장 성향: " + doc.plabel + (STD_RP[doc.stdType] ? " · " + STD_RP[doc.stdType].title : "") +
+        (weakPick ? " · 🎯 설욕전: 약한 유형 다시 출제 (지난 최고 " + weakPick.best + "점)" : "") };
   }
 
   /* ── 상태 ── */
@@ -4774,6 +4799,43 @@ window.APP = (function () {
     });
     return { deltas: deltas, K: K, loo: loo, held: held, n: list.length };
   }
+  function evaluatorStats(recs) { // 👩‍🏫 평가자별 현황 + 같은 판 교차 채점 일치도 (순수 함수)
+    var by = {}, keys = {};
+    (recs || []).forEach(function (r) {
+      if (!r || !r.rule || !r.human) return;
+      var nm = String(r.evaluator || "").trim() || "익명";
+      if (!by[nm]) by[nm] = { name: nm, n: 0, dTot: 0, ax: { A: 0, B: 0, C: 0, D: 0, E: 0 }, last: "" };
+      var u = by[nm]; u.n++;
+      var dt = 0;
+      ["A", "B", "C", "D", "E"].forEach(function (k) { var d = (r.human[k] || 0) - (r.rule[k] || 0); u.ax[k] += d; dt += d; });
+      u.dTot += dt;
+      var t = String(r.created_at || r.at || "").slice(0, 10); if (t > u.last) u.last = t;
+      var sk = (r.player || "?") + "|" + (r.doc || "?") + "|" + ["A", "B", "C", "D", "E"].map(function (k) { return r.rule[k]; }).join(",");
+      if (!keys[sk]) keys[sk] = [];
+      keys[sk].push({ ev: nm, human: r.human });
+    });
+    var list = Object.keys(by).map(function (k) {
+      var u = by[k], axm = {};
+      Object.keys(u.ax).forEach(function (a) { axm[a] = Math.round(10 * u.ax[a] / u.n) / 10; });
+      return { name: u.name, n: u.n, strict: Math.round(10 * u.dTot / u.n) / 10, last: u.last, ax: axm };
+    }).sort(function (a, b) { return b.n - a.n || (a.name < b.name ? -1 : 1); });
+    var pairs = [], pn = 0, psum = 0, gMax = 0, gMaxAx = "";
+    Object.keys(keys).forEach(function (sk) {
+      var arr = keys[sk];
+      for (var i = 0; i < arr.length; i++) for (var j = i + 1; j < arr.length; j++) {
+        if (arr[i].ev === arr[j].ev) continue;
+        var s2 = 0, mx = 0, mxAx = "";
+        ["A", "B", "C", "D", "E"].forEach(function (k) {
+          var dd = Math.abs((arr[i].human[k] || 0) - (arr[j].human[k] || 0));
+          s2 += dd; if (dd > mx) { mx = dd; mxAx = k; }
+        });
+        pairs.push({ a: arr[i].ev, b: arr[j].ev, mae: Math.round(10 * s2 / 5) / 10, maxAx: mx, maxAxKey: mxAx });
+        pn++; psum += s2 / 5;
+        if (mx > gMax) { gMax = mx; gMaxAx = mxAx; }
+      }
+    });
+    return { list: list, pairs: pairs, interMae: pn ? Math.round(10 * psum / pn) / 10 : null, crossN: pn, interMax: gMax, interMaxAx: gMaxAx };
+  }
   function calibCurve(recs) { // [{raw, adj}] — raw=|코치-AI| 축평균, adj=그 시점까지의 점진 보정을 적용한 잔여 편차. 순수 함수.
     var out = [], hist = [];
     (recs || []).forEach(function (r) {
@@ -4817,7 +4879,7 @@ window.APP = (function () {
   }
   function calibSync() { // 플레이어도 판 시작 때 전문가 채점을 당겨받는다 — 보정은 관리자만의 것이 아니다
     if (!sbOn()) return;
-    fetch(G.sbUrl + "/rest/v1/rp_calib?select=rule,human&order=created_at.desc&limit=100", { headers: sbHeaders() })
+    fetch(G.sbUrl + "/rest/v1/rp_calib?select=rule,human,evaluator,player,doc,created_at&order=created_at.desc&limit=100", { headers: sbHeaders() })
       .then(function (r) { return r.ok ? r.json() : []; })
       .then(function (rows) { if (rows && rows.length) G.cloudCalib = rows; })
       .catch(function () {});
@@ -5205,7 +5267,7 @@ window.APP = (function () {
       human: human, delta: { mae: res.mae, total: human.total - s.sc.total },
       turns: s.turns.map(function (t) { return { typeN: t.typeN, text: t.text, keyHit: t.judge.keyHit, numsOk: t.judge.numsOk, numsBad: t.judge.numsBad, vague: t.judge.vague, crit: !!t.judge.crit }; }),
       nv: s.nv || null };
-    G.calib.push({ rule: s.sc, human: human });
+    G.calib.push({ rule: s.sc, human: human, evaluator: rec.evaluator, player: (G.user && G.user.name) || "", doc: s.doc, at: rec.date });
     store("calib", G.calib); // 이 기기 보존
     // 🌱 성장 기록 — 사람의 경험·개선 요구를 남긴다 (채점 대조와 함께 축적)
     var gr = buildGrowthRec({ role: G.expRole, by: rec.evaluator, sat: G.expSat, like: evV("evLike"), wish: evV("evWish"), miss: evV("evMiss"),
@@ -5780,7 +5842,7 @@ window.APP = (function () {
     // 캘리브레이션 자동 집계 — 로컬 + 서버 기록 합산, 축별 편향과 조정 권고까지
     (function () {
       var recs = G.calib.slice();
-      (G.cloudCalib || []).forEach(function (r) { if (r.rule && r.human) recs.push({ rule: r.rule, human: r.human }); });
+      (G.cloudCalib || []).forEach(function (r) { if (r.rule && r.human) recs.push({ rule: r.rule, human: r.human, evaluator: r.evaluator, player: r.player, doc: r.doc, created_at: r.created_at }); });
       var st = calibStats(recs);
       var gate2 = function (nn) { // 전문가 캘리브레이션 — 1건부터 즉시 반영, 게이지는 가중(n/(n+5))
         var w = Math.min(100, Math.round(100 * nn / (nn + 5)));
@@ -5824,10 +5886,32 @@ window.APP = (function () {
           (impr > 0 ? " (<b style='color:var(--acc);'>" + impr + "% 개선</b>)" : impr < 0 ? " <span style='color:#8a6d1a;'>(보정 전 수준 유지 — 보류 축 제외됨)</span>" : "") +
           " — 한 분 한 분의 채점이 이 표를 실제로 움직입니다</div>";
       })();
+      // 👩‍🏫 평가자 현황 — 누가 몇 건, 어떤 눈높이로 채점하고 있나 + 교차 채점 일치도
+      var evH = "";
+      (function () {
+        var es = evaluatorStats(recs);
+        if (!es.list.length) return;
+        var th3 = "padding:4px 6px;background:#EFF3F2;border:1px solid #E3EAE7;text-align:left;";
+        var td3 = "padding:4px 6px;border:1px solid #E3EAE7;";
+        var body = es.list.slice(0, 12).map(function (u) {
+          var tone = u.strict <= -3 ? "<span style='color:#8a6d1a;'>엄격</span>" : u.strict >= 3 ? "<span style='color:#8a6d1a;'>후함</span>" : "<span style='color:var(--acc);'>중립</span>";
+          return "<tr><td style='" + td3 + "'><b>" + esc(u.name) + "</b></td><td style='" + td3 + "text-align:center;'>" + u.n + "건</td>" +
+            "<td style='" + td3 + "text-align:center;'>" + (u.strict > 0 ? "+" : "") + u.strict + "점 " + tone + "</td>" +
+            "<td style='" + td3 + "' class='small'>" + esc(u.last || "-") + "</td></tr>";
+        }).join("");
+        var axNm = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" };
+        var cross = es.interMae !== null
+          ? "<div class='small' style='margin-top:4px;'>🔁 교차 채점 <b>" + es.crossN + "쌍</b> · 평가자 간 평균 축 오차 <b>" + es.interMae + "점</b>" +
+            (es.interMax >= 6 ? " · <b style='color:#8a6d1a;'>" + (axNm[es.interMaxAx] || es.interMaxAx) + " 축에서 최대 " + es.interMax + "점 이견</b> — 앵커 세션(같은 판 함께 채점 후 논의)을 한 번 권합니다"
+              : es.interMae <= 3 ? " — <b style='color:var(--acc);'>눈높이가 잘 맞습니다</b>" : " — 앵커 세션(같은 판 함께 채점 후 논의)을 한 번 권합니다") + "</div>"
+          : "<div class='small' style='margin-top:4px;'>같은 판을 두 분 이상이 채점하면 평가자 간 일치도가 여기 표시됩니다 — 교차 채점을 환영합니다.</div>";
+        evH = "<div style='margin:12px 0 4px;'><b style='font-size:13px;'>👩‍🏫 평가자 현황</b> <span class='small'>엄격도 = (코치−AI) 5축 합의 평균 · 방향이 일관되면 시스템이 그 눈높이를 학습합니다</span></div>" +
+          "<table style='width:100%;border-collapse:collapse;font-size:12px;'><tr><th style='" + th3 + "'>평가자</th><th style='" + th3 + "text-align:center;'>채점</th><th style='" + th3 + "text-align:center;'>엄격도</th><th style='" + th3 + "'>최근</th></tr>" + body + "</table>" + cross;
+      })();
       $("admCalib").innerHTML = gate2(st.n) +
         "<div class='small'>누적 <b>" + st.n + "건</b> (이 기기 " + G.calib.length + " + 서버 " + ((G.cloudCalib || []).length) + ") · 총점 평균 오차 <b>" + st.totalMae + "점</b> · 값 = AI−전문가 (양수면 AI가 후함)</div>" +
         "<table style='width:100%;border-collapse:collapse;margin-top:6px;font-size:12px;'><tr>" + Object.keys(names).map(function (a) { return "<th style='padding:4px;background:#EFF3F2;border:1px solid #E3EAE7;'>" + names[a] + "</th>"; }).join("") + "</tr><tr>" + rowsH + "</tr></table>" +
-        selfH + curveH +
+        selfH + evH + curveH +
         "<div style='margin-top:8px;'>" + st.advice.map(function (a) { return "<div class='chip warn' style='display:block;margin:3px 0;'>" + esc(a) + "</div>"; }).join("") + "</div>";
     })();
     // 🌱 제품 성장 로그 — 사람들이 남긴 경험이 다음 버전의 백로그가 된다
@@ -6204,7 +6288,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "4.5";
+  var APP_VER = "4.6";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -6260,7 +6344,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes } };
 })();
 
 </script>
