@@ -162,6 +162,8 @@ input[type=text],select{width:100%;font-family:inherit;font-size:15px;padding:11
 .ic-rx{background:#FBF6E8;color:#5A4410;}
 .ins-detail.hidden{display:none;}
 .ins-detail td{background:#FAFBFA;}
+.p-custom{position:absolute;top:34px;right:8px;background:#8A6410;color:#fff;font-size:10px;font-weight:900;border-radius:99px;padding:2px 8px;letter-spacing:.03em;}
+.poster{position:relative;}
 @media(max-width:700px){.ins-kpi{min-width:70px;padding:8px 11px;}.ins-kpi b{font-size:19px;}}
 .qfb h2{margin-top:0;}
 .qfb .qrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:9px 0;}
@@ -1126,6 +1128,31 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
       <div class="card"><h2>캘리브레이션 현황</h2><div id="admCalib" class="small"></div></div>
       <div class="card"><h2>🌱 제품 성장 로그 <span class="small">사용자·면접관 의견 — 다음 버전의 백로그</span></h2><div id="admGrowth"></div>
         <button class="btn ghost" onclick="APP.growthExport()">의견 일괄 내보내기 (JSON)</button></div>
+
+      <!-- 🎭 시나리오 저작 — 의사 4명 고정 해소 (판매 조건 P0) -->
+      <div class="card">
+        <h2>🎭 시나리오 저작 — 원장 만들기 <span class="small">코드 없이 2분 — 게시하면 전 직원 수배전단에 등장합니다</span></h2>
+        <div class="adm-grid">
+          <div><span class="small">원장 이름 *</span><input type="text" id="auNm" placeholder="예: 오한별"></div>
+          <div><span class="small">병원명</span><input type="text" id="auHosp" placeholder="예: 한별가정의학과"></div>
+          <div><span class="small">말투 프리셋 *</span><select id="auPreset"><option value="까칠">까칠 (장인석형·남)</option><option value="명랑" selected>명랑 (강지은형·여)</option><option value="신중">신중 (신혁주형·남)</option><option value="중저음">중저음 (김민우형·남)</option></select></div>
+          <div><span class="small">난이도 *</span><select id="auDiff"><option value="1">★ 입문</option><option value="2" selected>★★ 실전</option><option value="3">★★★ 지옥</option></select></div>
+          <div><span class="small">병원 상황</span><select id="auHt"><option value="A">A · 일만사 미진행</option><option value="B" selected>B · 일만사만 진행</option><option value="C">C · 시범사업 중단처</option></select></div>
+          <div><span class="small">주력 반대 유형 * <b>(번호 1~3개)</b></span><input type="text" id="auBias" placeholder="예: 2, 17, 4"></div>
+        </div>
+        <label class="lbl" style="margin-top:8px;">성향 한 줄 (전단 표기)</label><input type="text" id="auPlabel" placeholder="예: 원칙주의 · 숫자로만 설득됨">
+        <label class="lbl">전단 소개 문구</label><input type="text" id="auTag" placeholder='예: "근거 없으면 3분 안에 끊습니다."'>
+        <label class="lbl">첫마디 (비우면 프리셋 기본)</label><textarea id="auOpen" class="tsv" style="min-height:52px;" placeholder="예: 네, 오한별입니다. 5분 뒤 진료라 짧게 부탁해요."></textarea>
+        <label class="lbl">추가 성향 지시 (AI에게 — 선택)</label><textarea id="auPersona" class="tsv" style="min-height:52px;" placeholder="예: 최근 옆 건물에 경쟁 의원이 개원해 예민하다. 비용 얘기가 나오면 유독 방어적."></textarea>
+        <div style="margin-top:10px;">
+          <button class="btn ghost" style="margin:0 8px 0 0;" onclick="APP.authPreview()">👁 미리보기</button>
+          <button class="btn gold" style="margin:0;" onclick="APP.authSave()">🎭 게시 — 전 직원에게</button>
+          <span class="small" id="auMsg" style="margin-left:8px;"></span>
+        </div>
+        <div id="auPrev" style="margin-top:10px;"></div>
+        <h3 style="margin:14px 0 4px;font-size:14px;">게시된 커스텀 원장</h3>
+        <div id="auList"><div class="small">불러오는 중…</div></div>
+      </div>
 
       <!-- 운영 도구 — 매일 보는 화면이 아니므로 접어둔다 -->
       <details class="acc2 detail-acc"><summary>⚙️ 채점·판정 파라미터 <span class="small">이 세션 한정 — 정식 반영은 거버넌스</span></summary><div class="bd2">
@@ -2427,6 +2454,7 @@ window.APP = (function () {
     return "당신은 한국 개원가 의사 역할의 배우다. 제약회사 MR이 웰체크·일만사(일차의료 만성질환관리) 제안 영상통화를 요청했고, 당신이 진료 틈에 콜백을 걸어 MR이 받았다 — 시간을 내준 쪽도, 대화의 주도권도 당신이다.\n" +
       "[제1규칙 — 말 길이] 당신은 바쁜 의사다. 모든 발화는 1~2문장, 말로 15초 안에 끝낸다. 세 문장째는 없다. 설명은 MR의 일이고 당신은 짧게 치고 기다리는 쪽이다 — 한 번에 걱정 하나, 질문 하나만.\n" +
       "[캐릭터] " + d.nm + " 원장 · " + d.hosp + " · 성향: " + d.plabel + " · 말투 예시: \"" + d.open + "\" / \"" + d.reacts.vague[0] + "\"\n" +
+      (d.persona ? "[추가 캐릭터 지시 — 작성자 정의] " + d.persona + "\n" : "") +
       "[상황] " + G.scen.sit + "\n" +
       "[당신의 진짜 걱정들 — 이게 풀려야만 마음이 움직인다]\n" + objList + (G.scen.variant ? "\n+) 변형 카드: \"" + G.scen.variant.dr + "\"" : "") + "\n" +
       "[이 통화의 발단] 당신은 지난번 MR의 웰체크·일만사 제안을 며칠 곱씹다가 걸었다. 걸게 만든 이유가 바로 걱정 1)이다 — 당신의 첫마디는 이미 그 얘기로 시작했고, 이 통화의 중심 주제는 끝까지 걱정 1)이다.\n" +
@@ -2791,19 +2819,47 @@ window.APP = (function () {
   }
   function toPickScreen() { // 수배전단 진입 공통 — 지도에서 섬을 고른 뒤(또는 자유 출항으로) 온다
     renderPick();
+    fetchCustomDocs(function () { renderPick(); }); // 서버의 팀 시나리오 합류 — 늦게 와도 다시 그린다
     show("scr-pick");
     if (!loadK("tut", false)) showTut(); // 첫 항해자 30초 안내
   }
   function freeSail() { G.forceType = null; toPickScreen(); } // 자유 출항 — 무작위 반대유형
   var TIER = { "강지은": ["NORMAL", "#2E9E6B"], "신혁주": ["HARD", "#33608C"], "장인석": ["HELL", "#B3402E"], "김민우": ["NIGHTMARE", "#5B3E8C"] }; // 게임식 난이도 모드 — 상대가 곧 난이도다
+  /* ══════════ 🎭 시나리오 저작 — 커스텀 원장 (의사 4명 고정 해소, 판매 조건 P0) ══════════
+     교육담당자가 코드 없이 원장을 만든다. 말투(반응 대사)·목소리·아바타는 기존 4인 '성향 프리셋'에서 상속하고,
+     작성자는 이름·병원·상황·주력 반대·첫마디·추가 성향만 쓴다 — 2분에 1명. 서버(rp_doctors)로 전 직원에게 공유. */
+  var PRESETS = { "까칠": "장인석", "명랑": "강지은", "신중": "신혁주", "중저음": "김민우" };
+  function presetDoc(key) { var nm = PRESETS[key] || "강지은"; return DOCTORS.filter(function (d) { return d.nm === nm; })[0]; }
+  function mkCustomDoc(row) { // 서버 행 → 완전한 원장 객체 (프리셋 상속 + 작성 필드 덮어쓰기)
+    var base = presetDoc(row.preset);
+    var diff = Math.max(1, Math.min(3, parseInt(row.diff, 10) || 2));
+    return { nm: String(row.nm || "이름없음").slice(0, 12), gender: base.gender, stdType: base.stdType,
+      hosp: String(row.hosp || "").slice(0, 20) || base.hosp, ht: /^[ABC]$/.test(row.ht) ? row.ht : "B",
+      plabel: String(row.plabel || ("" + (row.preset || "명랑") + "형 · 커스텀")).slice(0, 30),
+      diff: diff, bounty: diff === 3 ? 300000000 : diff === 2 ? 150000000 : 60000000,
+      tag: String(row.tag || row.persona || "").slice(0, 60) || base.tag,
+      open: String(row.open || "").slice(0, 200) || base.open,
+      bias: (row.bias && row.bias.length ? row.bias : base.bias).map(Number).filter(function (n) { return n >= 1 && n <= 20; }).slice(0, 3),
+      voice: base.voice, elVoice: base.elVoice, av: base.av, reacts: base.reacts,
+      persona: String(row.persona || "").slice(0, 500), custom: true, _id: row.id };
+  }
+  function allDocs() { return DOCTORS.concat(G.customDocs || []); }
+  function fetchCustomDocs(cb) { // 부팅·선택화면 진입 시 — 실패해도 기본 4인은 항상 산다
+    if (!sbOn()) { if (cb) cb(); return; }
+    fetch(G.sbUrl + "/rest/v1/rp_doctors?enabled=eq.true&select=*&order=created_at.desc&limit=40", { headers: sbHeaders() })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) { G.customDocs = (rows || []).map(mkCustomDoc); if (cb) cb(); })
+      .catch(function () { if (cb) cb(); });
+  }
   function renderPick() {
     var h = "";
-    DOCTORS.forEach(function (d, i) {
+    allDocs().forEach(function (d, i) {
       var stars = d.diff === 3 ? "★★★ 지옥" : d.diff === 2 ? "★★ 실전" : "★ 입문";
-      var tier = TIER[d.nm] || ["MODE", "#5B6663"];
+      var tier = d.custom ? [["EASY", "#2E9E6B"], ["CUSTOM", "#8A6410"], ["CUSTOM+", "#B3402E"]][d.diff - 1] : (TIER[d.nm] || ["MODE", "#5B6663"]);
       h += "<div class='poster' onclick='APP.choose(" + i + ")'>" +
         "<div class='p-top'>WANTED</div>" +
         "<div class='p-mode' style='background:" + tier[1] + ";'>" + tier[0] + "</div>" +
+        (d.custom ? "<div class='p-custom'>🛠 우리 팀 시나리오</div>" : "") +
         "<div class='p-photo'><div class='pframe'><svg class='avatar' viewBox='0 0 120 140'>" + portraitSvg(d.av) + "</svg></div></div>" +
         "<div class='p-doa'>SIGN OR DECLINE</div>" +
         "<div class='p-name'>" + esc(d.nm) + " 원장</div><div class='p-hosp'>" + esc(d.hosp) + " · " + esc(d.plabel) + "</div>" +
@@ -2818,7 +2874,7 @@ window.APP = (function () {
       : "<div class='banner warn'>⚓ 무작위 유형으로 시작 — 특정 섬을 공략하려면 <b>🗺 정복 지도</b>에서 섬을 먼저 고르세요.</div>";
   }
   function choose(i) {
-    G.doc = DOCTORS[i];
+    G.doc = allDocs()[i] || DOCTORS[0];
     koVoice = pickVoice(); // 성별·품질 기준 재선정 (남자 원장=남자 목소리)
     G.scen = genScenario(G.doc);
     $("avCall").innerHTML = '<g class="pg">' + portraitSvg(G.doc.av) + '</g>';
@@ -5127,6 +5183,59 @@ window.APP = (function () {
     });
     dlFile("알피왕_인사이트_" + tab + "_" + todayStr().replace(/-/g, "") + ".csv", "﻿" + lines.join("\n"));
   }
+  /* ── 🎭 저작 UI (관리자) ── */
+  function authState() { // 폼 → 행 (검증 포함)
+    var nm = (($("auNm") || {}).value || "").trim();
+    if (!nm || nm.length < 2) return { err: "원장 이름을 2자 이상 입력하세요" };
+    var bias = (($("auBias") || {}).value || "").split(",").map(function (x) { return parseInt(x.trim(), 10); }).filter(function (n) { return n >= 1 && n <= 20; });
+    if (!bias.length) return { err: "주력 반대 유형 번호를 1~3개 입력하세요 (예: 2, 17, 4)" };
+    return { row: { nm: nm, hosp: (($("auHosp") || {}).value || "").trim(), ht: ($("auHt") || {}).value || "B",
+      preset: ($("auPreset") || {}).value || "명랑", diff: parseInt(($("auDiff") || {}).value, 10) || 2,
+      plabel: (($("auPlabel") || {}).value || "").trim(), tag: (($("auTag") || {}).value || "").trim(),
+      open: (($("auOpen") || {}).value || "").trim(), persona: (($("auPersona") || {}).value || "").trim(),
+      bias: bias.slice(0, 3), author: (G.user && G.user.name) || "관리자", enabled: true } };
+  }
+  function authPreview() {
+    var st = authState();
+    var box = $("auPrev"); if (!box) return;
+    if (st.err) { box.innerHTML = "<div class='banner err'>" + esc(st.err) + "</div>"; return; }
+    var d = mkCustomDoc(st.row);
+    box.innerHTML = "<div class='poster' style='max-width:230px;cursor:default;'>" +
+      "<div class='p-top'>WANTED</div><div class='p-custom'>🛠 미리보기</div>" +
+      "<div class='p-photo'><div class='pframe'><svg class='avatar' viewBox='0 0 120 140'>" + portraitSvg(d.av) + "</svg></div></div>" +
+      "<div class='p-name'>" + esc(d.nm) + " 원장</div><div class='p-hosp'>" + esc(d.hosp) + " · " + esc(d.plabel) + "</div>" +
+      "<div class='p-tag'>" + esc(d.tag) + "</div><div class='p-diff'>" + (d.diff === 3 ? "★★★" : d.diff === 2 ? "★★" : "★") + " · 주력 [" + d.bias.join("][") + "]</div></div>" +
+      "<div class='small' style='margin-top:6px;'>첫마디 — “" + esc(d.open.slice(0, 70)) + (d.open.length > 70 ? "…" : "") + "”</div>";
+  }
+  function authSave() {
+    var st = authState();
+    if (st.err) { toast(st.err); return; }
+    if (!sbOn()) { toast("서버 연결이 필요합니다"); return; }
+    fetch(G.sbUrl + "/rest/v1/rp_doctors", { method: "POST", headers: sbHeaders(), body: JSON.stringify(st.row) })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        toast("🎭 게시 완료 — 전 직원 수배전단에 등장합니다");
+        $("auMsg").innerHTML = "<b style='color:var(--acc);'>✓ 게시됐습니다.</b> 수배전단에서 바로 훈련 가능합니다.";
+        fetchCustomDocs(function () { renderAuthorList(); });
+      })
+      .catch(function (e) { $("auMsg").innerHTML = "<b style='color:var(--red);'>게시 실패: " + esc(e.message) + "</b> — rp_doctors 테이블이 없으면 서버기록_설치.sql을 실행하세요."; });
+  }
+  function renderAuthorList() {
+    var box = $("auList"); if (!box) return;
+    var rows = G.customDocs || [];
+    if (!rows.length) { box.innerHTML = "<div class='small'>아직 게시된 커스텀 원장이 없습니다.</div>"; return; }
+    box.innerHTML = "<table class='voy'><tr><th>원장</th><th>병원</th><th>프리셋</th><th>난이도</th><th>주력</th><th></th></tr>" +
+      rows.map(function (d) {
+        return "<tr><td><b>" + esc(d.nm) + "</b></td><td>" + esc(d.hosp) + "</td><td>" + esc(d.plabel.split("·")[0]) + "</td><td>" + "★".repeat(d.diff) + "</td><td>[" + d.bias.join("][") + "]</td>" +
+          "<td><button class='btn ghost' style='margin:0;padding:4px 10px;font-size:11.5px;' onclick='APP.authOff(" + d._id + ")'>내리기</button></td></tr>";
+      }).join("") + "</table>";
+  }
+  function authOff(id) { // 삭제가 아니라 비활성 — 데이터는 남기고 전단에서만 내린다
+    if (!sbOn() || !id) return;
+    fetch(G.sbUrl + "/rest/v1/rp_doctors?id=eq." + id, { method: "PATCH", headers: sbHeaders(), body: JSON.stringify({ enabled: false }) })
+      .then(function () { toast("전단에서 내렸습니다 (기록은 보존)"); fetchCustomDocs(function () { renderAuthorList(); }); })
+      .catch(function () { toast("실패 — 네트워크 확인"); });
+  }
   function renderAdmin() {
     var roster = buildRoster();
     // 목표 게이지: 전원 20유형 자유자재 = 평균 진행도 + S/A 비율
@@ -5138,6 +5247,7 @@ window.APP = (function () {
       "<div class='nvbarx' style='margin-top:8px;'><div style='display:flex;justify-content:space-between;font-size:13px;font-weight:700;'><span>자유자재 수준(S·A 등급) 비율</span><b>" + saPct + "% (" + sa + "/" + roster.length + "명)</b></div><div class='axbar" + (saPct < 55 ? " lo" : "") + "' style='height:12px;margin-top:3px;'><i style='width:" + saPct + "%'></i></div></div>" +
       "<div class='small' style='margin-top:6px;'>남은 갭: 진행도 " + (100 - progPct) + "%p · S/A 전환 대상 " + (roster.length - sa) + "명 — 개선할 점이 낮은 축부터 지정 출제로 과정관리.</div>";
     renderOrgInsight(); // 📊 실데이터 인사이트가 구 조직표·직원랭킹을 대체
+    renderAuthorList(); fetchCustomDocs(function () { renderAuthorList(); });
     // 🎯 코칭 처방 — 무엇이 왜 부족하고, 무엇부터 챙길지 (전사 → 사무소 → 개인)
     if ($("admCoach")) (function () {
       var recs = axRecs();
@@ -5539,7 +5649,7 @@ window.APP = (function () {
   G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
-  var APP_VER = "3.9";
+  var APP_VER = "4.0";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
   try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
@@ -5593,8 +5703,8 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL } };
+    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS } };
 })();
 
 </script>
