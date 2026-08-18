@@ -2000,7 +2000,7 @@ window.APP = (function () {
     var t0 = Date.now();
     var tick = function () {
       if (!G.inCall) return; // 통화가 끝났으면 보류 중이던 비트는 폐기
-      if (userTalking() && Date.now() - t0 < 12000) { setTimeout(tick, 350); return; }
+      if (userTalking() && Date.now() - t0 < 12000) { setTimeout(tick, 200); return; }
       fn();
     };
     tick();
@@ -2063,7 +2063,7 @@ window.APP = (function () {
           if (advanced) return;
           advanced = true;
           if (myId !== speakSeq) { abort(); return; }
-          if (i + 1 < chunks.length) setTimeout(function () { sayChunk(i + 1); }, 150); else fire();
+          if (i + 1 < chunks.length) setTimeout(function () { sayChunk(i + 1); }, 110); else fire();
         };
         u.onstart = function () { started = true; setTalking(true); G.ttsSpeaking = true; };
         u.onend = handoff;
@@ -3301,11 +3301,15 @@ window.APP = (function () {
     if (G.scen.variant && G.qIdx === G.scen.objs.length) return { kind: "variant", data: G.scen.variant };
     return null;
   }
-  function nextObjection() {
+  function nextObjection(prefix, expr, emo) {
+    // prefix = 직전 반응 대사. 예전엔 반응 drSay가 '끝난 뒤' 1.1초 쉬고 새 체인을 시작해
+    // 반응과 다음 반대 사이에 죽은 시간이 생겼다 — 이젠 한 호흡으로 병합한다 (문장 사이 자연 간격만 남음).
+    // 상태 전환도 대사 시작 시점에 걸어, 원장이 말하는 중에도 끼어들어 답할 수 있다.
+    var pre = prefix ? String(prefix) + " " : "";
     var o = curObj();
     var totalObj = G.scen.objs.length + (G.scen.variant ? 1 : 0);
     if (!o) {
-      drSay("음… 얘기는 알겠어요. 그래서, 그럼 뭐부터 하면 되는데요?", "interest", "interest");
+      drSay(pre + "음… 얘기는 알겠어요. 그래서, 그럼 뭐부터 하면 되는데요?", expr || "interest", emo || "interest");
       G.awaiting = "closing"; faidRender();
       $("hudProg").textContent = "클로징 타임!";
       return;
@@ -3314,8 +3318,9 @@ window.APP = (function () {
     o.vagueN = 0;
     var line = o.data.dr;
     var cbk = memCallback(o.data.n); // 아까 언급과 이어지는 반대면 기억을 짚고 들어간다
-    if (G.qIdx > 0) line = (cbk || (G.lastMrText && Math.random() < 0.65 ? ackFromText(G.lastMrText) : pick("trans", TRANSITIONS))) + " " + line;
-    drSay(line, "think");
+    if (G.qIdx > 0 && !prefix) line = (cbk || (G.lastMrText && Math.random() < 0.65 ? ackFromText(G.lastMrText) : pick("trans", TRANSITIONS))) + " " + line;
+    else if (cbk) line = cbk + " " + line;
+    drSay(pre + line, expr || "think", emo || null);
     G.awaiting = o; faidRender();
     if (($("mrInput").value || "").trim()) resetSilence(); // 원장 말 사이에 미리 말해둔 답 자동 발사
   }
@@ -3767,7 +3772,7 @@ window.APP = (function () {
       var jI = judgeTurn(0, text);
       G.turns.push({ typeN: 0, text: text, judge: jI });
       if (intent === "reschedule") {
-        var canned = function () { drSay(RESCHED[G.doc.nm], "think", "think", function () { setTimeout(reAnchor, 800); }); };
+        var canned = function () { drSay(RESCHED[G.doc.nm], "think", "think", function () { setTimeout(reAnchor, 250); }); };
         if (llmOn()) llmTurn(text, "[판정: MR이 '바쁘면 다음에 통화하자'고 양보했다. 당신은 진료 틈에 직접 콜백까지 건 사람 — 기왕 낸 시간이니 지금 하자고 하고, 하던 주제로 돌아가라]", "think", "think", canned);
         else canned();
         return;
@@ -3795,11 +3800,10 @@ window.APP = (function () {
       if (llmOn() && firstO) {
         llmTurn(text, "[판정: MR의 첫인사와 오프닝이다. 채점하지 말고 캐릭터답게 짧게 받아라" + (jo.numsBad ? " — 단, 방금 숫자가 틀렸다. 그걸 짚어라" : "") + "]\n[지시: 받아준 뒤 자연스럽게 첫 걱정거리를 꺼내라 — 주제: " + firstO.data.t + ". 참고 표현: " + firstO.data.dr + "]",
           jo.numsBad ? "angry" : "interest", jo.numsBad ? "angry" : "interest",
-          function () { drSay(ACKS[G.doc.nm], "neutral", null, function () { setTimeout(nextObjection, 1000); }); },
+          function () { nextObjection(ACKS[G.doc.nm], "neutral", null); }, // 인사 받기+첫 반대 한 호흡
           function () { firstO.vagueN = 0; G.awaiting = firstO; $("hudProg").textContent = progTxt(1, totalObj0); });
       } else {
-        drSay(jo.numsBad ? reactLine("bad") : ACKS[G.doc.nm], jo.numsBad ? "angry" : "neutral", jo.numsBad ? "angry" : null,
-          function () { setTimeout(nextObjection, 1000); });
+        nextObjection(jo.numsBad ? reactLine("bad") : ACKS[G.doc.nm], jo.numsBad ? "angry" : "neutral", jo.numsBad ? "angry" : null); // 한 호흡
       }
       return;
     }
@@ -3808,9 +3812,8 @@ window.APP = (function () {
       G.turns.push({ typeN: 0, text: text, judge: jp });
       G.awaiting = false; faidRender();
       if (jp.numsBad) { stamp("bad", "오수치!"); badNumToast(jp); }
-      drSay(jp.numsBad ? reactLine("bad") : pick("probeAck", ["아, 그렇구나.", "음, 알겠어요.", "그건 좀 좋네.", "흠, 그래요."]),
-        jp.numsBad ? "angry" : "neutral", jp.numsBad ? "angry" : null,
-        function () { setTimeout(nextObjection, 900); });
+      nextObjection(jp.numsBad ? reactLine("bad") : pick("probeAck", ["아, 그렇구나.", "음, 알겠어요.", "그건 좀 좋네.", "흠, 그래요."]),
+        jp.numsBad ? "angry" : "neutral", jp.numsBad ? "angry" : null); // 한 호흡
       return;
     }
     if (G.awaiting === "closing") {
@@ -3879,21 +3882,16 @@ window.APP = (function () {
     // 티키타카: 성공 응수 후 원장이 방금 들은 내용을 되묻는다 (첫 번은 반드시, 두 번째는 45% — 최대 2회)
     if (!llmOn() && G.probeN < 2 && (cat === "crit" || cat === "good" || cat === "mild") && (G.probeN === 0 || Math.random() < 0.45)) {
       G.probeN++;
-      drSay(withBeat(reactLine(cat, ctx)), expr, emo, function () {
-        setTimeout(function () {
-          drSay(pickProbe(text), "interest", "interest");
-          G.awaiting = "probe"; faidRender();
-          $("hudProg").textContent = "원장의 되묻기 — 티키타카";
-        }, 900);
-      });
+      drSay(withBeat(reactLine(cat, ctx)) + " " + pickProbe(text), expr, emo); // 반응+되묻기 한 호흡
+      G.awaiting = "probe"; faidRender();
+      $("hudProg").textContent = "원장의 되묻기 — 티키타카";
       return;
     }
     if (llmOn()) {
       if (nextO) nextO.vagueN = 0;
       llmTurn(text, llmHint(cat, nextO, nextO ? "next" : "closing"), expr, emo,
         function () { // 폴백: 내장 반응 → (말 끝난 뒤 한 박자) → 내장 반대 제기
-          drSay(cat === "vague3" ? GIVEUP[G.doc.nm] : reactLine(cat, ctx), expr, emo,
-            function () { setTimeout(nextObjection, 1100); });
+          nextObjection(cat === "vague3" ? GIVEUP[G.doc.nm] : reactLine(cat, ctx), expr, emo); // 한 호흡
         },
         function () { // LLM 성공: 상태만 조용히 진행 (대사는 LLM 한 덩어리)
           if (nextO) { G.awaiting = nextO; $("hudProg").textContent = progTxt(G.qIdx + 1, totalObj); }
@@ -3901,8 +3899,7 @@ window.APP = (function () {
         });
     } else {
       var ec2 = (cat === "mild" || cat === "good") && Math.random() < 0.4 ? echoFrag(text) : null;
-      drSay(cat === "vague3" ? GIVEUP[G.doc.nm] : withBeat((ec2 ? "“" + ec2 + "”… " : "") + reactLine(cat, ctx)), expr, emo,
-        function () { setTimeout(nextObjection, 1100); }); // 반응이 '끝나고' 숨 고른 뒤 다음 반대
+      nextObjection(cat === "vague3" ? GIVEUP[G.doc.nm] : withBeat((ec2 ? "“" + ec2 + "”… " : "") + reactLine(cat, ctx)), expr, emo); // 반응+다음 반대 한 호흡 — 1.1초 죽은 시간 제거
     }
   }
 
@@ -5542,7 +5539,7 @@ window.APP = (function () {
   G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
-  var APP_VER = "3.8";
+  var APP_VER = "3.9";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
   try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
