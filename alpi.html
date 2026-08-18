@@ -127,6 +127,36 @@ input[type=text],select{width:100%;font-family:inherit;font-size:15px;padding:11
 .inbar{margin-top:12px;background:#fff;border-radius:14px;padding:12px;color:var(--ink);}
 .inbar textarea{width:100%;border:1.5px solid var(--line);border-radius:9px;font-family:inherit;font-size:14.5px;padding:10px;min-height:64px;resize:vertical;}
 .inrow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center;}
+/* 💬 첫 발화 도우미 */
+.faid{background:#FBF6E8;border:1.5px solid #E3D3A2;border-radius:11px;padding:10px 12px;margin-bottom:9px;}
+.faid-h{font-size:12.5px;font-weight:800;color:#8A6410;margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.faid-h .step{background:#fff;border:1px solid #E3D3A2;border-radius:99px;padding:1px 8px;font-size:11px;color:#8A6410;font-weight:700;}
+.faid-b{display:flex;gap:6px;flex-wrap:wrap;}
+.faid-b button{border:1.5px solid #D8C48A;background:#fff;color:#5A4410;border-radius:9px;padding:7px 11px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;text-align:left;line-height:1.45;max-width:100%;}
+.faid-b button:hover{background:#FFFCF3;border-color:#B9932B;}
+.faid-b button b{color:#8A6410;}
+.faid-tip{font-size:11.5px;color:#8A7A55;margin-top:6px;line-height:1.6;}
+.faid.hidden{display:none;}
+/* AI 고지 (AI기본법 제31조) */
+.ai-notice{max-width:560px;margin:22px auto 0;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px 16px;font-size:12.5px;line-height:1.7;color:#CFE0DC;text-align:left;}
+.ai-notice b{color:#fff;}
+.ai-notice-sub{display:block;margin-top:5px;font-size:11.5px;color:#9FB5B0;}
+/* ⚡ 30초 의견 */
+.qfb{border:2px solid var(--acc);position:relative;}
+.qfb.pulse{animation:qpulse 1.5s ease-out 2;}
+@keyframes qpulse{0%{box-shadow:0 8px 24px rgba(0,0,0,.25),0 0 0 0 rgba(11,91,84,.5);}70%{box-shadow:0 8px 24px rgba(0,0,0,.25),0 0 0 14px rgba(11,91,84,0);}100%{box-shadow:0 8px 24px rgba(0,0,0,.25),0 0 0 0 rgba(11,91,84,0);}}
+.qfb-beta{display:inline-block;background:var(--gold);color:#3B2E14;font-size:11px;font-weight:900;border-radius:99px;padding:2px 10px;margin-left:7px;vertical-align:2px;letter-spacing:.04em;}
+.qfb-nudge{background:#FFF6E3;border-left:4px solid var(--gold);border-radius:0 9px 9px 0;padding:10px 13px;margin-bottom:10px;font-size:13px;color:#7A5A20;line-height:1.65;}
+.qfb-cnt{font-size:12px;color:var(--acc);font-weight:800;margin-top:7px;}
+.qfb h2{margin-top:0;}
+.qfb .qrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:9px 0;}
+.qfb .qs{border:1.5px solid var(--line);background:#fff;border-radius:10px;width:44px;height:42px;font-size:20px;cursor:pointer;line-height:1;color:#C9CFCD;}
+.qfb .qs.on{border-color:var(--gold);color:#E8B44C;background:#FFFCF3;}
+.qfb .qlab{font-size:12.5px;color:var(--sub);min-width:96px;font-weight:700;}
+.qfb textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;padding:10px;min-height:60px;resize:vertical;color:var(--ink);}
+.qfb .qdone{background:var(--soft);border-radius:10px;padding:14px 16px;font-size:14px;color:var(--acc);font-weight:700;}
+@media(max-width:700px){.qfb .qlab{min-width:100%;}}
+@media(max-width:700px){.faid-b button{width:100%;}}
 .mic{border:1.5px solid var(--acc);background:#fff;color:var(--acc);border-radius:9px;padding:9px 14px;font-weight:800;font-size:13.5px;}
 .mic.onair{background:var(--red);border-color:var(--red);color:#fff;animation:pulse 1.2s infinite;}
 .sttlive{font-size:12px;color:var(--sub);min-height:16px;flex:1 1 100%;}
@@ -677,6 +707,12 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
     <div class="intro4">
       <button class="press" onclick="APP.toReg()">⚓ 모험 시작</button>
     </div>
+    <!-- AI 기본법 제31조(2026.1.22 시행) 투명성 고지 — 고영향·생성형 AI 운용 사실의 사전 고지 의무 -->
+    <div class="ai-notice intro4">
+      🤖 <b>본 서비스는 인공지능(AI) 기반으로 운용됩니다.</b><br>
+      원장 역할은 AI가 연기하며, 훈련 결과 평가·피드백도 AI가 자동 생성합니다. AI 판정은 코칭 참고용이며 인사평가에 자동 반영되지 않습니다.<br>
+      <span class="ai-notice-sub">음성·영상은 이 기기 안에서만 분석되어 <b>서버로 전송되지 않으며</b>, 서버에는 이름·소속·점수만 기록됩니다.</span>
+    </div>
   </div>
   <div class="st-foot"><span class="credit">NEW BUSINESS STRATEGY TEAM&ensp;PRESENTS</span></div>
 </section>
@@ -850,6 +886,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
     </div>
     <div class="inbar">
       <div class="small" id="sitLine" style="margin-bottom:6px;"></div>
+      <!-- 💬 첫 발화 도우미 — '무슨 말을 해야 하지?'에서 멈추는 이탈을 막는다 (베타 이탈의 최대 원인) -->
+      <div id="firstAid" class="faid hidden"></div>
       <textarea id="mrInput" placeholder="🎙 자동 대화 중엔 그냥 말하면 됩니다 — 말을 마치면 자동 전송 · 타이핑 입력도 가능"></textarea>
       <div class="michud" id="micHud" title="마이크 상태 — 초록 불+바가 움직이면 내 목소리가 들어가고 있는 겁니다">
         <span class="mdot idle" id="micDot"></span>
@@ -872,6 +910,11 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
   <div class="deck" style="max-width:780px;">
     <!-- 📄 코칭 리포트 지면 — 화면과 인쇄가 같은 문서 -->
     <div class="rdoc-card"><div id="docReport" class="rdoc"></div></div>
+
+    <!-- ⚡ 30초 의견 — 전문가 캘리브레이션(5축)을 다 채워야 의견란이 나오던 구조 때문에 수집률이 0이었다 -->
+    <div class="card qfb" id="quickFb"></div>
+    <!-- 🎓 코치 평가 요청 — 비동기 캘리브레이션의 입구. 요청한 판만 대화가 서버로 간다 -->
+    <div class="card" id="revAsk"></div>
 
     <!-- 🎓 전문가 평가 — 숨기지 않는다, 이 제품의 심장 -->
     <div class="card calib-card" id="calibPanel"></div>
@@ -947,10 +990,10 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <div class="bd2" id="dlgFull" style="max-height:380px;overflow:auto;font-size:13.5px;line-height:1.7;"></div>
       </details>
       <div style="margin-top:10px;">
-        <button class="btn" onclick="APP.again()">다시 도전</button>
-        <button class="btn gold" onclick="APP.toRank()">🏴‍☠️ 현상금 랭킹</button>
-        <button class="btn ghost" onclick="APP.toCodex()">📜 비전서 도감</button>
-        <button class="btn ghost" onclick="APP.toMap()">진행 현황</button>
+        <button class="btn" onclick="APP.qfbGuard(APP.again)">다시 도전</button>
+        <button class="btn gold" onclick="APP.qfbGuard(APP.toRank)">🏴‍☠️ 현상금 랭킹</button>
+        <button class="btn ghost" onclick="APP.qfbGuard(APP.toCodex)">📜 비전서 도감</button>
+        <button class="btn ghost" onclick="APP.qfbGuard(APP.toMap)">진행 현황</button>
         <button class="btn ghost" onclick="window.print()">🖨 리포트 인쇄</button>
         <button class="btn ghost" onclick="APP.shareReport()">📤 카톡·SNS 공유</button>
         <button class="btn ghost" onclick="APP.toLib()">🎓 코칭 튜토리얼</button>
@@ -1084,6 +1127,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <button class="btn ghost" onclick="APP.admExport()">세션 기록 일괄 내보내기 (JSON)</button>
       </div>
       <div class="card"><h2>📣 데모 현황 <span class="small">링크 받은 분들이 실제로 어디까지 갔나 — ☁ 불러오기 후 표시</span></h2><div id="admDemo"></div></div>
+      <div class="card"><h2>🎓 전문가 평가 대기열 <span class="small">MR이 요청한 판을 열어 대화를 보고 채점 — 캘리브레이션의 원천</span></h2>
+        <div id="admReview"><div class="small">[☁ 서버 데이터 불러오기] 또는 아래 버튼으로 조회하세요. <button class="btn ghost" style="margin:6px 0 0;padding:6px 14px;font-size:12.5px;" onclick="APP.reviewFetch()">평가 대기열 불러오기</button></div></div></div>
       <div class="card"><h2>캘리브레이션 현황</h2><div id="admCalib" class="small"></div></div>
       <div class="card"><h2>🌱 제품 성장 로그 <span class="small">사용자·면접관 의견 — 다음 버전의 백로그</span></h2><div id="admGrowth"></div>
         <button class="btn ghost" onclick="APP.growthExport()">의견 일괄 내보내기 (JSON)</button></div>
@@ -2721,9 +2766,19 @@ window.APP = (function () {
   function toReg() { show("scr-reg"); }
 
   /* ── 수배전단 ── */
+  function nameProblem(nm) { // 실명이 아니면 코칭 리포트도 랭킹도 누구 것인지 알 수 없다 (베타에서 ddd·d·ㅇㅇ 유입)
+    var s = String(nm || "").trim();
+    if (!s) return "성명을 입력해야 출항할 수 있습니다.";
+    if (s.length < 2) return "성명을 <b>두 글자 이상</b> 입력해 주세요 — 리포트와 랭킹이 이름으로 남습니다.";
+    if (/^[a-zA-Z]+$/.test(s) && s.length < 4) return "성명을 <b>한글 실명</b>으로 입력해 주세요.";
+    if (/^(.)\1+$/.test(s)) return "같은 글자만 반복된 이름은 사용할 수 없습니다 — <b>실명</b>을 입력해 주세요."; // ddd, ㅇㅇ, aaa
+    if (/^(테스트|test|asdf|qwer|ㅁㄴㅇㄹ|ㅋㅋ+|ㅇㅇ)$/i.test(s)) return "<b>실명</b>을 입력해 주세요 — 훈련 기록이 본인 이름으로 남습니다.";
+    return null;
+  }
   function toPick() {
     var nm = $("regName").value.trim();
-    if (!nm) { $("regBanner").innerHTML = "<div class='banner err'>성명을 입력해야 출항할 수 있습니다.</div>"; return; }
+    var bad = nameProblem(nm);
+    if (bad) { $("regBanner").innerHTML = "<div class='banner err'>" + bad + "</div>"; try { $("regName").focus(); } catch (e) {} return; }
     G.user = { div: $("regDiv").value, office: $("regOffice").value.trim() || "-", name: nm, empno: (($("regEmpno") && $("regEmpno").value) || "").trim() || null };
     store("user", G.user); // 플레이어 정보 보존 — 다음 접속엔 자동 채움
     toMap(); // 모험의 홈은 해도(海圖)다 — 섬을 고르고 → 상대(난이도)를 고르고 → 격파
@@ -2884,6 +2939,7 @@ window.APP = (function () {
     $("sitLine").innerHTML = "<b>[상황]</b> " + esc(G.scen.sit) + " · <b>미션:</b> 반대를 넘고 다음 행동(날짜·주체) 합의";
     var totalObj = G.scen.objs.length + (G.scen.variant ? 1 : 0);
     $("hudProg").textContent = "반대 0/" + totalObj;
+    setTimeout(faidRender, 300); // 💬 첫 발화 도우미 — 판이 열리자마자 무엇을 말할지 보여준다
     G.timerId = setInterval(function () {
       var s = Math.floor((Date.now() - G.t0) / 1000);
       $("hudTimer").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
@@ -2910,7 +2966,7 @@ window.APP = (function () {
     setTimeout(function () {
       ov.classList.add("hidden");
       try { var c = new (window.AudioContext || window.webkitAudioContext)(); tone(c, 660, 0, 0.08, 0.1); tone(c, 990, 0.09, 0.12, 0.1); setTimeout(function () { try { c.close(); } catch (e) {} }, 500); } catch (e) {}
-      G.awaiting = (elevenOn() || llmOn()) ? "free" : "opening"; // 자유 대화 vs 대본 오프닝 비트
+      G.awaiting = (elevenOn() || llmOn()) ? "free" : "opening"; faidRender(); // 자유 대화 vs 대본 오프닝 비트
       $("hudProg").textContent = (elevenOn() || llmOn()) ? "자유 대화 — 인사부터 합의까지, 흐름은 당신이 만든다" : "인사 & 오프닝 — 먼저 제안을 꺼내보세요";
       if (elevenOn()) startEleven(); // 첫마디(firstMessage)까지 일레븐이 말한다
       else drSay(openLine(), G.doc.nm === "강지은" ? "happy" : "neutral", G.doc.nm === "강지은" ? "happy" : null); // 재도전이면 지난 판을 기억하는 첫마디
@@ -2937,17 +2993,21 @@ window.APP = (function () {
     return (buf ? buf + " " : "") + t;
   }
   var SENT_END_RE = /(니다|세요|해요|어요|아요|네요|하죠|이죠|거든요|잖아요|합시다|할게요|드릴게요|십시오|까요|나요|가요|시죠|는데요|요|다)[.!?…]?\s*$/; // 한국어 문장 종결 감지 — 끝났으면 빨리 보낸다
-  function resetSilence(fast) { if (G.silT) clearTimeout(G.silT); G.silT = setTimeout(checkAutoSend, fast ? Math.max(700, Math.round(VOICE_SILENCE_MS * 0.38)) : VOICE_SILENCE_MS); }
+  function resetSilence(fast) { if (G.silT) clearTimeout(G.silT); G.silT = setTimeout(checkAutoSend, fast ? Math.max(650, Math.round(VOICE_SILENCE_MS * 0.3)) : VOICE_SILENCE_MS); }
+  // 침묵 대기(2.6초)는 '사용자가 말을 끝냈는지'를 판단하는 시간이다.
+  // '원장이 아직 말하는 중인지'는 전혀 다른 질문이므로 같은 간격으로 재시도하면 안 된다 —
+  // 원장이 말을 마친 직후에 확인이 지나가면 다음 확인까지 2.6초를 더 기다려 체감 3초의 정체가 생겼다.
+  var HOLD_POLL_MS = 300;
+  function holdRetry() { if (G.silT) clearTimeout(G.silT); G.silT = setTimeout(checkAutoSend, HOLD_POLL_MS); }
   function checkAutoSend() {
     if (!G.voiceOn || !G.inCall) return;
     var buf = ($("mrInput").value || "").trim();
-    // ⚠ 예전엔 여기서 그냥 return 했다 → 원장이 생각 중이거나 말하는 중일 때 도착한 말이
-    //    입력칸에 갇힌 채 영영 전송되지 않고, 그 잔여 텍스트가 유휴 복구 타이머까지 무력화시켰다.
-    if (G.llmBusy || !G.awaiting) { if (buf) resetSilence(); return; } // 버리지 말고 다시 시도
+    // 원장이 생각 중이거나 아직 말하는 중 — 내 말은 버리지 않고 짧은 간격으로 대기했다가 곧바로 발사한다
+    if (G.llmBusy || !G.awaiting) { if (buf) holdRetry(); return; }
     if (userTalking()) { // 아직 목소리가 나는 중 — 절대 안 끊는다 (NV·마이크VAD·STT 3중 감지)
+      // 이건 '말이 끝났는지'를 재는 것이므로 침묵 대기 창(2.6초)을 통째로 다시 준다 (짧게 폴링하면 말을 자른다)
       G._talkWait = (G._talkWait || 0) + 1;
-      // 다만 VAD가 잡음에 물려 '계속 말하는 중'으로 굳는 경우가 있어 무한 대기는 막는다 (약 8초 상한)
-      if (G._talkWait < 8) { resetSilence(); return; }
+      if (G._talkWait < 8) { resetSilence(); return; } // VAD가 잡음에 굳는 경우를 대비한 상한 (약 20초)
     }
     G._talkWait = 0;
     if (buf.length >= VOICE_MIN_SEND) sendTurn();
@@ -3007,7 +3067,9 @@ window.APP = (function () {
           var nb = acceptFinal(($("mrInput").value || "").trim(), t, G.lastDoctor);
           if (nb !== null) {
             $("mrInput").value = nb; ALPI_NV.feedTranscript(t); lastVoiceAt = Date.now();
-            var fin = nb.length >= VOICE_MIN_SEND && SENT_END_RE.test(nb.trim()); // 문장이 끝났다 — 침묵 대기 60% 단축
+            // 문장이 끝났으면 침묵 대기를 단축한다. 음성 인식이 종결어미를 흘리는 경우가 잦아
+            // '충분히 긴 발화(30자+)'도 완결로 본다 — 여기서 못 잡으면 매 턴 2.6초를 통째로 기다린다.
+            var fin = nb.length >= VOICE_MIN_SEND && (SENT_END_RE.test(nb.trim()) || nb.trim().length >= 30);
             resetSilence(fin);
             micState(fin ? "곧 전송…" : "듣는 중", fin ? "y" : "g");
           }
@@ -3052,6 +3114,52 @@ window.APP = (function () {
   function nvTick(live, r) {
     if (!r) return;
     $("nvMini").innerHTML = "👁 응시 " + (r.응시율 === null ? "–" : r.응시율 + "%") + " · 🙂 " + (r.미소비율 === null ? "–" : r.미소비율 + "%") + " · 🎙 생동감 " + (r.피치변동성_퍼센트 === null ? "–" : r.피치변동성_퍼센트 + "%");
+  }
+  /* ══════════ 💬 첫 발화 도우미 — "무슨 말을 해야 하지?"에서 멈추는 이탈 차단 ══════════
+     베타에서 판을 연 사람의 상당수가 한 마디도 못 하고 끝냈다. 답을 대신 주면 훈련이 안 되므로
+     '정답'이 아니라 '화법의 뼈대와 첫 문장'만 준다 — 인사말만 예외로 통문장을 제공(훈련 가치가 없는 구간). */
+  var FAID_OPEN = [
+    "안녕하세요 원장님, 대웅제약 {NM}입니다. 바쁘신데 잠깐 시간 내주셔서 감사합니다.",
+    "원장님 안녕하세요, 대웅제약 {NM}입니다. 웰체크 건으로 인사드리려고 연락드렸습니다.",
+    "안녕하세요 원장님. 대웅제약 {NM}입니다. 지난번 말씀하신 부분 정리해서 왔습니다."
+  ];
+  function faidHide() { var el = $("firstAid"); if (el) el.classList.add("hidden"); }
+  function faidBtn(label, fill, sub) {
+    return "<button onclick='APP.faidUse(" + JSON.stringify(JSON.stringify(fill)) + ")'>" +
+      "<b>" + esc(label) + "</b>" + (sub ? "<br><span style='font-weight:500;color:#7A6A45;'>" + esc(sub) + "</span>" : "") + "</button>";
+  }
+  function faidUse(json) { // 예시를 입력창에 넣어준다 — 전송은 사용자가 직접 (읽어보고 고치라는 의도)
+    var t; try { t = JSON.parse(json); } catch (e) { t = String(json); }
+    var box = $("mrInput"); if (!box) return;
+    box.value = t; box.focus();
+    try { box.setSelectionRange(t.length, t.length); } catch (e) {}
+    toast("문장을 넣었습니다 — 고쳐서 말하거나 [전송 ▶]");
+  }
+  function faidRender() { // 대화 단계에 따라 무엇을 말해야 하는지 바뀐다
+    var el = $("firstAid"); if (!el || !G.inCall) return;
+    var a = G.awaiting, h = "", b = "", tip = "";
+    var nm = (G.user && G.user.name) ? G.user.name : "OOO";
+    if (a === "opening" || (a === "free" && !(G.freeN || 0))) { // 아직 인사도 안 한 상태
+      h = "<span class='step'>STEP 1</span> 먼저 인사부터 하세요 — 아래를 눌러 넣고 고쳐 쓰셔도 됩니다";
+      b = FAID_OPEN.map(function (s, i) { var t = s.replace("{NM}", nm); return faidBtn(["기본 인사", "웰체크 언급", "지난 대화 이어가기"][i], t, t.slice(0, 34) + "…"); }).join("");
+      tip = "🎙 자동 대화가 켜져 있으면 <b>그냥 말씀하셔도</b> 됩니다. 말을 마치면 자동으로 전송됩니다.";
+    } else if (a && a.kind === "v22" && a.data) { // 반대를 받은 상태 — 뼈대만 준다
+      var v = a.data;
+      h = "<span class='step'>지금</span> [" + v.n + "] " + esc(v.t) + " — 이 걱정을 풀어야 합니다";
+      b = faidBtn("① 공감 한 문장으로 시작", "원장님 말씀 충분히 이해합니다. ", "인정 먼저 — 반박부터 하면 방어가 세집니다") +
+        faidBtn("② Yes-But 뼈대 넣기", "원장님 말씀 충분히 이해합니다. 다만 ", "공감 → 다만 → 근거·수치 → 확인 질문");
+      tip = "💡 <b>정답 명분</b>이 궁금하면 결과 리포트와 <b>📜 비전서 도감</b>에 표준 스크립트가 있습니다. 지금은 <b>기억나는 만큼</b> 말해보는 게 훈련입니다.";
+    } else if (a === "probe") {
+      h = "<span class='step'>되묻기</span> 원장이 확인 질문을 했습니다 — 짧고 분명하게 답하세요";
+      b = faidBtn("짧게 답하고 되돌리기", "네, ", "1~2문장으로 답한 뒤 원래 이야기로 돌아오세요");
+      tip = "💡 모르는 건 지어내지 마세요. <b>“확인해서 알려드리겠습니다”</b>도 정답 처리됩니다.";
+    } else if (a === "closing") {
+      h = "<span class='step'>마무리</span> 걱정이 정리됐습니다 — <b>날짜·주체</b>를 박아 끝내세요";
+      b = faidBtn("날짜·주체 넣어 마무리", "그럼 다음 주 화요일 2시에 교육간호사와 함께 방문드리겠습니다. 괜찮으실까요?", "이 문형이 클로징 만점 기준입니다");
+      tip = "💡 “자료 보내드릴게요”로 끝나면 점수가 크게 깎입니다. <b>언제·누가·무엇을</b>이 들어가야 합니다.";
+    } else { faidHide(); return; }
+    el.innerHTML = "<div class='faid-h'>💬 " + h + "</div><div class='faid-b'>" + b + "</div>" + (tip ? "<div class='faid-tip'>" + tip + "</div>" : "");
+    el.classList.remove("hidden");
   }
   function drSay(text, expr, emo, cb) {
     if (!G.inCall) return; // 통화 종료 후 유령 대사 방지
@@ -3192,7 +3300,7 @@ window.APP = (function () {
     var totalObj = G.scen.objs.length + (G.scen.variant ? 1 : 0);
     if (!o) {
       drSay("음… 얘기는 알겠어요. 그래서, 그럼 뭐부터 하면 되는데요?", "interest", "interest");
-      G.awaiting = "closing";
+      G.awaiting = "closing"; faidRender();
       $("hudProg").textContent = "클로징 타임!";
       return;
     }
@@ -3202,7 +3310,7 @@ window.APP = (function () {
     var cbk = memCallback(o.data.n); // 아까 언급과 이어지는 반대면 기억을 짚고 들어간다
     if (G.qIdx > 0) line = (cbk || (G.lastMrText && Math.random() < 0.65 ? ackFromText(G.lastMrText) : pick("trans", TRANSITIONS))) + " " + line;
     drSay(line, "think");
-    G.awaiting = o;
+    G.awaiting = o; faidRender();
     if (($("mrInput").value || "").trim()) resetSilence(); // 원장 말 사이에 미리 말해둔 답 자동 발사
   }
 
@@ -3635,6 +3743,7 @@ window.APP = (function () {
     if (G.silT) clearTimeout(G.silT);
     $("sttLive").textContent = "";
     $("mrInput").value = "";
+    faidHide(); // 내가 말하는 동안엔 도우미를 접는다
     if (mannerCheck(text)) { G.dlgLog.push({ w: "mr", t: text }); G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text) }); return; } // 욕설·모욕 = 즉시 통화 종료 (전 모드 공통)
     if (G.awaiting === "free" && elevenOn()) { // 일레븐 모드 타이핑 입력 — 대화는 일레븐에, 채점은 심판에
       var sent = false;
@@ -3673,7 +3782,7 @@ window.APP = (function () {
     if (G.awaiting === "opening") { // MR의 인사·오프닝 비트
       var jo = judgeTurn(0, text);
       G.turns.push({ typeN: 0, text: text, judge: jo });
-      G.awaiting = false;
+      G.awaiting = false; faidRender();
       var firstO = curObj();
       var totalObj0 = G.scen.objs.length + (G.scen.variant ? 1 : 0);
       if (jo.numsBad) { stamp("bad", "오수치!"); badNumToast(jo); }
@@ -3691,7 +3800,7 @@ window.APP = (function () {
     if (G.awaiting === "probe") { // 원장 되묻기에 대한 답 — 가볍게 받고 다음 반대로
       var jp = judgeTurn(0, text);
       G.turns.push({ typeN: 0, text: text, judge: jp });
-      G.awaiting = false;
+      G.awaiting = false; faidRender();
       if (jp.numsBad) { stamp("bad", "오수치!"); badNumToast(jp); }
       drSay(jp.numsBad ? reactLine("bad") : pick("probeAck", ["아, 그렇구나.", "음, 알겠어요.", "그건 좀 좋네.", "흠, 그래요."]),
         jp.numsBad ? "angry" : "neutral", jp.numsBad ? "angry" : null,
@@ -3704,7 +3813,7 @@ window.APP = (function () {
       var okc = CLOSING_ACT.test(text);
       if (okc && CLOSING.test(text)) stamp("crit", "합의 성립!");
       else if (okc) stamp("hit", "제안 접수");
-      G.awaiting = false;
+      G.awaiting = false; faidRender();
       var fin = function () { setTimeout(function () { endCall(false); }, 1400); }; // 말 끝난 뒤 2.6초 여운
       if (llmOn()) {
         llmTurn(text, llmHint(okc ? "agree" : "meh", null, "end"), okc ? "happy" : "neutral", okc ? "happy" : null,
@@ -3722,7 +3831,7 @@ window.APP = (function () {
     if (j.vague && j.question) { // 반대에 답하는 대신 원장에게 되물었다 — 원장이 진짜로 답해준다 (채점 아님, 3회째부턴 재촉)
       G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text) }); // 대화 턴으로 기록 — 반대극복 축에 불이익 없음
       o.qsideN = (o.qsideN || 0) + 1;
-      G.awaiting = o;
+      G.awaiting = o; faidRender();
       var ansLine = o.qsideN >= 3 ? "질문은 그 정도면 됐고 — 아까 내 걱정에 답을 줘요. " + (o.data.dr2 || "") : doctorAnswer(text);
       var ansExpr = o.qsideN >= 3 ? "think" : "interest";
       if (llmOn()) llmTurn(text, "[판정: MR이 당신에게 질문했다" + (o.qsideN >= 3 ? " — 벌써 " + o.qsideN + "번째다. 한 문장으로 답하고, 아까 당신 걱정에 답을 달라고 재촉하라" : ". 캐릭터답게 짧게 답해주되, 하던 걱정은 아직 답을 못 들었다는 걸 잊지 마라") + "]", ansExpr, "interest", function () { drSay(ansLine, ansExpr, "interest"); });
@@ -3746,7 +3855,7 @@ window.APP = (function () {
     else { stamp("hit", "일리 있음"); cat = "mild"; expr = "think"; emo = "think"; }
 
     if (!advance) { // 같은 반대 유지 — 다른 표현으로 되묻기
-      G.awaiting = o;
+      G.awaiting = o; faidRender();
       var cannedRe = function () {
         var ec = Math.random() < 0.5 ? echoFrag(text) : null; // 그의 말을 따옴표로 되받고 나서 되묻는다
         var reAsk = (o.vagueN === 1 && o.kind === "v22" && o.data.dr2) ? " " + o.data.dr2 : "";
@@ -3757,7 +3866,7 @@ window.APP = (function () {
       return;
     }
     // 진행 — 다음 반대 또는 클로징
-    G.awaiting = false;
+    G.awaiting = false; faidRender();
     G.qIdx++;
     var nextO = curObj();
     var totalObj = G.scen.objs.length + (G.scen.variant ? 1 : 0);
@@ -3767,7 +3876,7 @@ window.APP = (function () {
       drSay(withBeat(reactLine(cat, ctx)), expr, emo, function () {
         setTimeout(function () {
           drSay(pickProbe(text), "interest", "interest");
-          G.awaiting = "probe";
+          G.awaiting = "probe"; faidRender();
           $("hudProg").textContent = "원장의 되묻기 — 티키타카";
         }, 900);
       });
@@ -4269,7 +4378,8 @@ window.APP = (function () {
         meta: diffName + " 난이도 · " + modeName.replace(/[^가-힣A-Za-z0-9 ]/g, "").trim() + " 모드 · " + Math.floor(durSec / 60) + "분 " + (durSec % 60) + "초" });
       if ($("docReport")) $("docReport").innerHTML = doc;
       if ($("printSheet")) $("printSheet").innerHTML = doc;
-      renderCalibPanel(sc, fb); // 🎓 전문가 평가 — 리포트 바로 아래, 눈에 보이는 자리에
+      renderCalibPanel(sc, fb);
+    if (sc.noPlay) { var qf = $("quickFb"); if (qf) qf.innerHTML = ""; var ra = $("revAsk"); if (ra) ra.innerHTML = ""; } else { renderQuickFb(); renderReviewAsk(sc); } // 미참여 판엔 묻지 않는다 // 🎓 전문가 평가 — 리포트 바로 아래, 눈에 보이는 자리에
     })();
     $("fbGood").innerHTML = fbHtml(fb.S, "check");
     $("fbImprove").innerHTML = fbHtml(fb.I, "num");
@@ -4432,8 +4542,10 @@ window.APP = (function () {
         "<div class='cblv' id='cblv_" + m[0] + "'>" + chips + "</div></div>";
     }).join("");
     el.innerHTML =
-      "<div class='cbhead'><div><b>🎓 전문가 평가 · 캘리브레이션</b><span class='small'> 면접관이 같은 5점 척도로 채점하면, AI 채점의 편향이 자동 진단되어 다음 판부터 보정됩니다.</span></div>" +
+      "<div class='cbhead'><div><b>🎓 전문가 평가 · 캘리브레이션</b><span class='qfb-beta'>가장 중요</span><span class='small'> 면접관이 같은 5점 척도로 채점하면, AI 채점의 편향이 자동 진단되어 다음 판부터 보정됩니다.</span></div>" +
       "<div class='cbgate'>누적 <b id='cbN'>" + ((G.calib || []).length + ((G.cloudCalib || []).length)) + "</b>/30판</div></div>" +
+      "<div class='qfb-nudge'>👩‍🏫 <b>면접관·코치님께</b> — AI 채점이 현장 감각과 맞는지는 <b>사람이 한 번 채점해줘야만</b> 알 수 있습니다. " +
+      "<b>30건</b>이 쌓이면 채점 기준이 자동 보정됩니다. 5축을 클릭하는 데 1분이면 됩니다 — 초기 몇 건이 가장 값집니다.</div>" +
       "<div class='cbscale'>" + LV_META.map(function (l) { return "<span><b>" + l[0] + "(" + l[1] + ")</b> " + l[2] + "점 · " + l[3] + "</span>"; }).join("") + "</div>" +
       rows +
       "<div class='cbgrid'><label class='lbl'>평가자</label><input type='text' id='evName' placeholder='예: 김코치' style='max-width:220px;'></div>" +
@@ -4448,6 +4560,187 @@ window.APP = (function () {
       "<div><label class='lbl'>⚖ 채점이 어긋난 지점 (있다면 그 문장)</label><textarea class='tsv' id='evMiss' style='min-height:52px;' placeholder='예: \"2000처가 참여 중\"을 오수치로 잡았다 — 실제로는 맞는 수치'></textarea></div></div></div>" +
       "<button class='btn' onclick='APP.calibSubmit()'>평가 제출 — AI 채점과 대조 + 개선 의견 기록</button>" +
       "<div id='calibOut' style='margin-top:10px;'></div>";
+  }
+  /* ⚡ 30초 의견 — 전문가 캘리브레이션과 분리한 경량 수집 창구.
+     베타에서 수집률이 0이었던 이유는 의견란이 5축 채점 폼 아래에 묻혀 있었기 때문이다. */
+  function renderQuickFb() {
+    var el = $("quickFb"); if (!el) return;
+    G.qfbSat = 0; G.qfbDone = false; G.qfbNudged = false;
+    var mine = growthLog().length; // 이 기기에서 남긴 의견 수 — 초반엔 참여 자체가 희소하다
+    el.className = "card qfb pulse"; // 시선을 한 번 끌어준다 (2회 펄스 후 정지)
+    el.innerHTML = "<h2>⚡ 30초만 — 방금 훈련 어떠셨어요?<span class='qfb-beta'>BETA</span></h2>" +
+      "<div class='qfb-nudge'>지금은 <b>초기 베타</b>입니다. 이 시기의 의견 한 줄이 " +
+      "<b>완성된 뒤의 리뷰 100개보다 제품을 크게 바꿉니다.</b> 좋았던 점보다 <b>불편했던 점·이상했던 점</b>이 훨씬 도움이 됩니다.</div>" +
+      "<div class='small' style='margin-bottom:8px;'>익명으로도 보낼 수 있고, 별점만 눌러도 전송됩니다.</div>" +
+      "<div class='qrow'><span class='qlab'>AI 코치 만족도</span>" +
+      [1, 2, 3, 4, 5].map(function (n) { return "<button class='qs' data-s='" + n + "' onclick='APP.qfbSat(" + n + ")'>★</button>"; }).join("") +
+      "<span class='small' id='qfbSatTxt'></span></div>" +
+      "<textarea id='qfbTxt' placeholder='예) 원장 반응이 실제 개원가와 비슷해서 몰입됐다 / 첫 판에 뭘 말해야 할지 몰라 30초 날렸다 / 점수가 왜 이렇게 나왔는지 모르겠다'></textarea>" +
+      "<div style='margin-top:10px;'><button class='btn' onclick='APP.qfbSend()'>의견 보내기</button>" +
+      "<span class='small' style='margin-left:8px;'>면접관·코치시라면 아래 <b>🎓 전문가 평가</b>까지 남겨주시면 채점 정확도가 올라갑니다.</span></div>" +
+      (mine ? "<div class='qfb-cnt'>🌱 지금까지 " + mine + "번 의견을 남겨주셨습니다 — 실제로 반영되고 있습니다.</div>" : "");
+    setTimeout(function () { if ($("quickFb")) $("quickFb").classList.remove("pulse"); }, 3200);
+  }
+  function qfbGuard(next) { // 의견 없이 화면을 떠나려 할 때 딱 한 번만 붙잡는다 (두 번은 잔소리다)
+    if (G.qfbDone || G.qfbNudged || !$("quickFb") || !($("quickFb").textContent || "").trim()) { next(); return; }
+    G.qfbNudged = true;
+    var el = $("quickFb");
+    el.classList.add("pulse");
+    try { el.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) { }
+    var ta = $("qfbTxt"); if (ta) try { ta.focus(); } catch (e) { }
+    toast("30초만 — 의견 하나가 다음 버전을 바꿉니다 (다시 누르면 넘어갑니다)");
+    setTimeout(function () { if ($("quickFb")) $("quickFb").classList.remove("pulse"); }, 3200);
+  }
+  function qfbSat(n) {
+    G.qfbSat = n;
+    var bs = document.querySelectorAll("#quickFb .qs");
+    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle("on", parseInt(bs[i].getAttribute("data-s"), 10) <= n);
+    var t = $("qfbSatTxt"); if (t) t.textContent = ["", "많이 아쉬움", "아쉬움", "보통", "좋음", "아주 좋음"][n] || "";
+  }
+  function qfbSend() {
+    var txt = (($("qfbTxt") || {}).value || "").trim();
+    if (!G.qfbSat && !txt) { toast("별점이나 한 줄 의견 중 하나는 남겨주세요"); return; }
+    var s = G.sessions[G.sessions.length - 1];
+    var rec = buildGrowthRec({ role: "mr", by: (G.user && G.user.name) || "익명", sat: G.qfbSat || null,
+      like: "", wish: txt, miss: "", doc: s && s.doc, total: s && s.sc && s.sc.total, mode: "quick" });
+    saveGrowth(rec);
+    cloudUpload("rp_feedback", { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office,
+      role: "mr", evaluator: (G.user && G.user.name) || "익명", sat: G.qfbSat || null, like_txt: "", wish: txt, miss: "",
+      doc: s && s.doc, total: s && s.sc && s.sc.total });
+    G.qfbDone = true;
+    var el = $("quickFb");
+    if (el) el.className = "card qfb";
+    if (el) el.innerHTML = "<div class='qdone'>🌱 고맙습니다 — 의견이 전달됐습니다.<div class='small' style='font-weight:400;margin-top:4px;color:var(--sub);'>보완 요청은 다음 버전 백로그로 넘어갑니다.</div></div>";
+    jingle("heart");
+  }
+  /* ══════════ 🎓 비동기 전문가 평가(캘리브레이션) ══════════
+     기존 구조는 캘리브 대상이 '이 기기의 마지막 판'이라, CM이 본인 PC에서 남의 판을 평가할 방법이 없었다.
+     또 서버에 대화 내용이 없어 평가 화면을 만들어도 읽을 것이 없었다.
+     → 캘리브레이션 '목적'으로 MR이 요청한 판만, 그때 대화 전문을 함께 올린다 (전수 저장 아님). */
+  function reviewPayload() { // 평가에 필요한 최소한만 담는다 — 영상·음성은 올리지 않는다
+    var s = G.sessions[G.sessions.length - 1];
+    if (!s) return null;
+    var turns = (G.turns || []).map(function (t) {
+      var j = t.judge || {};
+      return { typeN: t.typeN || 0, text: String(t.text || "").slice(0, 800),
+        keyHit: j.keyHit || 0, crit: !!j.crit, numsOk: j.numsOk || 0, numsBad: j.numsBad || 0, vague: !!j.vague, empathy: !!j.empathy };
+    });
+    var dlg = (G.dlgLog || []).map(function (x) { return { w: x.w, t: String(x.t || "").slice(0, 800) }; });
+    return { player: G.user && G.user.name, empno: (G.user && G.user.empno) || null, office: G.user && G.user.office, div: G.user && G.user.div,
+      doc: s.doc, diff: G.scen && G.scen.diff, llm: elevenOn() ? "eleven" : llmOn() ? G.claudeModel : null,
+      total: s.sc.total, axes: { A: s.sc.A, B: s.sc.B, C: s.sc.C, D: s.sc.D, E: s.sc.E },
+      turns: turns, dlg: dlg, scen: { objs: (G.scen && G.scen.objs || []).map(function (o) { return o.n; }), ht: G.scen && G.scen.ht },
+      status: "pending" };
+  }
+  function reviewAsk() { // MR이 '전문가 평가 요청'을 누른 순간 = 대화 전문 전송에 대한 명시적 의사표시
+    if (G.reviewSent) { toast("이미 평가를 요청한 판입니다"); return; }
+    var p = reviewPayload();
+    if (!p) { toast("요청할 세션이 없습니다"); return; }
+    if (!sbOn()) { toast("서버 연결이 없어 요청할 수 없습니다"); return; }
+    G.reviewSent = true;
+    cloudUpload("rp_review", p);
+    var el = $("revAsk");
+    if (el) el.innerHTML = "<div class='qdone'>🎓 전문가 평가를 요청했습니다.<div class='small' style='font-weight:400;margin-top:4px;color:var(--sub);'>코치(CM)가 관리자 화면에서 이 판의 대화를 보고 채점합니다. 결과는 채점 기준 보정에 쓰입니다.</div></div>";
+  }
+  function renderReviewAsk(sc) {
+    var el = $("revAsk"); if (!el) return;
+    G.reviewSent = false;
+    if (sc.noPlay) { el.innerHTML = ""; return; }
+    el.innerHTML = "<h2>🎓 코치에게 평가 요청하기</h2>" +
+      "<div class='small' style='margin-bottom:9px;'>내 대화를 코치(CM)가 직접 보고 채점해 줍니다. 그 결과로 <b>AI 채점 기준이 보정</b>됩니다 — 지금이 가장 필요한 시기입니다.</div>" +
+      "<div class='qfb-nudge'>📎 요청하시면 <b>이 판의 대화 내용과 점수</b>가 캘리브레이션 목적으로 서버에 전송됩니다. " +
+      "<b>영상·음성은 전송되지 않습니다.</b> 요청하지 않으면 대화 내용은 이 기기를 떠나지 않습니다.</div>" +
+      "<button class='btn gold' onclick='APP.reviewAsk()'>🎓 이 판, 코치 평가 요청</button>";
+  }
+  /* ── CM 관리자: 평가 대기열 ── */
+  function reviewFetch() {
+    if (!sbOn()) { toast("서버 설정이 필요합니다"); return; }
+    var box = $("admReview"); if (box) box.innerHTML = "<div class='small'>불러오는 중…</div>";
+    fetch(G.sbUrl + "/rest/v1/rp_review?select=*&order=created_at.desc&limit=200", { headers: sbHeaders() })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+      .then(function (rows) { G.review = rows || []; renderReviewQueue(); })
+      .catch(function (e) { if (box) box.innerHTML = "<div class='banner err'>불러오기 실패: " + esc(e.message || e) + " — rp_review 테이블이 없으면 서버기록_설치.sql을 실행하세요.</div>"; });
+  }
+  function renderReviewQueue() {
+    var box = $("admReview"); if (!box) return;
+    var rows = G.review || [], pend = rows.filter(function (r) { return r.status !== "done"; });
+    var h = "<div class='small' style='margin-bottom:8px;'>평가 대기 <b>" + pend.length + "건</b> · 완료 " + (rows.length - pend.length) + "건 " +
+      "<button class='btn ghost' style='margin:0 0 0 6px;padding:4px 12px;font-size:12px;' onclick='APP.reviewFetch()'>↻ 새로고침</button></div>";
+    if (!rows.length) { box.innerHTML = h + "<div class='small'>아직 요청된 판이 없습니다 — MR이 결과 화면에서 <b>[코치 평가 요청]</b>을 누르면 여기 쌓입니다.</div>"; return; }
+    h += "<table class='voy'><tr><th>요청일</th><th>MR</th><th>사무소</th><th>상대</th><th>AI점수</th><th>상태</th><th></th></tr>";
+    rows.slice(0, 40).forEach(function (r) {
+      var done = r.status === "done";
+      h += "<tr><td class='small'>" + esc(String(r.created_at || "").slice(5, 16).replace("T", " ")) + "</td><td><b>" + esc(r.player || "-") + "</b></td><td>" + esc(r.office || "-") + "</td><td>" + esc(r.doc || "-") + "</td><td><b>" + (r.total != null ? r.total : "-") + "</b></td>" +
+        "<td>" + (done ? "<span class='chip'>완료 · " + esc(r.reviewer || "") + "</span>" : "<span class='chip warn'>대기</span>") + "</td>" +
+        "<td><button class='btn " + (done ? "ghost" : "") + "' style='margin:0;padding:5px 12px;font-size:12px;' onclick='APP.reviewOpen(" + r.id + ")'>" + (done ? "다시 보기" : "평가하기") + "</button></td></tr>";
+    });
+    box.innerHTML = h + "</table><div id='revPane'></div>";
+  }
+  function reviewOpen(id) {
+    var r = (G.review || []).filter(function (x) { return x.id === id; })[0];
+    var pane = $("revPane"); if (!r || !pane) return;
+    G.revCur = r; G.revPick = {};
+    var dlg = (r.dlg && r.dlg.length ? r.dlg : (r.turns || []).map(function (t) { return { w: "mr", t: t.text }; }));
+    var byText = {}; (r.turns || []).forEach(function (t) { byText[t.text] = t; });
+    var lab = function (t) {
+      if (!t) return "";
+      return t.numsBad ? "<span class='pjl bad'>확인 안 된 수치</span>" : t.crit ? "<span class='pjl crit'>정답 명분+수치</span>" :
+        (t.typeN && t.keyHit >= 2) ? "<span class='pjl hit'>정답 명분</span>" : (t.typeN && t.keyHit === 1) ? "<span class='pjl half'>절반</span>" :
+        (t.typeN && t.vague) ? "<span class='pjl vague'>근거 부족</span>" : "";
+    };
+    var script = dlg.map(function (x) {
+      if (x.w === "dr") return "<div class='pdlg dr'><b>" + esc(r.doc || "원장") + "</b> " + esc(x.t) + "</div>";
+      return "<div class='pdlg mr'><b>" + esc(r.player || "MR") + "</b> " + esc(x.t) + " " + lab(byText[x.t]) + "</div>";
+    }).join("");
+    var ax = r.axes || {};
+    var rows = AX_META.map(function (m) {
+      var aiV = ax[m[0]] || 0, aiLv = lvOf(aiV, m[2]);
+      var chips = LV_META.map(function (l) {
+        return "<button type='button' class='lvb' data-ax='" + m[0] + "' data-lv='" + l[0] + "' onclick='APP.revPick(\"" + m[0] + "\"," + l[0] + ")' title='" + l[3] + "'>" + l[0] + "<small>" + l[1] + "</small></button>";
+      }).join("");
+      return "<div class='cbrow'><div class='cbax'><b>" + m[1] + "</b><span>AI 판정 " + aiV + "/" + m[2] + " · <b>" + aiLv + "(" + axGrade(aiV, m[2]) + ")</b></span></div><div class='cblv' id='revlv_" + m[0] + "'>" + chips + "</div></div>";
+    }).join("");
+    pane.innerHTML = "<div class='card' style='margin-top:14px;border:2px solid var(--acc);'>" +
+      "<h2>🎓 " + esc(r.player || "-") + " · vs " + esc(r.doc || "-") + " 원장 <span class='small'>AI 총점 " + (r.total != null ? r.total : "-") + "점</span></h2>" +
+      "<div class='small' style='margin-bottom:8px;'>대화를 읽고, <b>코치님 기준으로</b> 각 축을 5점 척도로 매겨주세요. AI와 다르면 그 차이가 곧 보정 신호입니다.</div>" +
+      "<div class='pdlgwrap' style='max-height:360px;overflow:auto;background:#F7F9F8;border-radius:10px;padding:10px 12px;margin-bottom:12px;'>" + (script || "<span class='small'>대화 기록 없음</span>") + "</div>" +
+      "<div class='cbscale'>" + LV_META.map(function (l) { return "<span><b>" + l[0] + "(" + l[1] + ")</b> " + l[2] + "점</span>"; }).join("") + "</div>" + rows +
+      "<label class='lbl' style='margin-top:10px;'>코치 이름</label><input type='text' id='revBy' placeholder='예: 김코치'>" +
+      "<label class='lbl'>코멘트 · 채점 이견</label><textarea id='revCmt' class='tsv' style='min-height:64px;' placeholder='예: 클로징은 날짜가 없어 AI보다 낮게 봤다'></textarea>" +
+      "<div style='margin-top:10px;'><button class='btn' onclick='APP.revSubmit()'>평가 제출</button>" +
+      "<span class='small' style='margin-left:8px;' id='revMsg'></span></div></div>";
+    try { pane.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
+  }
+  function revPick(axk, lv) {
+    G.revPick = G.revPick || {}; G.revPick[axk] = lv;
+    var box = $("revlv_" + axk); if (!box) return;
+    var bs = box.querySelectorAll(".lvb");
+    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle("on", parseInt(bs[i].getAttribute("data-lv"), 10) === lv);
+  }
+  function revSubmit() {
+    var r = G.revCur; if (!r) return;
+    var human = {}, miss = [];
+    AX_META.forEach(function (m) {
+      var lv = (G.revPick || {})[m[0]];
+      if (!lv) { miss.push(m[1]); return; }
+      human[m[0]] = lvToRaw(lv, m[2]);
+    });
+    if (miss.length) { $("revMsg").innerHTML = "<b style='color:var(--red);'>" + esc(miss.join("·")) + " 축이 비었습니다</b>"; return; }
+    human.total = AX_META.reduce(function (a, m) { return a + human[m[0]]; }, 0);
+    var by = (($("revBy") || {}).value || "").trim() || "코치";
+    var cmt = (($("revCmt") || {}).value || "").trim();
+    var rule = { A: (r.axes || {}).A || 0, B: (r.axes || {}).B || 0, C: (r.axes || {}).C || 0, D: (r.axes || {}).D || 0, E: (r.axes || {}).E || 0 };
+    rule.total = r.total || 0;
+    cloudUpload("rp_calib", { player: r.player, empno: r.empno || null, office: r.office, doc: r.doc, evaluator: by, rule: rule, human: human, comment: cmt.slice(0, 1800) });
+    // 대기열에서 완료 처리
+    try {
+      fetch(G.sbUrl + "/rest/v1/rp_review?id=eq." + r.id, { method: "PATCH", headers: sbHeaders(), body: JSON.stringify({ status: "done", reviewer: by }) })
+        .then(function () { reviewFetch(); }).catch(function () {});
+    } catch (e) {}
+    r.status = "done"; r.reviewer = by;
+    $("revMsg").innerHTML = "<b style='color:var(--acc);'>✓ 제출됐습니다 — 캘리브레이션에 반영됩니다</b>";
+    toast("전문가 평가가 기록됐습니다");
+    jingle("heart");
   }
   function expRole(r) { G.expRole = r; var bs = document.querySelectorAll(".rlb"); for (var i = 0; i < bs.length; i++) bs[i].classList.toggle("on", bs[i].getAttribute("data-r") === r); }
   function expSat(n) { G.expSat = n; var bs = document.querySelectorAll(".stb"); for (var i = 0; i < bs.length; i++) bs[i].classList.toggle("on", parseInt(bs[i].getAttribute("data-s"), 10) <= n); }
@@ -5108,7 +5401,7 @@ window.APP = (function () {
   G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
-  var APP_VER = "3.4";
+  var APP_VER = "3.6";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
   try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
@@ -5162,8 +5455,8 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES } };
+    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload } };
 })();
 
 </script>
