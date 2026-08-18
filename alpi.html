@@ -711,7 +711,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
     <div class="ai-notice intro4">
       🤖 <b>본 서비스는 인공지능(AI) 기반으로 운용됩니다.</b><br>
       원장 역할은 AI가 연기하며, 훈련 결과 평가·피드백도 AI가 자동 생성합니다. AI 판정은 코칭 참고용이며 인사평가에 자동 반영되지 않습니다.<br>
-      <span class="ai-notice-sub">음성·영상은 이 기기 안에서만 분석되어 <b>서버로 전송되지 않으며</b>, 서버에는 이름·소속·점수만 기록됩니다.</span>
+      <span class="ai-notice-sub">음성·영상 분석은 이 기기 안에서만 이루어지며, 서버에는 기본적으로 이름·소속·점수만 기록됩니다. <b>단, 본인이 [코치 평가 요청]을 누른 판에 한해</b> 대화 내용(선택 시 음성 녹음 포함)이 캘리브레이션 목적으로 전송됩니다. 영상은 어떤 경우에도 전송되지 않습니다.</span>
     </div>
   </div>
   <div class="st-foot"><span class="credit">NEW BUSINESS STRATEGY TEAM&ensp;PRESENTS</span></div>
@@ -2920,7 +2920,7 @@ window.APP = (function () {
       if (G.micHold) {
         try {
           G.recChunks = [];
-          G.rec = new MediaRecorder(G.micHold);
+          G.rec = new MediaRecorder(G.micHold, { audioBitsPerSecond: 32000 }); // 32kbps opus — 10분에 ~2.4MB, 평가 전송용으로 충분한 음질
           G.recIsVideo = false;
           G.rec.ondataavailable = function (ev) { if (ev.data && ev.data.size) G.recChunks.push(ev.data); };
           G.rec.start();
@@ -4617,7 +4617,7 @@ window.APP = (function () {
      기존 구조는 캘리브 대상이 '이 기기의 마지막 판'이라, CM이 본인 PC에서 남의 판을 평가할 방법이 없었다.
      또 서버에 대화 내용이 없어 평가 화면을 만들어도 읽을 것이 없었다.
      → 캘리브레이션 '목적'으로 MR이 요청한 판만, 그때 대화 전문을 함께 올린다 (전수 저장 아님). */
-  function reviewPayload() { // 평가에 필요한 최소한만 담는다 — 영상·음성은 올리지 않는다
+  function reviewPayload() { // 평가에 필요한 최소한만 담는다 — 영상은 올리지 않고, 음성은 MR이 체크했을 때만 별도 업로드
     var s = G.sessions[G.sessions.length - 1];
     if (!s) return null;
     var turns = (G.turns || []).map(function (t) {
@@ -4632,24 +4632,51 @@ window.APP = (function () {
       turns: turns, dlg: dlg, scen: { objs: (G.scen && G.scen.objs || []).map(function (o) { return o.n; }), ht: G.scen && G.scen.ht },
       status: "pending" };
   }
-  function reviewAsk() { // MR이 '전문가 평가 요청'을 누른 순간 = 대화 전문 전송에 대한 명시적 의사표시
+  /* 음성 첨부 — 녹음(다시 듣기용으로 이미 로컬에 있음)을 '요청한 판'에 한해 Storage로 올린다.
+     파일명에 이름·사번을 넣지 않는다(경로 자체가 PII가 되지 않게). 영상 녹화 판은 첨부하지 않는다. */
+  var AUDIO_BUCKET = "rp-audio", AUDIO_MAX = 20 * 1024 * 1024;
+  function audioBlob() {
+    if (G.recIsVideo || !G.recChunks || !G.recChunks.length) return null; // 영상 판·무녹음 판은 제외
+    try { return new Blob(G.recChunks, { type: (G.rec && G.rec.mimeType) || "audio/webm" }); } catch (e) { return null; }
+  }
+  function audioUpload(blob, cb) { // 성공 시 cb(경로), 실패 시 cb(null) — 음성이 실패해도 평가 요청 자체는 진행한다
+    var path = "rev_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8) + ".webm";
+    fetch(G.sbUrl + "/storage/v1/object/" + AUDIO_BUCKET + "/" + path, {
+      method: "POST", body: blob,
+      headers: { "apikey": G.sbKey, "Authorization": "Bearer " + G.sbKey, "Content-Type": blob.type || "audio/webm" }
+    }).then(function (r) { cb(r.ok ? path : null); }).catch(function () { cb(null); });
+  }
+  function audioPublicUrl(path) { return G.sbUrl + "/storage/v1/object/public/" + AUDIO_BUCKET + "/" + path; }
+  function reviewAsk() { // MR이 '전문가 평가 요청'을 누른 순간 = 대화 전문(+선택 시 음성) 전송에 대한 명시적 의사표시
     if (G.reviewSent) { toast("이미 평가를 요청한 판입니다"); return; }
     var p = reviewPayload();
     if (!p) { toast("요청할 세션이 없습니다"); return; }
     if (!sbOn()) { toast("서버 연결이 없어 요청할 수 없습니다"); return; }
     G.reviewSent = true;
-    cloudUpload("rp_review", p);
-    var el = $("revAsk");
-    if (el) el.innerHTML = "<div class='qdone'>🎓 전문가 평가를 요청했습니다.<div class='small' style='font-weight:400;margin-top:4px;color:var(--sub);'>코치(CM)가 관리자 화면에서 이 판의 대화를 보고 채점합니다. 결과는 채점 기준 보정에 쓰입니다.</div></div>";
+    var wantAudio = !!($("revAudioChk") && $("revAudioChk").checked);
+    var blob = wantAudio ? audioBlob() : null;
+    var finish = function (audioPath) {
+      if (audioPath) p.audio = audioPath;
+      cloudUpload("rp_review", p);
+      var el = $("revAsk");
+      if (el) el.innerHTML = "<div class='qdone'>🎓 전문가 평가를 요청했습니다." + (audioPath ? " (🎧 음성 포함)" : "") +
+        "<div class='small' style='font-weight:400;margin-top:4px;color:var(--sub);'>코치(CM)가 관리자 화면에서 이 판의 대화를 " + (audioPath ? "듣고 " : "보고 ") + "채점합니다. 결과는 채점 기준 보정에 쓰입니다.</div></div>";
+    };
+    if (blob && blob.size > 0 && blob.size <= AUDIO_MAX) { toast("🎧 음성 올리는 중…"); audioUpload(blob, finish); }
+    else { if (wantAudio && blob && blob.size > AUDIO_MAX) toast("녹음이 20MB를 넘어 음성 없이 요청합니다"); finish(null); }
   }
   function renderReviewAsk(sc) {
     var el = $("revAsk"); if (!el) return;
     G.reviewSent = false;
     if (sc.noPlay) { el.innerHTML = ""; return; }
+    var hasAudio = !!audioBlob();
     el.innerHTML = "<h2>🎓 코치에게 평가 요청하기</h2>" +
       "<div class='small' style='margin-bottom:9px;'>내 대화를 코치(CM)가 직접 보고 채점해 줍니다. 그 결과로 <b>AI 채점 기준이 보정</b>됩니다 — 지금이 가장 필요한 시기입니다.</div>" +
       "<div class='qfb-nudge'>📎 요청하시면 <b>이 판의 대화 내용과 점수</b>가 캘리브레이션 목적으로 서버에 전송됩니다. " +
-      "<b>영상·음성은 전송되지 않습니다.</b> 요청하지 않으면 대화 내용은 이 기기를 떠나지 않습니다.</div>" +
+      "요청하지 않으면 대화 내용과 녹음은 <b>이 기기를 떠나지 않습니다.</b> 영상은 어떤 경우에도 전송되지 않습니다.</div>" +
+      (hasAudio
+        ? "<label style='display:flex;gap:8px;align-items:flex-start;margin:2px 0 10px;font-size:13px;cursor:pointer;'><input type='checkbox' id='revAudioChk' checked style='margin-top:3px;'> <span>🎧 <b>내 음성 녹음도 함께 보내기</b> — 코치가 실제 말투·속도·톤까지 듣고 평가합니다 (해제하면 대화 글만 전송)</span></label>"
+        : "<div class='small' style='margin:2px 0 10px;color:var(--sub);'>🎧 이 판은 음성 녹음이 없어 대화 글만 전송됩니다" + (G.recIsVideo ? " (영상 녹화 판은 음성 첨부 제외)" : "") + ".</div>") +
       "<button class='btn gold' onclick='APP.reviewAsk()'>🎓 이 판, 코치 평가 요청</button>";
   }
   /* ── CM 관리자: 평가 대기열 ── */
@@ -4670,7 +4697,7 @@ window.APP = (function () {
     h += "<table class='voy'><tr><th>요청일</th><th>MR</th><th>사무소</th><th>상대</th><th>AI점수</th><th>상태</th><th></th></tr>";
     rows.slice(0, 40).forEach(function (r) {
       var done = r.status === "done";
-      h += "<tr><td class='small'>" + esc(String(r.created_at || "").slice(5, 16).replace("T", " ")) + "</td><td><b>" + esc(r.player || "-") + "</b></td><td>" + esc(r.office || "-") + "</td><td>" + esc(r.doc || "-") + "</td><td><b>" + (r.total != null ? r.total : "-") + "</b></td>" +
+      h += "<tr><td class='small'>" + esc(String(r.created_at || "").slice(5, 16).replace("T", " ")) + "</td><td><b>" + esc(r.player || "-") + "</b>" + (r.audio ? " 🎧" : "") + "</td><td>" + esc(r.office || "-") + "</td><td>" + esc(r.doc || "-") + "</td><td><b>" + (r.total != null ? r.total : "-") + "</b></td>" +
         "<td>" + (done ? "<span class='chip'>완료 · " + esc(r.reviewer || "") + "</span>" : "<span class='chip warn'>대기</span>") + "</td>" +
         "<td><button class='btn " + (done ? "ghost" : "") + "' style='margin:0;padding:5px 12px;font-size:12px;' onclick='APP.reviewOpen(" + r.id + ")'>" + (done ? "다시 보기" : "평가하기") + "</button></td></tr>";
     });
@@ -4702,6 +4729,7 @@ window.APP = (function () {
     }).join("");
     pane.innerHTML = "<div class='card' style='margin-top:14px;border:2px solid var(--acc);'>" +
       "<h2>🎓 " + esc(r.player || "-") + " · vs " + esc(r.doc || "-") + " 원장 <span class='small'>AI 총점 " + (r.total != null ? r.total : "-") + "점</span></h2>" +
+      (r.audio ? "<div style='margin:4px 0 10px;'><div class='small' style='margin-bottom:4px;'>🎧 <b>실제 음성</b> — 말투·속도·톤을 직접 들어보세요 (MR 동의 하에 첨부됨)</div><audio controls preload='none' style='width:100%;' src='" + esc(audioPublicUrl(r.audio)) + "'></audio></div>" : "") +
       "<div class='small' style='margin-bottom:8px;'>대화를 읽고, <b>코치님 기준으로</b> 각 축을 5점 척도로 매겨주세요. AI와 다르면 그 차이가 곧 보정 신호입니다.</div>" +
       "<div class='pdlgwrap' style='max-height:360px;overflow:auto;background:#F7F9F8;border-radius:10px;padding:10px 12px;margin-bottom:12px;'>" + (script || "<span class='small'>대화 기록 없음</span>") + "</div>" +
       "<div class='cbscale'>" + LV_META.map(function (l) { return "<span><b>" + l[0] + "(" + l[1] + ")</b> " + l[2] + "점</span>"; }).join("") + "</div>" + rows +
@@ -4732,13 +4760,14 @@ window.APP = (function () {
     var rule = { A: (r.axes || {}).A || 0, B: (r.axes || {}).B || 0, C: (r.axes || {}).C || 0, D: (r.axes || {}).D || 0, E: (r.axes || {}).E || 0 };
     rule.total = r.total || 0;
     cloudUpload("rp_calib", { player: r.player, empno: r.empno || null, office: r.office, doc: r.doc, evaluator: by, rule: rule, human: human, comment: cmt.slice(0, 1800) });
-    // 대기열에서 완료 처리
+    // 대기열 완료 처리 — 서버 PATCH는 백그라운드로, 화면은 로컬 상태로 즉시 갱신
     try {
-      fetch(G.sbUrl + "/rest/v1/rp_review?id=eq." + r.id, { method: "PATCH", headers: sbHeaders(), body: JSON.stringify({ status: "done", reviewer: by }) })
-        .then(function () { reviewFetch(); }).catch(function () {});
+      fetch(G.sbUrl + "/rest/v1/rp_review?id=eq." + r.id, { method: "PATCH", headers: sbHeaders(), body: JSON.stringify({ status: "done", reviewer: by }) }).catch(function () {});
     } catch (e) {}
     r.status = "done"; r.reviewer = by;
-    $("revMsg").innerHTML = "<b style='color:var(--acc);'>✓ 제출됐습니다 — 캘리브레이션에 반영됩니다</b>";
+    renderReviewQueue(); // 표의 상태만 '완료'로 바뀌고…
+    var pane = $("revPane"); // …제출 확인은 지워지지 않고 남는다 (예전엔 재조회가 확인 메시지까지 지웠다)
+    if (pane) pane.innerHTML = "<div class='qdone' style='margin-top:12px;'>✓ <b>" + esc(r.player || "-") + "</b> 판 평가가 제출됐습니다 — AI vs 코치 채점이 쌍으로 기록되어 캘리브레이션에 반영됩니다.<div class='small' style='font-weight:400;margin-top:4px;color:var(--sub);'>위 표에서 다음 대기 건을 이어서 평가하실 수 있습니다.</div></div>";
     toast("전문가 평가가 기록됐습니다");
     jingle("heart");
   }
@@ -5401,7 +5430,7 @@ window.APP = (function () {
   G.sfxOn = loadK("sfx", true) !== false; // 🔊 효과음 — 기본 켜짐, 설정에서 토글
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
-  var APP_VER = "3.6";
+  var APP_VER = "3.7";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
   try { if (loadK("seenVer", "") !== APP_VER) setTimeout(verShow, 900); } catch (e) {}
@@ -5456,7 +5485,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX } };
 })();
 
 </script>
