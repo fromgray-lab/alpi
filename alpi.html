@@ -2391,8 +2391,15 @@ window.APP = (function () {
     [/(환자|어르신).{0,8}(관리|이탈|만족|편의|재방문|좋)/, "환자한테 좋다는 논리는 알아들었어요."]
   ];
   function ackTopic(t) { for (var ai = 0; ai < ACK_TOPICS.length; ai++) if (ACK_TOPICS[ai][0].test(t)) return ACK_TOPICS[ai][1]; return null; }
-  function heardLine(text, cat) { // 반응의 제1원칙: 진행하기 전에 '방금 그 말'을 짚는다 — 주제 인지 > 조각 인용 > (mild 절반) 생략
-    var top = ackTopic(text);
+  function ackTopicFresh(t) { // 같은 인지 문장을 연속으로 쓰지 않는다 — 방금 안 짚은 '새 주제'부터
+    var hits = [];
+    for (var ai = 0; ai < ACK_TOPICS.length; ai++) if (ACK_TOPICS[ai][0].test(t)) hits.push(ACK_TOPICS[ai][1]);
+    if (!hits.length) return null;
+    for (var hi = 0; hi < hits.length; hi++) if (hits[hi] !== G._lastAck) { G._lastAck = hits[hi]; return hits[hi]; }
+    return null; // 전부 직전과 같으면 이번엔 생략 — 반복 인지는 준비된 대사처럼 들린다
+  }
+  function heardLine(text, cat) { // 반응의 제1원칙: 진행하기 전에 '방금 그 말'을 짚는다 — 새 주제 인지 > 조각 인용 > (mild 절반) 생략
+    var top = ackTopicFresh(text);
     if (top) return top + " ";
     if (typeof firstOkNum === "function" && firstOkNum(text)) return ""; // 표준 수치가 있으면 인용은 reactLine의 {num}에 맡긴다 — 숫자를 반토막 내서 인용하는 사고 방지
     var ec = echoFrag(text);
@@ -4069,13 +4076,20 @@ window.APP = (function () {
       }
       return;
     }
-    if (G.awaiting === "probe") { // 원장 되묻기에 대한 답 — 가볍게 받고 다음 반대로
+    if (G.awaiting === "probe") { // 원장 되묻기에 대한 답 — 들은 걸 짚고, 캐릭터답게 받고, 다음 반대로
       var jp = judgeTurn(0, text);
       G.turns.push({ typeN: 0, text: text, judge: jp });
       G.awaiting = false; faidRender();
       if (jp.numsBad) { stamp("bad", "오수치!"); badNumToast(jp); }
-      nextObjection(jp.numsBad ? reactLine("bad") : pick("probeAck", ["아, 그렇구나.", "음, 알겠어요.", "그건 좀 좋네.", "흠, 그래요."]),
-        jp.numsBad ? "angry" : "neutral", jp.numsBad ? "angry" : null); // 한 호흡
+      var PROBE_ACK = { // 같은 맞장구도 사람마다 다르다 — 캐릭터 유지
+        "장인석": ["…그래요.", "흠, 알겠고.", "그건 인정하죠."],
+        "강지은": ["아하, 그렇구나~", "오~ 알겠어요.", "그건 좀 좋네요~"],
+        "신혁주": ["그렇군요.", "알겠습니다.", "일리는 있네요."],
+        "김민우": ["음, 그래요.", "알겠어요.", "그건 좀 낫네."]
+      };
+      var ackPool = PROBE_ACK[G.doc.nm] || ["음, 알겠어요.", "아, 그렇구나.", "흠, 그래요."];
+      nextObjection(jp.numsBad ? reactLine("bad") : heardLine(text, "mild") + pick("probeAck", ackPool),
+        jp.numsBad ? "angry" : "neutral", jp.numsBad ? "angry" : null); // 인지+맞장구+다음 반대 한 호흡
       return;
     }
     if (G.awaiting === "closing") {
