@@ -2394,6 +2394,7 @@ window.APP = (function () {
   function heardLine(text, cat) { // 반응의 제1원칙: 진행하기 전에 '방금 그 말'을 짚는다 — 주제 인지 > 조각 인용 > (mild 절반) 생략
     var top = ackTopic(text);
     if (top) return top + " ";
+    if (typeof firstOkNum === "function" && firstOkNum(text)) return ""; // 표준 수치가 있으면 인용은 reactLine의 {num}에 맡긴다 — 숫자를 반토막 내서 인용하는 사고 방지
     var ec = echoFrag(text);
     if (ec && (cat === "crit" || cat === "good" || (G.turns.length % 2 === 0))) return "\u201c" + ec + "\u201d\u2026 ";
     return "";
@@ -2414,6 +2415,11 @@ window.APP = (function () {
     var s = String(t || "").trim().replace(/\s+/g, " ");
     var m = s.match(/([^.!?…,]{4,18})[.!?…]?\s*$/);
     var f = (m ? m[1] : s.slice(-16)).trim();
+    var idx = f ? s.lastIndexOf(f) : -1;
+    if (idx > 0 && s.charAt(idx - 1) !== " ") { // 단어·숫자 중간에서 시작한 조각 — 첫 어절을 버려 온전한 말만 인용한다 ("1.9억"이 "9억"이 되는 사고 방지)
+      var sp = f.indexOf(" ");
+      f = sp > 0 ? f.slice(sp + 1).trim() : "";
+    }
     return f.length >= 4 ? f : null;
   }
   var RESCHED = {
@@ -2426,6 +2432,7 @@ window.APP = (function () {
   function doctorAnswerCore(t) { // 매칭될 때만 답 — null이면 '아는 질문이 아님'
     var s = G.scen || {};
     if (/환자.*(많|줄|몇|어느)|요즘.*어떠|바쁘세요/.test(t)) return s.small ? "솔직히 요즘 좀 줄었어요. 그래서 고민이 많고요. …그건 왜요?" : "많죠. 오늘도 꽉 찼어요. 그래서 시간이 없다는 거예요.";
+    if (/(등록|가입).{0,8}(어느|얼마|몇|어떻|현황|되세요|하세요)/.test(t)) return s.ht === "A" ? "등록이요? 아직 일만사 자체를 안 하니까 없죠." : s.ht === "B" ? "일만사 등록은 좀 있어요. 웰체크를 안 붙였을 뿐이지." : "하다가 접어서, 지금은 안 하고 있어요.";
     if (/일만사.*(하|진행|해보)/.test(t)) return s.ht === "A" ? "아직 안 해요. 그러니까 이 통화도 받은 거고." : s.ht === "B" ? "일만사는 하고 있어요. 웰체크를 안 쓰는 것뿐이지." : "했다가 접었다니까요. 그게 내 대답이에요.";
     if (/근처|인근|다른\s?(병원|의원|원장)/.test(t)) return s.comp ? "옆 의원이 한다고는 들었어요. 그래서 신경이 쓰이긴 해요." : "이 근처엔 아직 없는 걸로 알아요.";
     if (/간호사.*(있|몇|채용|인력)/.test(t)) return "간호사 둘에 접수 하나예요. 다들 바쁘고요.";
@@ -4050,13 +4057,15 @@ window.APP = (function () {
       var firstO = curObj();
       var totalObj0 = G.scen.objs.length + (G.scen.variant ? 1 : 0);
       if (jo.numsBad) { stamp("bad", "오수치!"); badNumToast(jo); }
+      var ansPre0 = jo.question ? doctorAnswerCore(text) : null; // 오프닝에 질문이 껴 있어도 — 무시하지 않는다
+      var heard0 = heardLine(text, "good");
       if (llmOn() && firstO) {
-        llmTurn(text, "[판정: MR의 첫인사와 오프닝이다. 채점하지 말고 캐릭터답게 짧게 받아라" + (jo.numsBad ? " — 단, 방금 숫자가 틀렸다. 그걸 짚어라" : "") + "]\n[지시: 받아준 뒤 자연스럽게 첫 걱정거리를 꺼내라 — 주제: " + firstO.data.t + ". 참고 표현: " + firstO.data.dr + "]",
+        llmTurn(text, "[판정: MR의 첫인사와 오프닝이다. 채점하지 말고 캐릭터답게 짧게 받아라" + (jo.numsBad ? " — 단, 방금 숫자가 틀렸다. 그걸 짚어라" : "") + (jo.question ? " — MR이 질문도 했다. 첫 문장에서 짧게 답해줘라" : "") + "]\n[지시: 받아준 뒤 자연스럽게 첫 걱정거리를 꺼내라 — 주제: " + firstO.data.t + ". 참고 표현: " + firstO.data.dr + "]",
           jo.numsBad ? "angry" : "interest", jo.numsBad ? "angry" : "interest",
-          function () { nextObjection(ACKS[G.doc.nm], "neutral", null); }, // 인사 받기+첫 반대 한 호흡
+          function () { nextObjection(ACKS[G.doc.nm] + " " + (ansPre0 ? ansPre0 + " " : "") + heard0, "neutral", null); }, // 인사+답+인지+첫 반대 한 호흡
           function () { firstO.vagueN = 0; G.awaiting = firstO; $("hudProg").textContent = progTxt(1, totalObj0); });
       } else {
-        nextObjection(jo.numsBad ? reactLine("bad") : ACKS[G.doc.nm], jo.numsBad ? "angry" : "neutral", jo.numsBad ? "angry" : null); // 한 호흡
+        nextObjection(jo.numsBad ? reactLine("bad") : ACKS[G.doc.nm] + " " + (ansPre0 ? ansPre0 + " " : "") + heard0, jo.numsBad ? "angry" : "neutral", jo.numsBad ? "angry" : null); // 한 호흡
       }
       return;
     }
