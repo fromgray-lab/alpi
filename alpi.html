@@ -2835,7 +2835,7 @@ window.APP = (function () {
   }
   function scoreSession(turns, scen, nv) {
     // 참여하지 않은 판은 채점하지 않는다.
-    // 예전엔 한 마디도 안 해도 기본점(B8+C4+D11+E4)이 붙어 27점 · 대화운영 B등급이 나왔다 —
+    // 예전엔 한 마디도 안 해도 기본점(B8+C4+D11+E4)이 붙어 27점 · 경청공감 B등급이 나왔다 —
     // 눌러만 보고 끈 사람이 전광판에 ₿27,000,000으로 올라가던 원인이기도 하다.
     var spoke = (turns || []).filter(function (x) { return x && x.text && String(x.text).trim(); }).length;
     if (!spoke) {
@@ -2859,7 +2859,7 @@ window.APP = (function () {
     if (inter >= 2 && /38|385|1\.9|500명/.test(allText)) C = 20;
     var qN = 0, empN = 0, pushN = 0, mono = 0;
     // 장광설 기준은 입력 방식에 따라 다르다 — 음성 인식은 말을 통째로 이어붙여 길게 나오므로
-    // 타이핑과 같은 잣대(350자)를 대면 '말을 많이 할수록 감점'이 된다 (실제로 대화운영 1/15이 나온 원인)
+    // 타이핑과 같은 잣대(350자)를 대면 '말을 많이 할수록 감점'이 된다 (실제로 경청공감 1/15이 나온 원인)
     turns.forEach(function (x) {
       if (!x.judge) return;
       if (x.judge.question) qN++;
@@ -2868,7 +2868,7 @@ window.APP = (function () {
       if (x.judge.len > ((x.eleven || x.voice) ? 700 : 350)) mono++;
     });
     // 공감 보너스는 '실제로 공감 표현을 했을 때'만 — empN=0, turns=0이면 0>=0이 참이 되어
-    // 아무 말도 안 한 판에 보너스가 붙던 버그(대화운영 11/15 B등급)를 막는다
+    // 아무 말도 안 한 판에 보너스가 붙던 버그(경청공감 11/15 B등급)를 막는다
     var D = 6 + (qN >= 2 ? 4 : qN === 1 ? 2 : 0) + (empN > 0 && empN >= Math.ceil(turns.length / 2) ? 3 : 1) + 2 - pushN * 3 - mono * 2;
     D = Math.max(0, Math.min(15, D));
     var lastTexts = turns.slice(-2).map(function (x) { return x.text; }).join(" ");
@@ -2880,7 +2880,7 @@ window.APP = (function () {
     if (G.drCommit) E = Math.max(E, 14); // 원장이 먼저 일정을 잡았다 — 클로징 성립로 인정
     if (/한\s?달만|배수진|두\s?번\s?다시/.test(allText)) E = Math.min(15, E + 2);
     // 오수치 감점 — 틀린 수치를 원장에게 말하는 건 실제로 위험하므로 아프게 간다.
-    // 다만 ① 수치정확(B) 축이 이미 20→5로 깎여 한 번 처벌받고 ② 총점에서 또 -15씩 빼면 이중 처벌이고,
+    // 다만 ① 근거기반(B) 축이 이미 20→5로 깎여 한 번 처벌받고 ② 총점에서 또 -15씩 빼면 이중 처벌이고,
     //     세 번 걸리면 아무리 잘해도 0점이 되어 리포트가 코칭 자료로서 의미를 잃는다. 상한을 둔다.
     var earned = A + B + C + D + E;
     var penalty = Math.min(25, badN * 12); // 1건 -12 / 2건 -24 / 3건 이상 -25 (상한)
@@ -3701,7 +3701,7 @@ window.APP = (function () {
       var mae = ds.reduce(function (x, y) { return x + Math.abs(y); }, 0) / ds.length;
       out.ax[a] = { mean: Math.round(mean * 10) / 10, mae: Math.round(mae * 10) / 10 };
     });
-    var names = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" };
+    var names = { A: "반대극복", B: "근거기반", C: "고객의득", D: "경청공감", E: "클로징" };
     axes.forEach(function (a) {
       var m = out.ax[a].mean;
       if (m >= 2) advice.push(names[a] + " 축: AI가 평균 +" + m + " 후함 → " + (a === "A" ? "크리티컬 기준 상향(판정 파라미터) 검토" : a === "B" ? "수치 인정 범위 축소 검토" : "가중치 재검토(C1)"));
@@ -4278,7 +4278,7 @@ window.APP = (function () {
     L.push((G.user ? G.user.name : "-") + " × " + G.doc.nm + " 원장 (" + G.doc.plabel + ") · " + todayStr() + " · ⚡" + (R.crits || 0) + (R.pd != null ? " · 설득도 " + R.pd + "%" + (R.drCommit ? "(원장 승낙)" : "") : ""));
     L.push("");
     L.push("■ 축별 성적");
-    [["반대극복", sc.A, 30], ["수치정확", sc.B, 20], ["명분설계", sc.C, 20], ["대화운영", sc.D, 15], ["클로징", sc.E, 15]].forEach(function (a) {
+    [["반대극복", sc.A, 30], ["근거기반", sc.B, 20], ["고객의득", sc.C, 20], ["경청공감", sc.D, 15], ["클로징", sc.E, 15]].forEach(function (a) {
       L.push(" " + a[0] + "  " + a[1] + "/" + a[2] + "  [" + axGrade(a[1], a[2]) + "]");
     });
     L.push("");
@@ -4395,7 +4395,7 @@ window.APP = (function () {
     var u = G.user || {}, d = G.doc || {}, nv = ctx.nv;
     var isl = isleReport(turns);
     var stNm = { crit: ["완벽 극복", "#B8860B"], clear: ["극복 완료", "#0B5B54"], half: ["부분 극복", "#8a6d1a"], miss: ["미극복", "#B0392E"] };
-    var axes = [["반대극복", sc.A, 30], ["수치정확", sc.B, 20], ["명분설계", sc.C, 20], ["대화운영", sc.D, 15], ["클로징", sc.E, 15]];
+    var axes = [["반대극복", sc.A, 30], ["근거기반", sc.B, 20], ["고객의득", sc.C, 20], ["경청공감", sc.D, 15], ["클로징", sc.E, 15]];
     var axHtml = axes.map(function (a) {
       var pct = Math.round(100 * a[1] / a[2]);
       return "<div class='pax'><b>" + a[0] + "</b><span class='tr'><i style='width:" + pct + "%;'></i><u></u></span><span class='sc'>" + a[1] + "/" + a[2] + " · " + axGrade(a[1], a[2]) + "</span></div>";
@@ -4450,11 +4450,11 @@ window.APP = (function () {
       "<div class='pscore'><div class='ps-num'>" + sc.total + "<small>/100</small></div><div class='ps-grade' style='background:" + (GR_COL[LG] || "#5B6663") + ";'>" + LG + "</div><div class='ps-axes'>" + axHtml + "</div>" +
       (ctx.radar ? "<div class='ps-radar'>" + ctx.radar + "</div>" : "") + "</div>" +
       (sc.calibApplied ? "<div class='pstat' style='background:#EFF4FB;color:#2A4A6B;'>🎓 <b>전문가 보정 반영</b> — " +
-        Object.keys(sc.calibApplied).map(function (k) { var nm = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" }[k]; var v = sc.calibApplied[k]; return nm + " " + (v > 0 ? "+" : "") + v; }).join(" · ") +
+        Object.keys(sc.calibApplied).map(function (k) { var nm = { A: "반대극복", B: "근거기반", C: "고객의득", D: "경청공감", E: "클로징" }[k]; var v = sc.calibApplied[k]; return nm + " " + (v > 0 ? "+" : "") + v; }).join(" · ") +
         " <span style='opacity:.8;'>(코치 채점 " + sc.calibN + "건 기반 · 많을수록 정밀해집니다)</span></div>" : "") +
       // 참여 자체가 없었던 판은 '점수'가 아니라 '왜 점수가 없는지'를 말해줘야 한다
       (sc.noPlay ? "<div class='pdeduct'><b>이번 판은 채점 대상이 아닙니다</b> — 원장님과 대화를 시작하기 전에 통화가 종료되어, MR의 발언이 한 건도 기록되지 않았습니다." +
-        "<div class='pdeduct-why'>한 마디라도 응수하시면 그때부터 반대극복·수치정확·명분설계가 채점됩니다. 부담 없이 “안녕하세요 원장님, 대웅제약입니다”로 시작해 보세요.</div></div>" : "") +
+        "<div class='pdeduct-why'>한 마디라도 응수하시면 그때부터 반대극복·근거기반·고객의득가 채점됩니다. 부담 없이 “안녕하세요 원장님, 대웅제약입니다”로 시작해 보세요.</div></div>" : "") +
       // 감점이 있으면 반드시 드러낸다 — 축 합계와 총점이 다른데 설명이 없으면 리포트를 신뢰할 수 없다
       (sc.penalty ? "<div class='pdeduct'><b>항목 합계 " + sc.earned + "점</b> − <b>확인 안 된 수치 감점 " + sc.penalty + "점</b>" +
         (sc.badN ? " (" + sc.badN + "건" + (sc.badList && sc.badList.length ? ": " + sc.badList.map(esc).join(", ") : "") + ")" : "") +
@@ -4591,7 +4591,7 @@ window.APP = (function () {
     var prevAx = G.prevAxes ? G.prevAxes.slice() : null;
     (function () {
       var el = $("coachVerdict"); if (!el) return;
-      var axL = [["A", "반대극복", 30], ["B", "수치정확", 20], ["C", "명분설계", 20], ["D", "대화운영", 15], ["E", "클로징", 15]];
+      var axL = [["A", "반대극복", 30], ["B", "근거기반", 20], ["C", "고객의득", 20], ["D", "경청공감", 15], ["E", "클로징", 15]];
       var byR = axL.slice().sort(function (a, b) { return sc[b[0]] / b[2] - sc[a[0]] / a[2]; });
       var best = byR[0], worst = byR[byR.length - 1];
       var s5v = step5Check(G.turns, sc), missV = s5v.filter(function (x) { return !x[1]; }).map(function (x) { return x[0]; });
@@ -4618,8 +4618,8 @@ window.APP = (function () {
     })();
     // 축 테이블 + 레이더
     var axes = [
-      { k: "반대극복", key: "A", v: sc.A, max: 30 }, { k: "수치정확", key: "B", v: sc.B, max: 20 }, { k: "명분설계", key: "C", v: sc.C, max: 20 },
-      { k: "대화운영", key: "D", v: sc.D, max: 15 }, { k: "클로징", key: "E", v: sc.E, max: 15 },
+      { k: "반대극복", key: "A", v: sc.A, max: 30 }, { k: "근거기반", key: "B", v: sc.B, max: 20 }, { k: "고객의득", key: "C", v: sc.C, max: 20 },
+      { k: "경청공감", key: "D", v: sc.D, max: 15 }, { k: "클로징", key: "E", v: sc.E, max: 15 },
       { k: "전달력", key: "NV", v: nvScore === null ? 0 : nvScore, max: 20, ref: true }
     ];
     var radarSvg = radar(axes.map(function (a) { return { k: a.k + (a.ref ? "\u2727" : ""), v: a.v, max: a.max, ref: a.ref }; }), G.prevAxes);
@@ -4813,7 +4813,7 @@ window.APP = (function () {
   }
 
   /* ══════════ 캘리브레이션 — 사람 평가 ↔ AI 채점 대조 (관문 2 구조) ══════════ */
-  var AX_META = [["A", "반대극복", 30], ["B", "수치정확", 20], ["C", "명분설계", 20], ["D", "대화운영", 15], ["E", "클로징", 15]];
+  var AX_META = [["A", "반대극복", 30], ["B", "근거기반", 20], ["C", "고객의득", 20], ["D", "경청공감", 15], ["E", "클로징", 15]];
   function calcCalib(rule, human) {
     var rows = AX_META.map(function (m) {
       var d = human[m[0]] - rule[m[0]];
@@ -5200,9 +5200,9 @@ window.APP = (function () {
   function cmGuideHtml() { // 📖 CM 평가자 가이드 — 화면의 평가표와 1:1로 같은 눈금. 순수 함수(테스트 대상).
     var axRows = [
       ["반대극복", 30, "원장의 반대 유형을 읽고 '정답 명분'으로 응수했는가", "동문서답·유형 오독"],
-      ["수치정확", 20, "표준 수치를 정확히 — 인당 최대 38만원(385,290원)·500명 관리 시 연 1.9억·19년 이후 환수 0건", "어림수·확인 안 된 수치(감점), \"확인해서 알려드리겠다\"는 정답"],
-      ["명분설계", 20, "병원 이익·안전·환자 편의를 관통하는 '한 문장' 명분이 있는가", "근거 나열만 있고 명분 없음"],
-      ["대화운영", 15, "공감 → 질문 → 경청의 리듬 — 일방 설명이 아니라 대화인가", "설명 독주·공감 없음"],
+      ["근거기반", 20, "표준 수치를 정확히 — 인당 최대 38만원(385,290원)·500명 관리 시 연 1.9억·19년 이후 환수 0건", "어림수·확인 안 된 수치(감점), \"확인해서 알려드리겠다\"는 정답"],
+      ["고객의득", 20, "병원 이익·안전·환자 편의를 관통하는 '한 문장' 명분이 있는가", "근거 나열만 있고 명분 없음"],
+      ["경청공감", 15, "공감 → 질문 → 경청의 리듬 — 일방 설명이 아니라 대화인가", "설명 독주·공감 없음"],
       ["클로징", 15, "행동+날짜+주체가 박힌 마무리 (\"화요일 2시, 교육간호사와 방문\")", "\"자료 보내드리겠습니다\"로 끝"]
     ].map(function (r) {
       return "<tr><td style='padding:4px 6px;border:1px solid #E3EAE7;'><b>" + r[0] + "</b> <span class='small'>/" + r[1] + "</span></td>" +
@@ -5479,11 +5479,11 @@ window.APP = (function () {
   }
   /* ── 🎯 코칭 처방 엔진 — 정량 옆의 정성, 동일 데이터=동일 처방 ── */
   var AX_MAX = { A: 30, B: 20, C: 20, D: 15, E: 15 };
-  var AX_NAME = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" };
+  var AX_NAME = { A: "반대극복", B: "근거기반", C: "고객의득", D: "경청공감", E: "클로징" };
   var AX_RX = {
     A: { t: "반대극복 재장전", why: "유형을 읽고도 정답 명분이 늦게 나오는 패턴 — 반대의 축이 낮으면 나머지 축이 모두 흔들립니다.", act: "약한 유형 2개 지정 출제 + 튜토리얼 '반대극복' 카드 낭독 후 주 2판" },
     B: { t: "수치 암기 특훈", why: "숫자가 비거나 흔들리면 오수치 페널티(−15)와 원장 신뢰 하락으로 직결됩니다.", act: "원피스 특훈 60초 드릴 주 3회 + 암기 카드(385,290·1.9억·환수 0건) 월요 구두시험" },
-    C: { t: "명분 설계 코칭", why: "근거는 있는데 명분이 한 논리에 몰려 있어 상대 유형이 바뀌면 무너집니다.", act: "튜토리얼 '비교 프레임'·'Feel-Felt-Found' 카드로 반대 1개당 명분 1개 원칙 훈련" },
+    C: { t: "고객의득 코칭", why: "근거는 있는데 명분이 한 논리에 몰려 있어 상대 유형이 바뀌면 무너집니다.", act: "튜토리얼 '비교 프레임'·'Feel-Felt-Found' 카드로 반대 1개당 명분 1개 원칙 훈련" },
     D: { t: "경청·질문 리듬 교정", why: "일방 설명이 길어지는 패턴 — 질문·공감이 얇으면 원장이 대화에서 빠져나갑니다.", act: "판 시작 전 탐색 질문 3개 준비 → 매 판 질문 2개 이상을 목표로" },
     E: { t: "클로징 공식 고정", why: "제안까지 가고도 날짜·주체를 못 박아 '생각해볼게요'로 끝나는 판이 많습니다.", act: "\"행동+날짜+주체\" 마지막 문장 낭독 점검 — 예: 화요일 2시, 교육간호사와 방문" }
   };
@@ -5735,7 +5735,7 @@ window.APP = (function () {
   }
   function unitCoach(u) { // 단위(조직·개인) 공통 — 잘한점/보완/처방 (순수 함수)
     if (!u || !u.topAx) return { good: "축 데이터가 쌓이면 강·약점이 표시됩니다", weak: "", rx: "우선 판수를 쌓으세요 — 주 3판이 기준입니다" };
-    var nm = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" };
+    var nm = { A: "반대극복", B: "근거기반", C: "고객의득", D: "경청공감", E: "클로징" };
     return { good: "[" + nm[u.topAx] + "] " + AX_DIAG[u.topAx].hi,
       weak: "[" + nm[u.lowAx] + "] " + AX_DIAG[u.lowAx].lo,
       rx: AX_ACT[u.lowAx] };
@@ -5983,7 +5983,7 @@ window.APP = (function () {
         return "<div style='display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;'><span>🎓 전문가 캘리브레이션 — 즉시 반영</span><b>" + nn + "건 · 가중 " + w + "%</b></div><div class='axbar" + (nn < 5 ? " lo" : "") + "' style='height:10px;margin:3px 0 8px;'><i style='width:" + w + "%'></i></div>";
       };
       if (!st) { $("admCalib").innerHTML = gate2(0) + "<span class='small'>아직 전문가 평가 기록이 없습니다 — 위 평가 대기열에서 채점하면 그 1건부터 곧바로 전 직원 채점 보정에 반영됩니다.</span>"; return; }
-      var names = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" };
+      var names = { A: "반대극복", B: "근거기반", C: "고객의득", D: "경청공감", E: "클로징" };
       var rowsH = Object.keys(st.ax).map(function (a) {
         var m = st.ax[a].mean, col = m >= 2 ? "#B0392E" : m <= -2 ? "#8a6d1a" : "#0B5B54";
         return "<td style='text-align:center;'><b style='color:" + col + ";'>" + (m > 0 ? "+" : "") + m + "</b><br><span class='small'>±" + st.ax[a].mae + "</span></td>";
@@ -6033,7 +6033,7 @@ window.APP = (function () {
             "<td style='" + td3 + "text-align:center;'>" + (u.strict > 0 ? "+" : "") + u.strict + "점 " + tone + "</td>" +
             "<td style='" + td3 + "' class='small'>" + esc(u.last || "-") + "</td></tr>";
         }).join("");
-        var axNm = { A: "반대극복", B: "수치정확", C: "명분설계", D: "대화운영", E: "클로징" };
+        var axNm = { A: "반대극복", B: "근거기반", C: "고객의득", D: "경청공감", E: "클로징" };
         var cross = es.interMae !== null
           ? "<div class='small' style='margin-top:4px;'>🔁 교차 채점 <b>" + es.crossN + "쌍</b> · 평가자 간 평균 축 오차 <b>" + es.interMae + "점</b>" +
             (es.interMax >= 6 ? " · <b style='color:#8a6d1a;'>" + (axNm[es.interMaxAx] || es.interMaxAx) + " 축에서 최대 " + es.interMax + "점 이견</b> — 앵커 세션(같은 판 함께 채점 후 논의)을 한 번 권합니다"
