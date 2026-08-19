@@ -674,6 +674,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
   ol.prx b{color:#0B2F2A;}
   .pfoot{margin-top:14pt;border-top:1pt solid #DCE4E1;padding-top:5pt;font-size:8pt;color:#8A948F;display:flex;justify-content:space-between;letter-spacing:.04em;}
 }
+.av-photo{transition:transform .16s ease;transform-origin:60px 75px;}
 </style>
 </head>
 <body>
@@ -1943,11 +1944,49 @@ window.APP = (function () {
         open = !open;
         document.querySelectorAll(".av-mouthline").forEach(function (l) { l.style.opacity = "0"; });
         document.querySelectorAll(".av-mouth").forEach(function (m) { m.setAttribute("opacity", "1"); m.setAttribute("ry", open ? "5" : "2"); });
+        document.querySelectorAll(".av-photo").forEach(function (p) { // 📷 실사 모드 립싱크 — 입모양 2컷이 있으면 교차, 없으면 미세 펄스
+          var nm2 = G.doc && G.doc.nm, have = (G.photoHave && nm2 && G.photoHave[nm2]) || {};
+          if (have.talk1 && have.talk2) p.setAttribute("href", photoUrl(nm2, open ? "talk1" : "talk2"));
+          else p.style.transform = open ? "scale(1.014)" : "scale(1)";
+        });
       }, 120);
     } else {
       document.querySelectorAll(".av-mouth").forEach(function (m) { m.setAttribute("opacity", "0"); });
       document.querySelectorAll(".av-mouthline").forEach(function (l) { l.style.opacity = "1"; });
+      if (document.querySelector(".av-photo") && G.doc) { var keep = curExpr; curExpr = null; setExpr(keep || "neutral"); } // 말 끝나면 현재 표정 컷으로 복귀
     }
+  }
+  /* ── 📷 실사 아바타 레이어 (v4.8) — img/{원장}/{표정}.webp 세트가 리포지토리에 있으면 자동 전환, 없으면 만화 아바타 유지 ── */
+  var PHOTO_KEYS = { "장인석": "jang", "강지은": "kang", "신혁주": "shin", "김민우": "kim" };
+  var PHOTO_EXPRS = ["neutral", "angry", "interest", "happy", "think", "talk1", "talk2"];
+  function photoKey(nm) { return PHOTO_KEYS[nm] || null; }
+  function photoUrl(nm, expr) { var k = photoKey(nm); return k ? "img/" + k + "/" + (expr || "neutral") + ".webp" : null; }
+  function photoMode(doc) { return !!(doc && G.photoOk && G.photoOk[doc.nm]); }
+  function portraitPhoto(nm, expr) { // svg <image> — 기존 fx 감정 연출·숨쉬기 레이어를 그대로 계승한다
+    var e = expr && PHOTO_EXPRS.indexOf(expr) >= 0 ? expr : "neutral";
+    var have = (G.photoHave && G.photoHave[nm]) || {};
+    if (!have[e]) e = "neutral"; // 없는 표정은 기본 컷으로 — 깨진 이미지를 무대에 올리지 않는다
+    return '<image class="av-photo" href="' + photoUrl(nm, e) + '" x="0" y="0" width="120" height="140" preserveAspectRatio="xMidYMid slice"/>';
+  }
+  function photoProbe(nm) { // 사진 세트 존재 확인 — 원장당 1회, 로드된 표정만 사용 목록에 올린다
+    if (!nm || !photoKey(nm)) return;
+    G.photoProbe = G.photoProbe || {};
+    if (G.photoProbe[nm]) return;
+    G.photoProbe[nm] = 1;
+    try { if (location.protocol === "file:") return; } catch (e) { return; } // 로컬 파일 열람·테스트 환경은 SVG 유지
+    G.photoHave = G.photoHave || {};
+    PHOTO_EXPRS.forEach(function (e2) {
+      var im = new Image();
+      im.onload = function () {
+        G.photoHave[nm] = G.photoHave[nm] || {};
+        G.photoHave[nm][e2] = 1;
+        if (e2 === "neutral") {
+          G.photoOk = G.photoOk || {}; G.photoOk[nm] = 1;
+          if (G.inCall && G.doc && G.doc.nm === nm) { curExpr = null; setExpr("neutral"); } // 판 중간에 준비되면 즉시 실사로
+        }
+      };
+      im.src = photoUrl(nm, e2);
+    });
   }
   // ── 표정 상태 (통화 스테이지 아바타) ──
   var curExpr = null;
@@ -1955,7 +1994,8 @@ window.APP = (function () {
     if (!G.doc || curExpr === name) return;
     curExpr = name;
     var el = $("avPlay");
-    el.innerHTML = '<g class="pg">' + portraitSvg(G.doc.av, name === "neutral" ? null : name) + '</g>'; // .pg = 숨쉬기 레이어
+    var face = photoMode(G.doc) ? portraitPhoto(G.doc.nm, name === "neutral" ? null : name) : portraitSvg(G.doc.av, name === "neutral" ? null : name);
+    el.innerHTML = '<g class="pg">' + face + '</g>'; // .pg = 숨쉬기 레이어
     el.classList.remove("fx-angry", "fx-interest", "fx-happy", "fx-think");
     if (name && name !== "neutral") { void el.getBoundingClientRect(); el.classList.add("fx-" + name); }
   }
@@ -2980,8 +3020,9 @@ window.APP = (function () {
     G.doc = allDocs()[i] || DOCTORS[0];
     koVoice = pickVoice(); // 성별·품질 기준 재선정 (남자 원장=남자 목소리)
     G.scen = genScenario(G.doc);
+    photoProbe(G.doc.nm); // 📷 실사 세트가 리포지토리에 있으면 이 판부터 실사 원장
     $("avCall").innerHTML = '<g class="pg">' + portraitSvg(G.doc.av) + '</g>';
-    $("avPlay").innerHTML = '<g class="pg">' + portraitSvg(G.doc.av) + '</g>';
+    $("avPlay").innerHTML = '<g class="pg">' + (photoMode(G.doc) ? portraitPhoto(G.doc.nm, null) : portraitSvg(G.doc.av)) + '</g>';
     $("callName").textContent = G.doc.nm + " 원장님 · " + G.doc.hosp;
     toGear();
   }
@@ -6320,7 +6361,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "4.7";
+  var APP_VER = "4.8";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -6376,7 +6417,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS } };
 })();
 
 </script>
