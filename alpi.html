@@ -675,6 +675,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
   .pfoot{margin-top:14pt;border-top:1pt solid #DCE4E1;padding-top:5pt;font-size:8pt;color:#8A948F;display:flex;justify-content:space-between;letter-spacing:.04em;}
 }
 .av-photo{transition:transform .16s ease;transform-origin:60px 75px;}
+.pax-why{font-size:11px;color:var(--sub);margin:-3px 0 7px 2px;}
+.pax-appeal{font-size:11.5px;color:var(--sub);background:#FFFDF4;border:1px dashed var(--gold);border-radius:8px;padding:7px 10px;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -2770,6 +2772,12 @@ window.APP = (function () {
       if (!NUM_CLAIM_CTX.test(ctx)) { numsRef++; return; } // 맥락 없는 일상 숫자 = 채점 중립 (감점도 가점도 없음)
       numsBad++; badClaims.push(c.trim());
     });
+    // 🧾 검증된 사실 표현 — 숫자 단위('건')가 추출망에 없어 인정을 못 받던 표준 사실을 근거로 집계 (베타 피드백 반영)
+    var FACT_OK = [
+      /(환수|삭감)[^.!?]{0,14}(0\s?건|없|전무)/, // "환수 케이스가 0건", "묶음 환수 사례가 없", "삭감 전무"
+      /(0\s?건|전무)[^.!?]{0,10}(환수|삭감)/
+    ];
+    for (var fi = 0; fi < FACT_OK.length; fi++) { if (FACT_OK[fi].test(t)) { numsOk++; break; } }
     var confirmLater = CONFIRM_LATER.test(t);
     GENERIC_RE.lastIndex = 0;
     var generic = (t.match(GENERIC_RE) || []).length; // 정답 명분은 아니어도 설득의 결은 맞는 발화
@@ -4329,6 +4337,24 @@ window.APP = (function () {
         quote: b.bestQuote, keys: keys, nextLine: v ? (splitSentences(v.script)[0] || v.script) : "" };
     }).sort(function (a, b2) { return a.n - b2.n; });
   }
+  function axisWhy(turns, sc) { // 축별 점수 사유 한 줄 — "왜 D인지"가 리포트에 명료하게 (베타 피드백 반영)
+    var objT = (turns || []).filter(function (t) { return t.typeN; });
+    var hitS = 0, keyT = 0, okN = 0, badN2 = 0, empN = 0, qN = 0;
+    (turns || []).forEach(function (t) {
+      var j = t.judge || {};
+      if (t.typeN) { hitS += (j.keyHit || 0); keyT += (j.keyTotal || 0); }
+      okN += (j.numsOk || 0); badN2 += (j.numsBad || 0);
+      if (j.empathy) empN++; if (j.question) qN++;
+    });
+    var closeT = (turns || []).filter(function (t) { return !t.typeN && t.judge && CLOSING_ACT.test(t.text || ""); }).length;
+    return {
+      A: objT.length ? "정답 열쇠 " + hitS + "/" + keyT + " 적중" + (hitS < keyT ? " — 남은 열쇠는 아래 유형별 표에서 ○ 표시" : "") : "반대 응수 기록 없음",
+      B: (okN ? "표준 수치·사실 " + okN + "회 인정" : "표준 수치 인용 없음") + (badN2 ? " · 확인 안 된 수치 " + badN2 + "회 감점" : ""),
+      C: sc.C >= 16 ? "고객이 얻는 득을 관통하는 명분이 실렸습니다" : sc.C >= 12 ? "명분은 있으나 '한 문장'으로 응축이 아쉬움" : "고객의 득(병원 이익·환자 편의)이 문장으로 드러나지 않음",
+      D: "공감 " + empN + "회 · 질문 " + qN + "회" + (qN === 0 ? " — 탐색 질문이 없었습니다" : ""),
+      E: closeT ? "행동·날짜·주체가 담긴 마무리 확인" : "웰체크 가입 유도·교육일정 수립 문장이 없었습니다"
+    };
+  }
   function coachSummary(turns, sc) { // 코치의 한 단락 총평 — 이 판에서 실제로 일어난 일을 구어체로 짚는다
     if (G.mannerFoul) return "오늘은 점수보다 먼저 짚을 게 있어요. 원장님께 해서는 안 될 말이 나왔고, 통화는 거기서 끝났습니다. 실전이었다면 이 병원 문은 다시 안 열려요. 다음 통화는 딱 하나만 기억합시다 — <b>정중함이 최고의 영업 기술</b>입니다.";
     var isl = isleReport(turns);
@@ -4395,11 +4421,14 @@ window.APP = (function () {
     var u = G.user || {}, d = G.doc || {}, nv = ctx.nv;
     var isl = isleReport(turns);
     var stNm = { crit: ["완벽 극복", "#B8860B"], clear: ["극복 완료", "#0B5B54"], half: ["부분 극복", "#8a6d1a"], miss: ["미극복", "#B0392E"] };
-    var axes = [["반대극복", sc.A, 30], ["근거기반", sc.B, 20], ["고객의득", sc.C, 20], ["경청공감", sc.D, 15], ["클로징", sc.E, 15]];
+    var axes = [["반대극복", sc.A, 30, "A"], ["근거기반", sc.B, 20, "B"], ["고객의득", sc.C, 20, "C"], ["경청공감", sc.D, 15, "D"], ["클로징", sc.E, 15, "E"]];
+    var awhy = axisWhy(turns, sc); // 왜 이 점수인가 — 축마다 근거 한 줄
     var axHtml = axes.map(function (a) {
       var pct = Math.round(100 * a[1] / a[2]);
-      return "<div class='pax'><b>" + a[0] + "</b><span class='tr'><i style='width:" + pct + "%;'></i><u></u></span><span class='sc'>" + a[1] + "/" + a[2] + " · " + axGrade(a[1], a[2]) + "</span></div>";
+      return "<div class='pax'><b>" + a[0] + "</b><span class='tr'><i style='width:" + pct + "%;'></i><u></u></span><span class='sc'>" + a[1] + "/" + a[2] + " · " + axGrade(a[1], a[2]) + "</span></div>" +
+        "<div class='pax-why'>" + esc(awhy[a[3]] || "") + "</div>";
     }).join("");
+    axHtml += "<div class='pax-appeal'>🙋 채점이 납득되지 않으면 — 결과 화면 <b>[🌱 경험 평가]의 '채점이 어긋난 지점'</b>에 남겨주세요. 코치 검토와 채점 보정에 바로 반영됩니다.</div>";
     var themes = isl.length ? isl.map(function (r) {
       var st = stNm[r.status];
       var keys = r.keys.map(function (k) { return "<span class='" + (k.hit ? "ok" : "no") + "'>" + (k.hit ? "✓ " : "○ ") + esc(String(k.t).split(" — ")[0].split("(")[0].trim()) + "</span>"; }).join(" &nbsp;·&nbsp; ");
@@ -6425,7 +6454,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "4.9";
+  var APP_VER = "5.0";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -6481,7 +6510,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy } };
 })();
 
 </script>
