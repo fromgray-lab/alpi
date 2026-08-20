@@ -4330,28 +4330,28 @@ window.APP = (function () {
     }).sort(function (a, b2) { return a.n - b2.n; });
   }
   function coachSummary(turns, sc) { // 코치의 한 단락 총평 — 이 판에서 실제로 일어난 일을 구어체로 짚는다
-    if (G.mannerFoul) return "오늘은 점수보다 먼저 짚을 게 있어요. 원장님께 해서는 안 될 말이 나왔고, 통화는 거기서 끝났습니다. 실전이었다면 이 병원 문은 다시 안 열려요. 다음 판은 딱 하나만 기억합시다 — <b>정중함이 최고의 영업 기술</b>입니다.";
+    if (G.mannerFoul) return "오늘은 점수보다 먼저 짚을 게 있어요. 원장님께 해서는 안 될 말이 나왔고, 통화는 거기서 끝났습니다. 실전이었다면 이 병원 문은 다시 안 열려요. 다음 통화는 딱 하나만 기억합시다 — <b>정중함이 최고의 영업 기술</b>입니다.";
     var isl = isleReport(turns);
     var won = isl.filter(function (x) { return x.status === "crit" || x.status === "clear"; });
     var lost = isl.filter(function (x) { return x.status === "miss" || x.status === "half"; });
     var p = [];
-    if (won.length) p.push("오늘 <b>[" + won[0].n + "] " + esc(won[0].t) + "</b> 섬에서 " + (won[0].crit ? "크리티컬로 정답 명분을 꽂으신 게" : "정답 명분을 제대로 짚으신 게") + " 이 판의 백미였어요.");
-    else if (isl.length) p.push("오늘 " + isl.length + "개 섬에서 부딪혔는데, 아직 결정타가 안 나왔어요. 방향은 맞으니 열쇠 문장만 챙기면 됩니다.");
-    else p.push("오늘은 본 게임이 열리기 전에 통화가 끝났어요. 괜찮아요 — 판을 연 것 자체가 시작이니까, 다음 판은 반대 하나만 정면으로 받아봅시다.");
+    if (won.length) p.push("오늘 <b>[" + won[0].n + "] " + esc(won[0].t) + "</b> 반대에서 " + (won[0].crit ? "정답 명분에 정확한 수치까지 실어 극복하신 게" : "정답 명분을 제대로 짚으신 게") + " 이 통화의 백미였어요.");
+    else if (isl.length) p.push("오늘 " + isl.length + "개 반대와 부딪혔는데, 아직 결정타가 안 나왔어요. 방향은 맞으니 열쇠 문장만 챙기면 됩니다.");
+    else p.push("오늘은 고객의 말이 끝나기 전에 통화가 끝났어요. 괜찮아요 — 시작한 것 자체가 용기니까, 다음 통화는 고객을 공감시키고 반대극복 하나만 제대로 극복해봅시다.");
     if (lost.length) {
       var L = lost[0], mk = L.keys.filter(function (x) { return !x.hit; })[0];
       p.push("<b>[" + L.n + "] " + esc(L.t) + "</b>에선 " + (L.status === "half" ? "절반까지 갔는데 마지막 열쇠가 비었어요" : "정답 명분이 아직 안 실렸어요") + (mk ? ". 열쇠는 “" + esc(String(mk.t).split(" — ")[0].split("(")[0].trim()) + "” — 이거 하나예요." : "."));
     }
     if (G.drCommit) p.push("그리고 원장 입에서 먼저 “봅시다”가 나왔죠 — 그게 설득의 완성형입니다.");
-    else if (sc.E < 12) p.push("마무리에서 날짜·주체를 박은 한 문장이면 등급이 바뀝니다. “다음 주 화요일 2시에 교육간호사와 방문하겠습니다” — 이 문형만 몸에 붙여봅시다.");
-    else p.push("클로징 감각은 좋았어요. 이제 한 턴의 밀도(공감+명분+수치+질문)만 올리면 됩니다.");
+    else if (sc.E < 12) p.push("마무리에서 웰체크 가입 유도, 웰체크 교육일정 수립만으로도 등급이 바뀝니다. “다음 주 화요일 2시에 교육간호사와 방문해 교육일정을 잡겠습니다” — 다시 도전해봅시다.");
+    else p.push("클로징 감각은 좋았어요. 이제 한 응수의 밀도(공감+명분+수치+질문)만 올리면 됩니다.");
     return p.join(" ");
   }
   var ISLE_NM = { 1: "정책불신", 2: "행정과다", 3: "환자설득", 4: "수익성", 5: "관리부담", 6: "고당사업", 7: "고령·앱", 8: "의협회비", 9: "심평원", 10: "경쟁PG", 11: "참여설득", 12: "검진시즌", 13: "인력부족", 14: "시범악몽", 15: "가입설득", 16: "정보보안", 17: "삭감공포", 18: "고령혜택", 19: "닥터바이스", 20: "아임파인" }; // 테마 축약명 — 지도·리포트 공용
   var ISLE_ST = { crit: ["⚡ 크리티컬 격파", "ist-crit"], clear: ["✓ 격파", "ist-clear"], half: ["◐ 절반 — 한 발 남음", "ist-half"], miss: ["✗ 미격파", "ist-miss"] };
   function isleHtml(turns) { // 섬 리포트 렌더 — 내가 한 말 인용 + 명분 체크리스트 + 다음 한 문장
     var isl = isleReport(turns);
-    if (!isl.length) return "<div class='small'>이번 판에는 반대 유형 응수가 기록되지 않았습니다 — 통화가 본론 전에 끝났어요. 다음 판, 원장의 첫 걱정에 정면으로 답해봅시다.</div>";
+    if (!isl.length) return "<div class='small'>이번 통화에는 반대 응수가 기록되지 않았습니다 — 고객의 말이 끝나기 전에 통화가 끝났어요. 다음 통화에서는 원장의 첫 걱정에 공감부터 하고 답해봅시다.</div>";
     return isl.map(function (r) {
       var st = ISLE_ST[r.status];
       var keys = r.keys.map(function (k) {
@@ -4361,7 +4361,7 @@ window.APP = (function () {
       return "<div class='isle'><div class='isle-hd'><span class='cdx-n'>" + r.n + "</span>" + esc(ISLE_NM[r.n] || r.t) + " R/P<span class='small'>" + esc(r.t) + " · 응수 " + r.tries + "회</span><span class='isle-st " + st[1] + "'>" + st[0] + "</span></div>" +
         (r.quote ? "<div class='isle-q'>내 응수: “" + esc(r.quote.slice(0, 120)) + (r.quote.length > 120 ? "…" : "") + "”</div>" : "") +
         "<div class='isle-keys'>" + keys + "</div>" +
-        (r.status === "crit" || r.status === "clear" ? "<div class='isle-next'>💡 이 섬은 잡으셨어요. 다음엔 같은 논리를 <b>더 짧게</b> — 두 문장 안에 담아보세요.</div>"
+        (r.status === "crit" || r.status === "clear" ? "<div class='isle-next'>💡 이 반대는 극복하셨어요. 다음엔 같은 논리를 <b>더 짧게</b> — 두 문장 안에 담아보세요.</div>"
           : "<div class='isle-next'>💬 다음엔 이 한 문장으로 시작해보세요: “" + esc(r.nextLine) + "”</div>") +
         "</div>";
     }).join("");
@@ -4490,7 +4490,7 @@ window.APP = (function () {
     var std = function (n) { return V22.filter(function (v) { return v.n === n; })[0]; };
     // 잘한 점 — 코치가 어깨를 치며 하는 말 (구어체)
     if (G.drCommit) S.push({ t: "원장님이 먼저 일정을 잡으셨어요 — 설득의 완성입니다", why: "조르기 전에 원장 입에서 \"봅시다\"가 나오게 만드셨죠. 걱정을 순서대로 풀어낸 결과예요. 이 감각, 실전에서 그대로 나옵니다." });
-    if (critT.length) S.push({ t: "정답 논리에 정확한 수치까지, 한 문장에 실으셨어요" + (critT.length > 1 ? " (" + critT.length + "회)" : ""), quote: q(critT[0]), why: "이게 원장이 실제로 움직이는 조합이에요. 오늘 그 문장이 나왔습니다 — 다음 판엔 더 빨리 꺼내봅시다." });
+    if (critT.length) S.push({ t: "정답 논리에 정확한 수치까지, 한 문장에 실으셨어요" + (critT.length > 1 ? " (" + critT.length + "회)" : ""), quote: q(critT[0]), why: "이게 원장이 실제로 움직이는 조합이에요. 오늘 그 문장이 나왔습니다 — 다음 통화엔 더 빨리 꺼내봅시다." });
     if (sc.E >= 13 && closeT) S.push({ t: "클로징을 날짜·주체까지 박아서 끝내셨어요", quote: q(closeT), why: "\"생각해볼게요\"로 빠져나갈 틈을 안 주는 마무리였어요. 방문은 이렇게 성사됩니다." });
     if (okN >= 2 && sc.badN === 0 && !critT.length) S.push({ t: "수치 인용이 정확했어요", why: "정확한 숫자는 그 자체로 신뢰예요. 오늘처럼만 하시면 수치 축은 걱정 없습니다." });
     if (confirmN > 0 && sc.badN === 0) S.push({ t: "모르는 수치를 지어내지 않고 확인을 약속하셨어요", why: "지어낸 숫자보다 백 배 나은 선택이에요 — 신뢰를 지키는 정석입니다." });
@@ -4498,8 +4498,8 @@ window.APP = (function () {
     if (qN >= 2) S.push({ t: "탐색 질문으로 대화를 주도하셨어요", why: "물어서 얻은 정보가 다음 명분의 재료가 됐죠. 대화는 묻는 쪽이 끕니다." });
     if (sc.badN === 0 && turns.some(function (t) { return t.judge && t.judge.numsRef > 0; })) S.push({ t: "생활·진료 비유로 숫자를 체감시키셨어요", why: "내시경·검진처럼 원장에게 익숙한 기준과 비교하면 숫자가 '남의 통계'에서 '내 얘기'가 돼요 — 튜토리얼의 '비교 프레임' 화법을 실전에서 쓰셨습니다." });
     if (!S.length) S.push(aborted
-      ? { t: "시작이 반입니다 — 어려운 상대에게 판을 여셨어요", why: "RP에서 가장 중요한 근육은 '끝까지 가보는 힘'이에요. 다음 판, 클로징 한 문장까지만 같이 가봅시다." }
-      : { t: "끝까지 완주하셨어요", why: "지금 점수보다 다음 판의 상승 폭이 중요해요. 아래에서 딱 하나만 고쳐도 등급이 바뀝니다." });
+      ? { t: "시작한 것 자체가 용기입니다", why: "RP에서 가장 중요한 근육은 '끝까지 가보는 힘'이에요. 다음 통화는 고객 공감 한 문장, 그리고 클로징 한 문장까지만 같이 가봅시다." }
+      : { t: "끝까지 완주하셨어요", why: "지금 점수보다 다음 통화의 상승 폭이 중요해요. 아래에서 딱 하나만 고쳐도 등급이 바뀝니다." });
     if (G.silenceEnd) I.unshift({ t: "침묵이 길어져서 원장님이 먼저 끊으셨어요", why: "막히면 침묵 대신 \"그 부분은 확인해서 회신드릴게요\"라도 잡으세요. 통화의 주도권은 말을 이어가는 쪽에 있어요 — \"좋은 질문이세요, 정리해서 말씀드리면…\" 같은 시간 벌기 한마디를 입에 붙여두면 침묵이 사라집니다." });
     else if (aborted) I.unshift({ t: "대화를 끝까지 끌고 가지 못했어요 (중도 종료)", why: "반대 " + (scen && scen.objs ? scen.objs.length : "-") + "개 중 일부만 다뤘어요. 힘들어도 클로징 문장까지 가는 습관이 완주력을 만들어요 — \"오늘은 여기까지 정리하고 다음 주에 이어가시죠\"도 훌륭한 클로징입니다." });
     // 개선할 점
@@ -4511,7 +4511,7 @@ window.APP = (function () {
     }
     if (vagueT.length) { var vt = vagueT[0], vs = std(vt.typeN); I.push({ t: "구체 근거 없이 \"좋다\"로 넘어간 구간이 있었어요", quote: q(vt), why: vs ? "[" + vt.typeN + "] " + vs.t + " 원장님을 움직이는 열쇠는 이거예요: " + vs.key[0] + " — 다음엔 이 말부터 꺼내봅시다." : "정답 논리와 수치가 실려야 원장이 움직여요." }); }
     if (weakT.length && I.length < 3) { var wt = weakT[0], ws = std(wt.typeN); I.push({ t: "[" + wt.typeN + "] " + (ws ? ws.t : "") + "에 정답 논리가 절반만 실렸어요", quote: q(wt), why: ws ? "아깝게 한 발 남았어요. 남은 열쇠: " + ws.key.slice(0, 2).join(" / ") : null }); }
-    if (sc.E < 12 && I.length < 3) I.push({ t: "클로징이 합의까지 못 갔어요", why: "\"자료 보내드릴게요\"는 마무리가 아니에요. 다음 행동을 날짜·주체까지 박아야 방문이 성사됩니다 — 마지막 한 문장만 바꾸면 돼요." });
+    if (sc.E < 12 && I.length < 3) I.push({ t: "클로징이 합의까지 못 갔어요", why: "\"자료 보내드릴게요\"는 마무리가 아니에요. 웰체크 가입 유도·교육일정 수립을 다음 행동으로 날짜·주체까지 박아야 방문이 성사됩니다 — 마지막 한 문장만 바꾸면 돼요." });
     if (pushN > 0 && I.length < 3) I.push({ t: "거절 뒤에 같은 말을 밀어붙인 구간이 있었어요", why: "그러면 원장 방어만 굳어져요. 각도를 바꾸거나 배수진(\"딱 한 달만\")으로 전환해봅시다." });
     if (qN === 0 && I.length < 3) I.push({ t: "질문이 한 번도 없었어요", why: "일방 설명은 발표지 대화가 아니에요. 탐색 질문 하나면 대화의 방향이 바뀝니다 — \"지금 등록 환자는 어느 정도세요?\" 이 한마디부터." });
     if (I.length < 3 && turns.some(function (t) { return t.text && detectIntent(t.text) === "reschedule"; })) I.push({ t: "먼저 통화를 접으려 한 순간이 있었어요", why: "\"바쁘시면 다음에…\"는 배려지만, 원장이 내준 시간을 스스로 반납하는 습관이기도 해요. 접는 대신 압축합시다 — \"딱 90초만 쓰겠습니다\"가 나아요." });
@@ -4519,9 +4519,9 @@ window.APP = (function () {
     // 피드백(조언) — 개선점에 대한 처방
     if (badT.length || sc.B < 15) A.push({ t: "근거 기반으로 대화하는 습관을 들입시다", how: "핵심 수치 3종 — 인당 최대 385,000원 · 500명이면 연 1.9억 · 본인부담 2,320원 vs AH200 15,560원. 이 근거가 문장에 실릴 때 원장이 움직입니다. 모르는 숫자는 \"확인 후 회신드리겠습니다\"로 신뢰를 지키세요." });
     if (vagueT.length || weakT.length) { var tn = (vagueT[0] || weakT[0]).typeN, ts = std(tn); if (ts) A.push({ t: "[" + tn + "] " + ts.t + " 표준 스크립트를 소리 내어 3번 읽어봅시다", how: "핵심 메시지: " + ts.key.map(function (k) { return String(k).split(" — ")[0].split("(")[0].trim(); }).join(" · ") + " / 스크립트: \"" + ts.script.slice(0, 90) + "…\" (전문은 결과 하단 '표준 스크립트 복습'과 📜 도감에 있습니다) — 낭독 후 같은 유형으로 바로 재도전하는 것이 가장 효과적입니다." }); }
-    if (sc.E < 13) A.push({ t: "클로징은 행동+날짜+주체 한 문장으로 끝냅시다", how: "\"다음 주 화요일 2시에 교육간호사와 함께 방문해서 시연 일정을 잡겠습니다\" — 이 문형 그대로, 오늘 세 번만 소리 내어 보세요." });
+    if (sc.E < 13) A.push({ t: "클로징은 행동+날짜+주체 한 문장으로 끝냅시다", how: "다음 행동은 웰체크 가입 유도·교육일정 수립 — \"다음 주 화요일 2시에 교육간호사와 방문해 교육일정을 잡겠습니다\". 오늘 세 번만 소리 내어 연습하고 다시 도전해봅시다." });
     if (objTurns.length && empN < Math.ceil(turns.length * 0.5)) A.push({ t: "반대에는 Yes-But 화법이 기본입니다", how: "공감 한 문장(예: \"손이 모자라시는 거 충분히 압니다\") + 표준 근거(예: \"행위당 길어야 2분, 짧게는 10초입니다\"). 인정 먼저, 근거는 그다음 — 이 순서가 원장 방어를 풉니다." });
-    if (A.length < 2) A.push({ t: "반대극복 5단계를 몸에 붙입시다: 공감→명분→근거→설계→실행", how: "우려 인정 한 문장 → '한 문장' 명분 → 데이터·시연 근거 → 역할 분담 설계 → \"부담 없는 환자 5명부터\" 작은 실행 제안. 이 순서대로 진행될 때 가장 효과적입니다." });
+    if (A.length < 2) A.push({ t: "반대극복 5단계로 연습해봅시다: 공감→명분→근거→설계→실행", how: "우려 인정 한 문장 → '한 문장' 명분 → 데이터·시연 근거 → 역할 분담 설계 → \"부담 없는 환자 5명부터\" 작은 실행 제안. 이 순서대로 진행될 때 가장 효과적입니다." });
     var axmin = [["A", sc.A / 30], ["B", sc.B / 20], ["C", sc.C / 20], ["D", sc.D / 15], ["E", sc.E / 15]].sort(function (a, b) { return a[1] - b[1]; })[0][0];
     var recDoc = axmin === "A" ? ["장인석", "연쇄 반대를 정면 돌파하는 반대극복 단련"] : axmin === "B" ? ["신혁주", "어림수가 즉시 발각되는 수치 단련"] :
       axmin === "C" ? ["김민우", "데인 사람을 다시 여는 명분 재구성 단련"] : axmin === "D" ? ["강지은", "웃는 거절을 뚫는 경청·공감 단련"] : ["김민우", "배수진 클로징 단련"];
@@ -5181,11 +5181,11 @@ window.APP = (function () {
     var hasAudio = !!audioBlob();
     el.innerHTML = "<h2>🎓 코치에게 평가 요청하기</h2>" +
       "<div class='small' style='margin-bottom:9px;'>내 대화를 코치(CM)가 직접 보고 채점해 줍니다. 그 결과로 <b>AI 채점 기준이 보정</b>됩니다 — 지금이 가장 필요한 시기입니다.</div>" +
-      "<div class='qfb-nudge'>📎 요청하시면 <b>이 판의 대화 내용과 점수</b>가 캘리브레이션 목적으로 서버에 전송됩니다. " +
+      "<div class='qfb-nudge'>📎 요청하시면 <b>이 통화의 대화 내용과 점수</b>가 캘리브레이션 목적으로 서버에 전송됩니다. " +
       "요청하지 않으면 대화 내용과 녹음은 <b>이 기기를 떠나지 않습니다.</b> 영상은 어떤 경우에도 전송되지 않습니다.</div>" +
       (hasAudio
         ? "<label style='display:flex;gap:8px;align-items:flex-start;margin:2px 0 10px;font-size:13px;cursor:pointer;'><input type='checkbox' id='revAudioChk' checked style='margin-top:3px;'> <span>🎧 <b>내 음성 녹음도 함께 보내기</b> — 코치가 실제 말투·속도·톤까지 듣고 평가합니다 (해제하면 대화 글만 전송)</span></label>"
-        : "<div class='small' style='margin:2px 0 10px;color:var(--sub);'>🎧 이 판은 음성 녹음이 없어 대화 글만 전송됩니다" + (G.recIsVideo ? " (영상 녹화 판은 음성 첨부 제외)" : "") + ".</div>") +
+        : "<div class='small' style='margin:2px 0 10px;color:var(--sub);'>🎧 이 통화는 음성 녹음이 없어 대화 글만 전송됩니다" + (G.recIsVideo ? " (영상 녹화 판은 음성 첨부 제외)" : "") + ".</div>") +
       "<button class='btn gold' onclick='APP.reviewAsk()'>🎓 이 판, 코치 평가 요청</button>";
   }
   /* ── CM 관리자: 평가 대기열 ── */
@@ -5481,11 +5481,11 @@ window.APP = (function () {
   var AX_MAX = { A: 30, B: 20, C: 20, D: 15, E: 15 };
   var AX_NAME = { A: "반대극복", B: "근거기반", C: "고객의득", D: "경청공감", E: "클로징" };
   var AX_RX = {
-    A: { t: "반대극복 재장전", why: "유형을 읽고도 정답 명분이 늦게 나오는 패턴 — 반대의 축이 낮으면 나머지 축이 모두 흔들립니다.", act: "약한 유형 2개 지정 출제 + 튜토리얼 '반대극복' 카드 낭독 후 주 2판" },
+    A: { t: "반대극복 재장전", why: "유형을 읽고도 정답 명분이 늦게 나오는 패턴 — 반대의 축이 낮으면 나머지 축이 모두 흔들립니다.", act: "약한 유형 2개 지정 출제 + 튜토리얼 '반대극복' 카드 낭독 후 주 2회 연습" },
     B: { t: "수치 암기 특훈", why: "숫자가 비거나 흔들리면 오수치 페널티(−15)와 원장 신뢰 하락으로 직결됩니다.", act: "원피스 특훈 60초 드릴 주 3회 + 암기 카드(385,290·1.9억·환수 0건) 월요 구두시험" },
     C: { t: "고객의득 코칭", why: "근거는 있는데 명분이 한 논리에 몰려 있어 상대 유형이 바뀌면 무너집니다.", act: "튜토리얼 '비교 프레임'·'Feel-Felt-Found' 카드로 반대 1개당 명분 1개 원칙 훈련" },
     D: { t: "경청·질문 리듬 교정", why: "일방 설명이 길어지는 패턴 — 질문·공감이 얇으면 원장이 대화에서 빠져나갑니다.", act: "판 시작 전 탐색 질문 3개 준비 → 매 판 질문 2개 이상을 목표로" },
-    E: { t: "클로징 공식 고정", why: "제안까지 가고도 날짜·주체를 못 박아 '생각해볼게요'로 끝나는 판이 많습니다.", act: "\"행동+날짜+주체\" 마지막 문장 낭독 점검 — 예: 화요일 2시, 교육간호사와 방문" }
+    E: { t: "클로징 공식 고정", why: "제안까지 가고도 날짜·주체를 못 박아 '생각해볼게요'로 끝나는 통화가 많습니다.", act: "다음 행동을 웰체크 가입 유도·교육일정 수립으로 못박는 연습 — \"행동+날짜+주체\" 예: 화요일 2시, 교육간호사와 방문해 교육일정 수립" }
   };
   function axRecs() { // 축 상세가 있는 실기록 — 서버(cloud) + 이 기기(sessions)
     var rows = [];
@@ -5521,7 +5521,7 @@ window.APP = (function () {
     var mm = missing.slice(0, 2);
     if (p.avg < 55) return "기본기부터 — 튜토리얼 '오프닝'·'반대극복' 정독 후 NORMAL(강지은) 완주 3판. 점수보다 완주가 목표입니다." + (mm.length ? " 이후 [" + mm.join("][") + "] 섬 공략." : "");
     if (!mm.length) return "전 섬 격파자 — NIGHTMARE(김민우) 재도전으로 S 고정 + 후배 1명 코칭 배정 (가르치면 가장 늘어납니다).";
-    return "[" + mm.join("][") + "] 섬 지정 공략 주 2판 — " + (p.avg >= 80 ? "S 유지 조건은 오수치 0. 수치 특훈으로 워밍업 후 입장." : "80점 벽은 클로징 문장(행동+날짜+주체)에서 갈립니다. 마지막 문장을 미리 적고 들어가세요.");
+    return "[" + mm.join("][") + "] 유형 지정 연습 주 2회 — " + (p.avg >= 80 ? "S 유지 조건은 오수치 0. 수치 특훈으로 워밍업 후 시작." : "80점 벽은 클로징 문장(행동+날짜+주체)에서 갈립니다. 마지막 문장을 미리 적고 들어가세요.");
   }
   function gradePill(g) { var cl = g === "S" ? "ok" : g === "A" ? "ok" : g === "B" ? "wn" : "bd"; return "<span class='pill " + cl + "'>" + g + "</span>"; }
   function toAdmin() {
