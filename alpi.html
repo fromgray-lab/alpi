@@ -3527,8 +3527,9 @@ window.APP = (function () {
     $("hudProg").textContent = "합의 성립! 확인 인사로 통화를 마무리하세요 (예: \"네, 화요일 2시에 뵙겠습니다\")";
     return true;
   }
-  var IDLE_NUDGE_MS = 22000, IDLE_END_MS = 15000, IDLE_ELEVEN_MS = 75000;
+  var IDLE_NUDGE_MS = 35000, IDLE_END_MS = 25000, IDLE_ELEVEN_MS = 75000; // 생각할 시간을 준다 — 초심자가 고민하는 동안 통화가 죽지 않게 (베타 피드백 반영)
   var IDLE_NUDGE = { "장인석": "여보세요? …듣고 있어요? 바쁘면 끊고요.", "강지은": "여보세요~? 안 들리세요? 편하게 말씀하셔도 돼요~", "신혁주": "…응답이 없네요. 연결 문제인가요?", "김민우": "여보세요. 듣고 있으면 말씀하세요." };
+  var IDLE_NUDGE2 = { "장인석": "생각 정리되면 한 줄이라도 던져요. 기다릴게요.", "강지은": "천천히 생각하셔도 돼요~ 한 마디면 충분해요.", "신혁주": "부담 갖지 말고, 핵심 한 문장이면 됩니다.", "김민우": "급할 것 없어요. 한 마디부터 시작합시다." };
   var IDLE_BYE = { "장인석": "…시간만 갔네요. 오늘은 여기까지 합시다. 끊어요.", "강지은": "음~ 바쁘신가 보다. 오늘은 여기까지 하고, 다음에 또 얘기해요~", "신혁주": "응답이 없으니 통화는 여기서 정리하죠. 준비되면 다시 거세요.", "김민우": "오늘은 아닌가 보네요. 끊습니다." };
   function disarmIdle() { if (G.idleT) { clearTimeout(G.idleT); G.idleT = null; } }
   function pokeIdle() { G.idleN = 0; G._idleHold = 0; disarmIdle(); if (G.inCall) G.idleT = setTimeout(idleFire, elevenOn() ? IDLE_ELEVEN_MS : IDLE_NUDGE_MS); }
@@ -3548,7 +3549,7 @@ window.APP = (function () {
       G.ttsSpeaking = false; setTalking(false); // 32초를 버텼다면 상태가 굳은 것 — 강제로 풀고 구조를 진행시킨다
     }
     G._idleHold = 0;
-    if (elevenOn() || G.idleN >= 1) { // 되물어도 침묵 — 원장이 클로징하고 끊는다
+    if (elevenOn() || G.idleN >= 2) { // 두 번 기다려도 침묵 — 그때만 원장이 정리하고 끊는다
       G.silenceEnd = true;
       var bye = IDLE_BYE[G.doc.nm] || "오늘은 여기까지 하죠.";
       if (elevenOn()) { G.dlgLog.push({ w: "dr", t: bye }); $("bText").textContent = bye; endCall(false); }
@@ -3556,7 +3557,15 @@ window.APP = (function () {
       return;
     }
     G.idleN = (G.idleN || 0) + 1;
-    drSay(IDLE_NUDGE[G.doc.nm] || "여보세요?", "think");
+    if (G.idleN === 1) drSay(IDLE_NUDGE[G.doc.nm] || "여보세요?", "think");
+    else { // 2차 — 재촉 대신 격려하고, 노란 도우미로 시선을 구조한다 (끊지 않는 훈련장)
+      drSay(IDLE_NUDGE2[G.doc.nm] || "천천히요. 한 마디면 됩니다.", "think");
+      try {
+        var fa2 = $("firstAid");
+        if (fa2 && !fa2.classList.contains("hidden")) { fa2.classList.add("pulse"); setTimeout(function () { fa2.classList.remove("pulse"); }, 3400); }
+        toast("💬 막막하면 노란 도우미의 문장을 눌러 그대로 보내도 됩니다");
+      } catch (e) {}
+    }
   }
   var ACKS = { "장인석": "인사는 됐고, 들어봅시다.", "강지은": "어머 네~ 반가워요. 얘기해보세요~", "신혁주": "네. 인사는 그 정도로 하고, 본론으로 가죠.", "김민우": "네. 일단 들어봅시다." };
   function progTxt(cur, total) {
