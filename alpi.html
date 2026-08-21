@@ -377,7 +377,19 @@ table.rank td.nm{font-weight:800;}
 .pv-bg{position:absolute;inset:0;z-index:0;display:none;background-size:cover;background-position:center 20%;filter:blur(24px) brightness(.58) saturate(.92);transform:scale(1.15);}
 .vstage.photomode .pv-bg{display:block;}
 .vstage.photomode .clinic{display:none;}
-.vstage.photomode .vport{left:0;top:0;bottom:0;transform:none;width:100%;height:100%;max-width:none;filter:drop-shadow(0 10px 34px rgba(0,0,0,.55));}
+.vstage.photomode .vport{left:0;top:0;bottom:0;transform:none;width:100%;height:100%;max-width:none;filter:drop-shadow(0 10px 34px rgba(0,0,0,.55));transform-origin:50% 62%;animation:phDrift 11s ease-in-out infinite;}
+/* 🎬 v5.2 영상 질감 — 표정 크로스페이드 · 숨쉬기 · 핸드헬드 드리프트 · 배경 시차 · 말할 때 미세 스웨이 */
+.vstage.photomode .av-photo{transition:opacity .34s ease;}
+.vstage.photomode .vport .pg{animation:phBreath 3.8s ease-in-out infinite;transform-origin:60px 80px;transform-box:view-box;}
+@keyframes phBreath{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(.5px) scale(1.0045);}}
+@keyframes phDrift{0%,100%{transform:translate(0,0);}28%{transform:translate(1.1px,.6px);}58%{transform:translate(-.9px,1px);}82%{transform:translate(.6px,-.5px);}}
+.vstage.photomode .pv-bg{animation:phBg 14s ease-in-out infinite;}
+@keyframes phBg{0%,100%{transform:scale(1.15) translate(0,0);}40%{transform:scale(1.16) translate(-4px,2px);}75%{transform:scale(1.15) translate(3px,-2px);}}
+.vstage.photomode.talking .vport{animation:phTalkSway 1.15s ease-in-out infinite;}
+@keyframes phTalkSway{0%,100%{transform:translate(0,0) rotate(0);}30%{transform:translate(.7px,.4px) rotate(.14deg);}70%{transform:translate(-.6px,.2px) rotate(-.12deg);}}
+.vstage.photomode.enter .vport{animation:phEnter 1.1s cubic-bezier(.2,.8,.3,1);}
+@keyframes phEnter{0%{opacity:0;transform:scale(1.05);}100%{opacity:1;transform:scale(1);}}
+@media (prefers-reduced-motion: reduce){.vstage.photomode .vport,.vstage.photomode .vport .pg,.vstage.photomode .pv-bg{animation:none!important;}}
 .vstage.photomode .vport.fx-angry{animation:fxshakeP .5s ease;}
 .vstage.photomode .vport.fx-interest{animation:fxleanP .55s ease;}
 .vstage.photomode .vport.fx-happy{animation:fxbobP .6s ease;}
@@ -1276,9 +1288,9 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v5.1 — 원장의 마음이 눈에 보입니다</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v5.2 — 원장이 살아 움직입니다</h2>
     <div class="ver-it"><b>💓 5.1 — 팍팍 움직이는 설득 게이지</b>잘한 답은 게이지가 크게 오르고(크리티컬 +18, 연속으로 잘하면 최대 +27), 심한 실수는 뚝 떨어집니다(-16~-20). 변화량이 숫자로 팡 터지고, 설득이 쌓이면 원장 얼굴이 계속 밝게, 무너지면 계속 굳은 채로 남습니다.</div>
-    <div class="ver-it"><b>📷 5.1 — 진짜 화상통화 화면</b>실사 원장은 만화 진료실 대신 실제 영상통화 프레임(흐린 배경 + 인물 풀프레임)으로 나옵니다. 어색한 확대 펄스는 없앴습니다. (실사 이미지는 AI 생성 가상 인물)</div>
+    <div class="ver-it"><b>🎬 5.2 — 영상 질감</b>배경과 몸은 고정된 채 얼굴만 부드럽게 변하고(크로스페이드), 숨쉬기·카메라 미세 움직임·배경 심도 시차가 더해져 사진이 아니라 영상통화처럼 보입니다. 말할 때는 몸도 살짝 움직입니다. (실사 이미지는 AI 생성 가상 인물)</div>
     <div class="ver-it"><b>🗂 5.1 — 수배전단 난이도순</b>입문(강지은)부터 나이트메어(김민우)까지 쉬운 상대부터 차례로 배치됩니다.</div>
     <div class="ver-it"><b>🗣 4.9 — 반응하는 대화</b>원장이 질문엔 먼저 답하고, 방금 들은 주제를 짚은 뒤 자기 걱정을 이어갑니다. 잘 못 들었으면 감점 없이 되묻습니다.</div>
     <div class="ver-it"><b>🪞 4.5 — 자기개선 루프</b>코치가 채점하면 AI가 스스로 재검증해서, 실제로 정확해지는 축만 전 직원 채점에 반영합니다.</div>
@@ -1954,6 +1966,8 @@ window.APP = (function () {
 
   var mouthTimer = null;
   function setTalking(on) {
+    var vst = document.querySelector("#scr-play .vstage"); // 🎬 말하는 동안 미세 스웨이 — 실제 사람이 말할 때의 몸짓
+    if (vst) vst.classList.toggle("talking", !!on);
     if (on) micState("원장 말하는 중", "b");
     else if (G.inCall) micState((G.voiceOn || elevenOn()) ? "듣는 중 — 말씀하세요" : "타이핑 대기", (G.voiceOn || elevenOn()) ? "g" : "idle");
     if (mouthTimer) { clearInterval(mouthTimer); mouthTimer = null; }
@@ -1963,10 +1977,11 @@ window.APP = (function () {
         open = !open;
         document.querySelectorAll(".av-mouthline").forEach(function (l) { l.style.opacity = "0"; });
         document.querySelectorAll(".av-mouth").forEach(function (m) { m.setAttribute("opacity", "1"); m.setAttribute("ry", open ? "5" : "2"); });
-        document.querySelectorAll(".av-photo").forEach(function (p) { // 📷 실사 모드 립싱크 — 입모양 2컷이 있을 때만 교차 (확대 펄스는 몰입을 깨서 폐지)
+        var pAct = photoActive(); // 📷 실사 립싱크 — 보이는 노드의 입모양 2컷만 교차 (정렬돼 있어 입만 움직인다)
+        if (pAct) {
           var nm2 = G.doc && G.doc.nm, have = (G.photoHave && nm2 && G.photoHave[nm2]) || {};
-          if (have.talk1 && have.talk2) p.setAttribute("href", photoUrl(nm2, open ? "talk1" : "talk2"));
-        });
+          if (have.talk1 && have.talk2) pAct.setAttribute("href", photoUrl(nm2, open ? "talk1" : "talk2"));
+        }
       }, 120);
     } else {
       document.querySelectorAll(".av-mouth").forEach(function (m) { m.setAttribute("opacity", "0"); });
@@ -1980,11 +1995,35 @@ window.APP = (function () {
   function photoKey(nm) { return PHOTO_KEYS[nm] || null; }
   function photoUrl(nm, expr) { var k = photoKey(nm); return k ? "img/" + k + "/" + (expr || "neutral") + ".webp" : null; }
   function photoMode(doc) { return !!(doc && G.photoOk && G.photoOk[doc.nm]); }
-  function portraitPhoto(nm, expr) { // svg <image> — 기존 fx 감정 연출·숨쉬기 레이어를 그대로 계승한다
+  function photoHrefOf(nm, expr) { // 표정 → 실제 파일 경로 (없는 표정은 기본 컷 폴백 — 깨진 이미지를 무대에 올리지 않는다)
     var e = expr && PHOTO_EXPRS.indexOf(expr) >= 0 ? expr : "neutral";
     var have = (G.photoHave && G.photoHave[nm]) || {};
-    if (!have[e]) e = "neutral"; // 없는 표정은 기본 컷으로 — 깨진 이미지를 무대에 올리지 않는다
-    return '<image class="av-photo" href="' + photoUrl(nm, e) + '" x="0" y="0" width="120" height="140" preserveAspectRatio="xMidYMid slice"/>';
+    if (!have[e]) e = "neutral";
+    return photoUrl(nm, e);
+  }
+  function portraitPhoto(nm, expr) { // svg <image> — 수배전단·콜 수신 등 정적 화면용 1장
+    return '<image class="av-photo" href="' + photoHrefOf(nm, expr) + '" x="0" y="0" width="120" height="140" preserveAspectRatio="xMidYMid slice"/>';
+  }
+  function photoDual(nm, expr) { // 🎬 통화 무대용 2장 레이어 — 표정 전환을 컷 교체가 아닌 크로스페이드로
+    var h = photoHrefOf(nm, expr);
+    return '<image class="av-photo av-on" href="' + h + '" x="0" y="0" width="120" height="140" preserveAspectRatio="xMidYMid slice" opacity="1"/>' +
+      '<image class="av-photo" href="' + h + '" x="0" y="0" width="120" height="140" preserveAspectRatio="xMidYMid slice" opacity="0"/>';
+  }
+  function photoActive() { // 현재 보이는 사진 노드
+    var imgs = document.querySelectorAll("#avPlay .av-photo");
+    if (!imgs.length) return null;
+    if (imgs.length === 1) return imgs[0];
+    return imgs[0].getAttribute("opacity") !== "0" ? imgs[0] : imgs[1];
+  }
+  function photoSwap(href) { // 크로스페이드 실행 — 같은 컷이면 아무것도 안 한다
+    var imgs = document.querySelectorAll("#avPlay .av-photo");
+    if (imgs.length < 2) { var el = $("avPlay"); el.innerHTML = '<g class="pg">' + photoDual(G.doc.nm, null) + '</g>'; imgs = document.querySelectorAll("#avPlay .av-photo"); }
+    var on = imgs[0].getAttribute("opacity") !== "0" ? imgs[0] : imgs[1];
+    var off = on === imgs[0] ? imgs[1] : imgs[0];
+    if (on.getAttribute("href") === href) return;
+    off.setAttribute("href", href);
+    off.setAttribute("opacity", "1"); off.classList.add("av-on");
+    on.setAttribute("opacity", "0"); on.classList.remove("av-on");
   }
   function photoProbe(nm) { // 사진 세트 존재 확인 — 원장당 1회, 로드된 표정만 사용 목록에 올린다
     if (!nm || !photoKey(nm)) return;
@@ -2002,7 +2041,7 @@ window.APP = (function () {
           G.photoOk = G.photoOk || {}; G.photoOk[nm] = 1;
           if (G.doc && G.doc.nm === nm) {
             if (G.inCall) { curExpr = null; setExpr("neutral"); } // 판 중간에 준비되면 즉시 실사로
-            else { $("avPlay").innerHTML = '<g class="pg">' + portraitPhoto(nm, null) + '</g>'; $("avCall").innerHTML = '<g class="pg">' + portraitPhoto(nm, null) + '</g>'; photoStageSync(); } // 장비 점검 중 준비 완료 — 통화 시작·수신 화면부터 실사
+            else { $("avPlay").innerHTML = '<g class="pg">' + photoDual(nm, null) + '</g>'; $("avCall").innerHTML = '<g class="pg">' + portraitPhoto(nm, null) + '</g>'; photoStageSync(); } // 장비 점검 중 준비 완료 — 통화 시작·수신 화면부터 실사
           }
           try { if (document.querySelector("#scr-pick.on")) renderPick(); } catch (e2b) {} // 수배전단이 떠 있으면 실사로 다시 그린다
         }
@@ -2016,6 +2055,7 @@ window.APP = (function () {
     var on = photoMode(G.doc);
     st.classList.toggle("photomode", on);
     if (bg) bg.style.backgroundImage = on ? "url('" + photoUrl(G.doc.nm, "neutral") + "')" : "";
+    if (on && G.inCall && !G._phEnter) { G._phEnter = 1; st.classList.add("enter"); setTimeout(function () { st.classList.remove("enter"); }, 1200); } // 카메라가 자리 잡는 입장 연출 — 판당 1회
   }
   // ── 표정 상태 (통화 스테이지 아바타) ──
   var curExpr = null;
@@ -2023,8 +2063,12 @@ window.APP = (function () {
     if (!G.doc || curExpr === name) return;
     curExpr = name;
     var el = $("avPlay");
-    var face = photoMode(G.doc) ? portraitPhoto(G.doc.nm, name === "neutral" ? null : name) : portraitSvg(G.doc.av, name === "neutral" ? null : name);
-    el.innerHTML = '<g class="pg">' + face + '</g>'; // .pg = 숨쉬기 레이어
+    if (photoMode(G.doc)) { // 🎬 실사: DOM을 갈아끼우지 않고 크로스페이드 — 배경·몸은 그대로, 얼굴만 스르륵 변한다
+      if (el.querySelectorAll(".av-photo").length < 2) el.innerHTML = '<g class="pg">' + photoDual(G.doc.nm, name === "neutral" ? null : name) + '</g>';
+      else photoSwap(photoHrefOf(G.doc.nm, name === "neutral" ? null : name));
+    } else {
+      el.innerHTML = '<g class="pg">' + portraitSvg(G.doc.av, name === "neutral" ? null : name) + '</g>'; // .pg = 숨쉬기 레이어
+    }
     photoStageSync();
     el.classList.remove("fx-angry", "fx-interest", "fx-happy", "fx-think");
     if (name && name !== "neutral") { void el.getBoundingClientRect(); el.classList.add("fx-" + name); }
@@ -3122,7 +3166,8 @@ window.APP = (function () {
     G.scen = genScenario(G.doc);
     photoProbe(G.doc.nm); // 📷 실사 세트가 리포지토리에 있으면 이 판부터 실사 원장
     $("avCall").innerHTML = '<g class="pg">' + (photoMode(G.doc) ? portraitPhoto(G.doc.nm, null) : portraitSvg(G.doc.av)) + '</g>';
-    $("avPlay").innerHTML = '<g class="pg">' + (photoMode(G.doc) ? portraitPhoto(G.doc.nm, null) : portraitSvg(G.doc.av)) + '</g>';
+    curExpr = null; // 새 원장 — 표정 상태 초기화 (크로스페이드 스테이지 재구축)
+    $("avPlay").innerHTML = '<g class="pg">' + (photoMode(G.doc) ? photoDual(G.doc.nm, null) : portraitSvg(G.doc.av)) + '</g>';
     photoStageSync();
     $("callName").textContent = G.doc.nm + " 원장님 · " + G.doc.hosp;
     toGear();
@@ -3239,7 +3284,7 @@ window.APP = (function () {
       $("playBanner").innerHTML = "<div class='banner info'>캠 없이 진행합니다. 자동 대화·음성 녹음은 그대로 동작합니다.</div>";
     }
     G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.comboMax = 0; G.mem = {}; G.dlgLog = []; G.mannerFoul = false;
-    G.drCommit = false; G.drCommitEnded = false; G.silenceEnd = false; G.idleN = 0; G.gs = 0; G.bs = 0; disarmIdle(); moodSet(0); pgSet(50); // 새 판 — 감정·침묵·승낙·게이지 초기화
+    G.drCommit = false; G.drCommitEnded = false; G.silenceEnd = false; G.idleN = 0; G.gs = 0; G.bs = 0; G._phEnter = 0; disarmIdle(); moodSet(0); pgSet(50); // 새 판 — 감정·침묵·승낙·게이지 초기화
     ambStart(); // 미세한 진료실 룸톤 — 무음의 어색함 제거
     var vst = document.querySelector(".vstage");
     if (vst) { vst.classList.remove("glitchin"); void vst.offsetWidth; vst.classList.add("glitchin"); setTimeout(function () { vst.classList.remove("glitchin"); }, 800); } // 연결 글리치 연출
@@ -6533,7 +6578,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "5.1";
+  var APP_VER = "5.2";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -6589,7 +6634,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual } };
 })();
 
 </script>
