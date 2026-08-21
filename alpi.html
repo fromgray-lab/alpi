@@ -131,6 +131,9 @@ body:has(#scr-play.on) .adminbtn{display:none;} /* 통화 중엔 몰입 우선 �
 @keyframes breathe{0%,100%{transform:scale(1,1);}50%{transform:scale(1.008,1.022);}}
 .av-eye{transition:transform .3s ease;}
 .inbar{margin-top:12px;background:#fff;border-radius:14px;padding:12px;color:var(--ink);}
+.inslim{display:flex;align-items:center;gap:10px;cursor:pointer;padding:1px 2px;margin-bottom:6px;}
+.inslim-t{flex:1;font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.inslim-b{border:1px solid var(--line);background:#F4F7F6;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:800;color:var(--acc);cursor:pointer;font-family:inherit;flex:0 0 auto;}
 .inbar textarea{width:100%;border:1.5px solid var(--line);border-radius:9px;font-family:inherit;font-size:14.5px;padding:10px;min-height:64px;resize:vertical;}
 .inrow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center;}
 /* 💬 첫 발화 도우미 */
@@ -955,10 +958,18 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
       <span class="prog" id="hudProg">반대 0/0</span>
     </div>
     <div class="inbar">
+      <!-- 🎛 몰입 모드 — 음성 대화가 흐르면 도우미·입력창은 이 한 줄로 접힌다 -->
+      <div id="inbarSlim" class="inslim hidden" onclick="APP.inbarPin(1)" title="펼쳐서 상황·도우미·타이핑 입력 보기">
+        <span class="inslim-t" id="slimSit">—</span>
+        <button class="inslim-b" type="button">⌨ 펼치기</button>
+      </div>
+      <div id="inbarBody">
+      <button class="inslim-b hidden" id="inbarFold" type="button" onclick="APP.inbarPin(0)" style="float:right;margin:0 0 4px 8px;">▲ 접기 — 화면에 집중</button>
       <div class="small" id="sitLine" style="margin-bottom:6px;"></div>
       <!-- 💬 첫 발화 도우미 — '무슨 말을 해야 하지?'에서 멈추는 이탈을 막는다 (베타 이탈의 최대 원인) -->
       <div id="firstAid" class="faid hidden"></div>
       <textarea id="mrInput" placeholder="🎙 자동 대화 중엔 그냥 말하면 됩니다 — 말을 마치면 자동 전송 · 타이핑 입력도 가능"></textarea>
+      </div>
       <div class="michud" id="micHud" title="마이크 상태 — 초록 불+바가 움직이면 내 목소리가 들어가고 있는 겁니다">
         <span class="mdot idle" id="micDot"></span>
         <div class="mbars" id="micBars"><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -1290,9 +1301,11 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v5.2 — 원장이 살아 움직입니다</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v5.3 — 통화가 사람처럼 흐릅니다</h2>
     <div class="ver-it"><b>💓 5.1 — 팍팍 움직이는 설득 게이지</b>잘한 답은 게이지가 크게 오르고(크리티컬 +18, 연속으로 잘하면 최대 +27), 심한 실수는 뚝 떨어집니다(-16~-20). 변화량이 숫자로 팡 터지고, 설득이 쌓이면 원장 얼굴이 계속 밝게, 무너지면 계속 굳은 채로 남습니다.</div>
-    <div class="ver-it"><b>🎬 5.2 — 영상 질감</b>배경과 몸은 고정된 채 얼굴만 부드럽게 변하고(크로스페이드), 숨쉬기·카메라 미세 움직임·배경 심도 시차가 더해져 사진이 아니라 영상통화처럼 보입니다. 말할 때는 몸도 살짝 움직입니다. (실사 이미지는 AI 생성 가상 인물)</div>
+    <div class="ver-it"><b>🗣 5.3 — 더 빠르고 깨끗한 대화</b>원장 응답 공백을 줄였고(완결 문장은 0.5초), 스피커로 새어 들어간 원장 목소리·주변 소음이 대화에 끼어드는 것을 3중으로 차단합니다. 판정이 없는 순간에도 골똘·흥미 표정이 스치는 대기 연기가 돌아갑니다.</div>
+    <div class="ver-it"><b>🎛 5.3 — 몰입 모드</b>음성 대화가 흐르기 시작하면 하단 도우미·입력창이 한 줄로 접혀 영상에 집중됩니다. 막막해서 멈추면 자동으로 다시 펼쳐집니다.</div>
+    <div class="ver-it"><b>🎬 5.2 — 영상 질감</b>배경·몸 고정 크로스페이드, 눈 깜빡임, 입 3단계 립싱크, 숨쉬기·카메라 드리프트. 리포트의 원장 사진도 실사로 통일. (실사 이미지는 AI 생성 가상 인물)</div>
     <div class="ver-it"><b>🗂 5.1 — 수배전단 난이도순</b>입문(강지은)부터 나이트메어(김민우)까지 쉬운 상대부터 차례로 배치됩니다.</div>
     <div class="ver-it"><b>🗣 4.9 — 반응하는 대화</b>원장이 질문엔 먼저 답하고, 방금 들은 주제를 짚은 뒤 자기 걱정을 이어갑니다. 잘 못 들었으면 감점 없이 되묻습니다.</div>
     <div class="ver-it"><b>🪞 4.5 — 자기개선 루프</b>코치가 채점하면 AI가 스스로 재검증해서, 실제로 정확해지는 축만 전 직원 채점에 반영합니다.</div>
@@ -1970,6 +1983,7 @@ window.APP = (function () {
   function setTalking(on) {
     var vst = document.querySelector("#scr-play .vstage"); // 🎬 말하는 동안 미세 스웨이 — 실제 사람이 말할 때의 몸짓
     if (vst) vst.classList.toggle("talking", !!on);
+    if (!on) G._ttsEndAt = Date.now(); // 🔇 에코 창 기준점 — 방금까지 스피커에서 원장 목소리가 나왔다
     if (on) micState("원장 말하는 중", "b");
     else if (G.inCall) micState((G.voiceOn || elevenOn()) ? "듣는 중 — 말씀하세요" : "타이핑 대기", (G.voiceOn || elevenOn()) ? "g" : "idle");
     if (mouthTimer) { clearInterval(mouthTimer); mouthTimer = null; }
@@ -2102,6 +2116,16 @@ window.APP = (function () {
     el.classList.remove("fx-angry", "fx-interest", "fx-happy", "fx-think");
     if (name && name !== "neutral") { void el.getBoundingClientRect(); el.classList.add("fx-" + name); }
   }
+  setInterval(function () { // 🎭 앰비언트 연기 — 판정이 없는 순간에도 골똘·흥미 표정이 스치게 (실사·만화 공통)
+    if (!G.inCall || G.ttsSpeaking || Math.random() < 0.55) return;
+    if (curExpr && curExpr !== "neutral") return; // 판정 감정이 얼굴에 남아있으면 방해하지 않는다
+    var amb = Math.random() < 0.5 ? "think" : "interest";
+    setExpr(amb);
+    setTimeout(function () {
+      if (!G.inCall || G.ttsSpeaking) return;
+      if (curExpr === amb) { curExpr = null; setExpr("neutral"); pgFace(); } // 원래 기분(게이지 구간)으로 복귀
+    }, 1400 + Math.round(Math.random() * 900));
+  }, 8000);
   // 대기 중에도 살아있게 — 4~8초마다 시선이 잠깐 옆으로
   setInterval(function () {
     if (!G.inCall || G.ttsSpeaking || Math.random() < 0.35) return;
@@ -2488,11 +2512,22 @@ window.APP = (function () {
     [/일\s?점\s?구\s?억|1\s?점\s?9\s?억/g, "1.9억"]
   ];
   function sttFix(t) { var s2 = String(t || ""); STT_FIX.forEach(function (r) { s2 = s2.replace(r[0], r[1]); }); return s2; }
-  function misheard(t) { // 뭉개진 소리 판정 — 한글 3음절 이하·숫자 없음·의도 없음 → 감점 대신 되묻는다
+  function misheard(t) { // 뭉개진 소리 판정 — 짧은 웅얼거림 + STT 오염(어절 반복·영업 대화에 없는 호칭) → 감점 대신 되묻는다
     var s2 = String(t || "").trim();
-    if (!s2 || /\d/.test(s2) || detectIntent(s2)) return false;
+    if (!s2) return false;
+    if (/사모님|여보(?!세요)|자기야/.test(s2)) return true; // 주변 소음·스피커 에코가 흘러든 신호 — MR이 원장에게 쓸 수 없는 호칭
+    var toks = s2.replace(/[.,!?…~]/g, " ").split(/\s+/).filter(Boolean);
+    var cnt = {};
+    for (var i2 = 0; i2 < toks.length; i2++) { var tk = toks[i2]; if (tk.length >= 2) { cnt[tk] = (cnt[tk] || 0) + 1; if (cnt[tk] >= 3 && toks.length <= 18) return true; } }
+    for (var i3 = 1; i3 < toks.length; i3++) { if (toks[i3].length >= 3 && toks[i3] === toks[i3 - 1] && toks.length <= 10) return true; } // "사모님, 사모님" 연속 중복 (2자 "빨리, 빨리"류 강조는 허용)
+    if (/\d/.test(s2) || detectIntent(s2)) return false;
     var syl = (s2.match(/[가-힣]/g) || []).length;
     return syl > 0 && syl <= 3 && s2.length <= 8;
+  }
+  function sttStrong(t) { // TTS 직후 에코 창을 뚫으려면 '진짜 발화'여야 한다 — 의도·수치·충분한 길이 중 하나
+    var s2 = String(t || "").trim();
+    if (!s2 || misheard(s2)) return false;
+    return !!(detectIntent(s2) || /\d/.test(s2) || normTxt(s2).length >= 14);
   }
   var REASK = { "장인석": "…뭐라고요? 잘 안 들렸어요. 다시.", "강지은": "앗, 잘 못 들었어요~ 다시 한번요?", "신혁주": "잘 안 들렸는데. 다시 말해봐요.", "김민우": "음, 소리가 좀 뭉갰네요. 한 번만 다시요." };
   var ACK_TOPICS = [ // 👂 '들었다'는 증거 — MR이 방금 말한 주제를 짚고 나서 진행한다
@@ -2667,6 +2702,7 @@ window.APP = (function () {
     if (md.fx === "hearts1" || md.fx === "meh") moodFxSoft(md); // 큰 이펙트는 stamp가 이미 쐈다
     var total = G.scen.objs.length, done = G.scen.objs.filter(function (o) { return G.resolved[o.n]; }).length;
     $("hudProg").textContent = "걱정 해소 " + done + "/" + total + " " + G.scen.objs.map(function (o) { return G.resolved[o.n] ? "●" : "○"; }).join("");
+    inbarSync(); // 대화가 흐르기 시작 — 음성 모드면 도우미 접힘
     if (CLOSING_ACT.test(text) && CLOSING.test(text) && done === total && G.turns.length >= 3) { stamp("crit", "합의 성립!"); setTimeout(function () { if (G.inCall) endCall(false); }, 6000); } // 합의 통과 — 단 3턴 이상 주고받은 뒤에만 (첫 답 즉시 종료 방지)
   }
   function llmFetch(body, signal) { // 중계 서버(키 서버 보관)가 있으면 그쪽으로, 없으면 개인 키로 직접
@@ -2710,6 +2746,7 @@ window.APP = (function () {
       "[성급한 합의 금지 — 그러나 어거지도 금지] 걱정 하나당 '후속 질문' 한 번으로 깊이를 확인하라. 되파는 건 같은 주제 안에서만이다. MR이 근거·수치로 정면으로 답했으면 그 걱정은 두 턴 안에 깨끗하게 인정하라 — 인정해 놓고 무관한 새 걱정을 즉석에서 발명해 붙이는 것(반대를 위한 반대)은 금지다. 준비된 걱정 목록에 없는 주제를 새로 만들지 마라. 서너 번의 주고받음 전에 합의를 꺼내지 않되, 걱정이 다 풀린 뒤에도 질질 끄는 것 역시 부자연스럽다 — 납득했으면 솔직하게 '알겠다, 일리 있다'고 말하고 다음 단계(일정·방법)를 묻는 쪽으로 넘어가라.\n" +
       "[현실적인 의심만] 세상에 존재하지 않는 증빙을 요구하며 몰아붙이지 마라('없었다는 걸 문서로 증명해봐' 같은 악마의 증명 금지). 현실의 원장이 던질 법한 의심 — 앞으로의 보장, 남의 병원 사례, 조건·예외 — 으로 파고들고, MR이 표준 논리로 제대로 답하면 그 지점은 깨끗하게 인정하라. 같은 요구를 세 번 이상 반복하지 마라.\n" +
       "[무례 대응] MR이 욕설·모욕·조롱을 하면 논리 대응을 멈추고 정색하라 — \"지금 뭐라고 하셨어요. 이 통화는 여기까지 하죠.\" 한마디 후 어떤 말에도 응하지 말고 통화를 끝내라. 당신은 을이 아니다.\n" +
+      "[음성인식 오류 대응] MR의 말은 음성인식을 거쳐 온다. 문장이 어절 반복('사모님, 사모님')이거나 영업 대화에 있을 수 없는 호칭·내용으로 깨져 있으면, 그 문장을 절대 따라 하거나 해석해서 응하지 말고 짧게 되물어라 — \"잘 안 들렸어요. 다시 한 번요.\" 당신 입에서 '사모님' 같은 호칭이 나가는 일은 없다.\n" +
       (STD_RP[d.stdType] ? "[이 병원의 표준 유형] " + STD_RP[d.stdType].title + " — " + STD_RP[d.stdType].cs + "\n[이 유형 원장들이 실제로 하는 반대] " + STD_RP[d.stdType].obs.join(" / ") + "\n" : "") +
       "[대화 정책 — 이것이 당신의 전부다]\n" +
       "- 매 턴, 무엇보다 먼저 MR이 '방금 한 말'의 내용에 반응한다. 그의 단어를 직접 짚어라. 그 다음에 당신 걱정 상태에 따라 자연스럽게 이어간다.\n" +
@@ -3328,6 +3365,7 @@ window.APP = (function () {
     if (vst) { vst.classList.remove("glitchin"); void vst.offsetWidth; vst.classList.add("glitchin"); setTimeout(function () { vst.classList.remove("glitchin"); }, 800); } // 연결 글리치 연출
     $("hudWho").textContent = G.doc.nm + " 원장 · " + G.doc.hosp + " · " + G.doc.plabel;
     $("sitLine").innerHTML = "<b>[상황]</b> " + esc(G.scen.sit) + " · <b>미션:</b> 반대를 넘고 다음 행동(날짜·주체) 합의";
+    G._inbarPin = 0; inbarSync(); // 새 판 — 펼친 상태로 시작 (STEP 1 안내)
     var totalObj = G.scen.objs.length + (G.scen.variant ? 1 : 0);
     $("hudProg").textContent = "반대 0/" + totalObj;
     setTimeout(faidRender, 300); // 💬 첫 발화 도우미 — 판이 열리자마자 무엇을 말할지 보여준다
@@ -3375,7 +3413,7 @@ window.APP = (function () {
   }
 
   /* ══════════ 자동 대화(핸즈프리) 엔진 ══════════ */
-  var VOICE_MIN_SEND = 10, VOICE_SILENCE_MS = 2600, NOISE_MIN = 4, BARGE_MIN = 6; // 2.6초 — 생각하는 멈춤을 말 끝로 오인하지 않게
+  var VOICE_MIN_SEND = 10, VOICE_SILENCE_MS = 2000, NOISE_MIN = 4, BARGE_MIN = 6; // 2.0초 — 생각 멈춤 오인과 응답 지연 사이의 절충 (완결 문장은 0.5초)
   function normTxt(s) { return String(s || "").replace(/[\s.,!?~…'"“”‘’、。]/g, ""); }
   // TTS 에코 가드: 인식된 조각이 직전 원장 대사의 일부면 에코로 판정
   function echoGuard(frag, doctorText) {
@@ -3394,7 +3432,7 @@ window.APP = (function () {
     return (buf ? buf + " " : "") + t;
   }
   var SENT_END_RE = /(니다|세요|해요|어요|아요|네요|하죠|이죠|거든요|잖아요|합시다|할게요|드릴게요|십시오|까요|나요|가요|시죠|는데요|요|다)[.!?…]?\s*$/; // 한국어 문장 종결 감지 — 끝났으면 빨리 보낸다
-  function resetSilence(fast) { if (G.silT) clearTimeout(G.silT); G.silT = setTimeout(checkAutoSend, fast ? Math.max(650, Math.round(VOICE_SILENCE_MS * 0.3)) : VOICE_SILENCE_MS); }
+  function resetSilence(fast) { if (G.silT) clearTimeout(G.silT); G.silT = setTimeout(checkAutoSend, fast ? Math.max(500, Math.round(VOICE_SILENCE_MS * 0.25)) : VOICE_SILENCE_MS); }
   // 침묵 대기(2.6초)는 '사용자가 말을 끝냈는지'를 판단하는 시간이다.
   // '원장이 아직 말하는 중인지'는 전혀 다른 질문이므로 같은 간격으로 재시도하면 안 된다 —
   // 원장이 말을 마친 직후에 확인이 지나가면 다음 확인까지 2.6초를 더 기다려 체감 3초의 정체가 생겼다.
@@ -3465,12 +3503,13 @@ window.APP = (function () {
       for (var i = ev.resultIndex; i < ev.results.length; i++) {
         var t = ev.results[i][0].transcript;
         if (ev.results[i].isFinal) {
+          if ((G.ttsSpeaking || Date.now() - (G._ttsEndAt || 0) < 700) && !sttStrong(t)) continue; // 🔇 스피커 에코 창 — 원장 목소리가 마이크로 되돌아온 것
           var nb = acceptFinal(($("mrInput").value || "").trim(), t, G.lastDoctor);
           if (nb !== null) {
             $("mrInput").value = nb; ALPI_NV.feedTranscript(t); lastVoiceAt = Date.now();
             // 문장이 끝났으면 침묵 대기를 단축한다. 음성 인식이 종결어미를 흘리는 경우가 잦아
             // '충분히 긴 발화(30자+)'도 완결로 본다 — 여기서 못 잡으면 매 턴 2.6초를 통째로 기다린다.
-            var fin = nb.length >= VOICE_MIN_SEND && (SENT_END_RE.test(nb.trim()) || nb.trim().length >= 30);
+            var fin = nb.length >= VOICE_MIN_SEND && (SENT_END_RE.test(nb.trim()) || nb.trim().length >= 22); // 22자+ = 사실상 완결 — 매 턴 2초를 아낀다
             resetSilence(fin);
             micState(fin ? "곧 전송…" : "듣는 중", fin ? "y" : "g");
           }
@@ -3562,8 +3601,29 @@ window.APP = (function () {
     el.innerHTML = "<div class='faid-h'>💬 " + h + "</div><div class='faid-b'>" + b + "</div>" + (tip ? "<div class='faid-tip'>" + tip + "</div>" : "");
     el.classList.remove("hidden");
   }
+  function inbarSync() { // 🎛 몰입 모드 — 음성 대화가 흐르기 시작하면 하단 상황·도우미·입력창을 한 줄로 접는다 (첫 발화 전엔 STEP 1 안내를 위해 항상 펼침)
+    var body = $("inbarBody"), slim = $("inbarSlim"), fold = $("inbarFold");
+    if (!body || !slim) return;
+    var flowing = G.inCall && G.voiceOn && ((G.turns && G.turns.length > 0) || (G.freeN || 0) > 0);
+    var collapse = flowing && !G._inbarPin;
+    body.classList.toggle("hidden", collapse);
+    slim.classList.toggle("hidden", !collapse);
+    if (fold) fold.classList.toggle("hidden", !(flowing && G._inbarPin)); // 펼쳐둔 상태에서만 '접기' 노출
+    if (collapse && $("slimSit")) $("slimSit").textContent = ((G.scen && G.scen.sit) ? G.scen.sit : "").slice(0, 64) + " · 미션: 다음 행동 합의";
+  }
+  function inbarPin(on) { G._inbarPin = on ? 1 : 0; inbarSync(); }
+  function sayGuard(text) { // 순수 — 원장 입에서 나가면 안 되는 문장 차단 (STT 오염 미러링 최후 방어선). 수사적 2회 반복("결론만. 결론만")은 정상 화법으로 허용
+    var s2 = String(text || "");
+    if (/사모님|여보(?!세요)|자기야/.test(s2)) return false;
+    var toks = s2.replace(/[.,!?…~]/g, " ").split(/\s+/).filter(Boolean);
+    var cnt = {};
+    for (var i2 = 0; i2 < toks.length; i2++) { var tk = toks[i2]; if (tk.length >= 2) { cnt[tk] = (cnt[tk] || 0) + 1; if (cnt[tk] >= 3 && toks.length <= 16) return false; } }
+    return true;
+  }
+  var SAY_FIX = { "장인석": "…잠깐, 말이 엉켰네. 하던 얘기 계속해봐요.", "강지은": "앗, 제가 말이 꼬였어요~ 방금 얘기 계속해주세요!", "신혁주": "잠깐. 말이 꼬였네요. 하던 얘기 계속해요.", "김민우": "음, 말이 좀 샜네요. 계속하시죠." };
   function drSay(text, expr, emo, cb) {
     if (!G.inCall) return; // 통화 종료 후 유령 대사 방지
+    if (!sayGuard(text)) text = (G.doc && SAY_FIX[G.doc.nm]) || "잠깐, 말이 엉켰네요. 계속하시죠."; // 오염 대사 교체
     $("bWho").textContent = G.doc.nm + " 원장";
     $("bText").textContent = text;
     G.lastDoctor = text; // 에코 가드 기준
@@ -3710,7 +3770,7 @@ window.APP = (function () {
       return;
     }
     G.idleN = (G.idleN || 0) + 1;
-    if (G.idleN === 1) drSay(IDLE_NUDGE[G.doc.nm] || "여보세요?", "think");
+    if (G.idleN === 1) { drSay(IDLE_NUDGE[G.doc.nm] || "여보세요?", "think"); inbarPin(1); } // 막막해 보이면 도우미 자동 펼침
     else { // 2차 — 재촉 대신 격려하고, 노란 도우미로 시선을 구조한다 (끊지 않는 훈련장)
       drSay(IDLE_NUDGE2[G.doc.nm] || "천천히요. 한 마디면 됩니다.", "think");
       try {
@@ -4112,6 +4172,7 @@ window.APP = (function () {
     if (!SR) { toast("이 브라우저는 음성인식 미지원 — 텍스트로 입력하세요"); return; }
     if (G.voiceOn) { stopVoiceLoop(); toast("수동 모드 — 텍스트 입력 후 전송"); }
     else startVoiceLoop();
+    setTimeout(inbarSync, 50); // 음성↔타이핑 전환 — 타이핑 모드는 항상 펼침
   }
 
   /* ── 자유 대화 엔진 (애드립 모드) — 대사는 전부 Claude가 생성, 룰엔진은 심판으로만 ── */
@@ -4147,6 +4208,7 @@ window.APP = (function () {
     var total = G.scen.objs.length;
     var done = G.scen.objs.filter(function (o) { return G.resolved[o.n]; }).length;
     $("hudProg").textContent = "걱정 해소 " + done + "/" + total + " " + G.scen.objs.map(function (o) { return G.resolved[o.n] ? "●" : "○"; }).join("");
+    inbarSync(); // 대화가 흐르기 시작 — 음성 모드면 도우미 접힘
     var okc = CLOSING_ACT.test(text) && CLOSING.test(text) && G.freeN >= 3; // 클로징은 대화 3턴 이후에만 성립 — 답변 속 "방문·날짜" 단어에 판이 끝나지 않게
     var intent = detectIntent(text);
     // ⚠ 이 선언은 반드시 obs보다 위에 있어야 한다. 아래에 있으면 var 호이스팅으로 obs 안에서 undefined가 되어
@@ -6617,7 +6679,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "5.2";
+  var APP_VER = "5.3";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -6672,8 +6734,8 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg } };
+    toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true } };
 })();
 
 </script>
