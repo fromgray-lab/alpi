@@ -2002,8 +2002,9 @@ window.APP = (function () {
           G.photoOk = G.photoOk || {}; G.photoOk[nm] = 1;
           if (G.doc && G.doc.nm === nm) {
             if (G.inCall) { curExpr = null; setExpr("neutral"); } // 판 중간에 준비되면 즉시 실사로
-            else { $("avPlay").innerHTML = '<g class="pg">' + portraitPhoto(nm, null) + '</g>'; photoStageSync(); } // 장비 점검 중 준비 완료 — 통화 시작부터 실사
+            else { $("avPlay").innerHTML = '<g class="pg">' + portraitPhoto(nm, null) + '</g>'; $("avCall").innerHTML = '<g class="pg">' + portraitPhoto(nm, null) + '</g>'; photoStageSync(); } // 장비 점검 중 준비 완료 — 통화 시작·수신 화면부터 실사
           }
+          try { if (document.querySelector("#scr-pick.on")) renderPick(); } catch (e2b) {} // 수배전단이 떠 있으면 실사로 다시 그린다
         }
       };
       im.src = photoUrl(nm, e2);
@@ -3045,6 +3046,7 @@ window.APP = (function () {
     toMap(); // 모험의 홈은 해도(海圖)다 — 섬을 고르고 → 상대(난이도)를 고르고 → 격파
   }
   function toPickScreen() { // 수배전단 진입 공통 — 지도에서 섬을 고른 뒤(또는 자유 출항으로) 온다
+    try { Object.keys(PHOTO_KEYS).forEach(photoProbe); } catch (ep) {} // 📷 실사 세트 선탐색 — 전단부터 실사 얼굴
     renderPick();
     fetchCustomDocs(function () { renderPick(); }); // 서버의 팀 시나리오 합류 — 늦게 와도 다시 그린다
     show("scr-pick");
@@ -3101,7 +3103,7 @@ window.APP = (function () {
         "<div class='p-top'>WANTED</div>" +
         "<div class='p-mode' style='background:" + tier[1] + ";'>" + tier[0] + "</div>" +
         (d.custom ? "<div class='p-custom'>🛠 우리 팀 시나리오</div>" : "") +
-        "<div class='p-photo'><div class='pframe'><svg class='avatar' viewBox='0 0 120 140'>" + portraitSvg(d.av) + "</svg></div></div>" +
+        "<div class='p-photo'><div class='pframe'><svg class='avatar' viewBox='0 0 120 140'>" + (photoMode(d) ? portraitPhoto(d.nm, null) : portraitSvg(d.av)) + "</svg></div></div>" +
         "<div class='p-doa'>SIGN OR DECLINE</div>" +
         "<div class='p-name'>" + esc(d.nm) + " 원장</div><div class='p-hosp'>" + esc(d.hosp) + " · " + esc(d.plabel) + "</div>" +
         "<div class='p-tag'>" + esc(d.tag) + "</div>" +
@@ -3119,7 +3121,7 @@ window.APP = (function () {
     koVoice = pickVoice(); // 성별·품질 기준 재선정 (남자 원장=남자 목소리)
     G.scen = genScenario(G.doc);
     photoProbe(G.doc.nm); // 📷 실사 세트가 리포지토리에 있으면 이 판부터 실사 원장
-    $("avCall").innerHTML = '<g class="pg">' + portraitSvg(G.doc.av) + '</g>';
+    $("avCall").innerHTML = '<g class="pg">' + (photoMode(G.doc) ? portraitPhoto(G.doc.nm, null) : portraitSvg(G.doc.av)) + '</g>';
     $("avPlay").innerHTML = '<g class="pg">' + (photoMode(G.doc) ? portraitPhoto(G.doc.nm, null) : portraitSvg(G.doc.av)) + '</g>';
     photoStageSync();
     $("callName").textContent = G.doc.nm + " 원장님 · " + G.doc.hosp;
