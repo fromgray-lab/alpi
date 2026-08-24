@@ -432,11 +432,6 @@ table.rank td.nm{font-weight:800;}
 .fxp.big{font-size:40px;}
 @keyframes fxup{0%{transform:translateY(0) scale(.55);opacity:0;}12%{opacity:1;transform:translateY(-10px) scale(1.18);}100%{transform:translateY(-96px) scale(1);opacity:0;}}
 .vstage.drshake{animation:drshake .45s;}
-/* 👂 끄덕임 — 듣고 있다는 신호 (실사·일러스트 공통) */
-@keyframes phNod{0%{transform:translateY(0) rotate(0deg);}28%{transform:translateY(6px) rotate(.7deg);}58%{transform:translateY(-2px) rotate(-.3deg);}100%{transform:translateY(0) rotate(0deg);}}
-.vstage .vport.nod{animation:phNod .64s cubic-bezier(.3,.8,.4,1)!important;}
-.vstage.photomode .vport.nod{animation:phNod .64s cubic-bezier(.3,.8,.4,1)!important;}
-@media (prefers-reduced-motion: reduce){.vstage .vport.nod,.vstage.photomode .vport.nod{animation:none!important;}}
 @keyframes drshake{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px);}40%{transform:translateX(7px);}60%{transform:translateX(-4px);}80%{transform:translateX(3px);}}
 #moodChip{font-size:19px;line-height:1;}
 @media (prefers-reduced-motion: reduce){.fxp{display:none;}.vstage.drshake{animation:none;}}
@@ -1320,7 +1315,12 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v5.5 — 듣고 있는 원장</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v5.6 — 대화 안정화</h2>
+    <div class="ver-it"><b>🎧 5.6 — 말을 자르지 않습니다</b>듣는 창을 다시 넉넉히(2.0초) 돌렸습니다. 짧은 조각을 “말 다 끝났다”로 오인해 <b>문장 중간에 전송</b>하던 것이 못 알아듣는 가장 큰 원인이었습니다. 원장이 말하는 중에 하신 말씀도 이제 버리지 않습니다.</div>
+    <div class="ver-it"><b>🔇 5.6 — 원장이 자기 말에 끊기지 않습니다</b>스피커로 새어 나간 원장 목소리를 “사용자가 끼어들었다”로 잘못 읽어 <b>스스로 말을 끊던</b> 문제를 막았습니다. 끼어들기는 발화 1초 후·12자 이상·알맹이가 있을 때만 인정합니다.</div>
+    <div class="ver-it"><b>✂ 5.6 — 짧아진 원장 대사</b>한 호흡 앞부분에 길이 예산을 걸어 추임새·인용부터 덜어냅니다. 되묻기 중 잡담에 질문을 통째로 되풀이하지 않고, 두 번 못 알아들으면 더 천천히·짧게 다시 말합니다.</div>
+    <div class="ver-it"><b>😌 5.6 — 안정된 표정·목소리</b>1.5초마다 표정을 갈아끼우던 연출을 걷어내고 전환에 게이트를 뒀습니다. 감정에 따른 음높이·속도 편차도 절반으로 줄여 목소리가 아픈 사람처럼 들리지 않습니다.</div>
+    <div class="ver-it"><b>🩹 5.6 — 되묻기·마무리에서도 알아듣습니다</b>“네? 뭐라고요?”가 반대 단계에서만 통하던 것을 <b>모든 단계</b>로 넓혔습니다. 마무리 중 인사·감사로 통화가 그냥 끝나버리던 것도 막았습니다.</div>
     <div class="ver-it"><b>👂 5.5 — 듣고 있다는 신호</b>말하는 내내 원장이 <b>끄덕이고 표정이 움직입니다.</b> 말을 마치는 순간 바로 받아들이는 몸짓이 나가서, 응답을 기다리는 시간이 죽은 시간으로 느껴지지 않습니다.</div>
     <div class="ver-it"><b>🗣 5.5 — 사람 말로 알아듣습니다</b>인사·감사·사과·수긍·되묻기(“네? 뭐라고요?”)·잡담·칭찬·자료 제안·요약 확인·열린 질문 <b>13종</b>을 원장이 행위로 알아듣고 캐릭터답게 받습니다. 여태 이런 말들은 전부 ‘반대에 대한 답변’으로 채점돼 빗나감이 뜨고 엉뚱한 대사가 나갔습니다.</div>
     <div class="ver-it"><b>💗 5.5 — 경청은 가점, 재촉은 역효과</b>“그러니까 원장님 말씀은 ~이신 거죠?”(요약 확인)와 “원장님은 어떤 점이 제일 걸리세요?”(열린 질문)엔 원장 마음이 열립니다. 반대로 재촉·압박에는 실제로 불쾌해합니다.</div>
@@ -2011,6 +2011,7 @@ window.APP = (function () {
     var vst = document.querySelector("#scr-play .vstage"); // 🎬 말하는 동안 미세 스웨이 — 실제 사람이 말할 때의 몸짓
     if (vst) vst.classList.toggle("talking", !!on);
     if (!on) G._ttsEndAt = Date.now(); // 🔇 에코 창 기준점 — 방금까지 스피커에서 원장 목소리가 나왔다
+    else G._ttsStartAt = Date.now(); // 🔇 말을 막 시작한 직후의 "끼어들기"는 대개 스피커 에코다
     if (on) micState("원장 말하는 중", "b");
     else if (G.inCall) micState((G.voiceOn || elevenOn()) ? "듣는 중 — 말씀하세요" : "타이핑 대기", (G.voiceOn || elevenOn()) ? "g" : "idle");
     if (mouthTimer) { clearInterval(mouthTimer); mouthTimer = null; }
@@ -2129,8 +2130,14 @@ window.APP = (function () {
   }
   // ── 표정 상태 (통화 스테이지 아바타) ──
   var curExpr = null;
+  var lastExprAt = 0;
+  function softExpr(name) { // 연출용(경청·앰비언트) 표정 — 판정 표정과 달리 자주 바뀌면 안 된다
+    if (Date.now() - lastExprAt < 1400) return;
+    setExpr(name);
+  }
   function setExpr(name) {
     if (!G.doc || curExpr === name) return;
+    lastExprAt = Date.now();
     curExpr = name;
     var el = $("avPlay");
     if (photoMode(G.doc)) { // 🎬 실사: DOM을 갈아끼우지 않고 크로스페이드 — 배경·몸은 그대로, 얼굴만 스르륵 변한다
@@ -2144,15 +2151,15 @@ window.APP = (function () {
     if (name && name !== "neutral") { void el.getBoundingClientRect(); el.classList.add("fx-" + name); }
   }
   setInterval(function () { // 🎭 앰비언트 연기 — 판정이 없는 순간에도 골똘·흥미 표정이 스치게 (실사·만화 공통)
-    if (!G.inCall || G.ttsSpeaking || Math.random() < 0.55) return;
+    if (!G.inCall || G.ttsSpeaking || Math.random() < 0.7) return;
     if (curExpr && curExpr !== "neutral") return; // 판정 감정이 얼굴에 남아있으면 방해하지 않는다
     var amb = Math.random() < 0.5 ? "think" : "interest";
     setExpr(amb);
     setTimeout(function () {
       if (!G.inCall || G.ttsSpeaking) return;
       if (curExpr === amb) { curExpr = null; setExpr("neutral"); pgFace(); } // 원래 기분(게이지 구간)으로 복귀
-    }, 1400 + Math.round(Math.random() * 900));
-  }, 8000);
+    }, 1600 + Math.round(Math.random() * 900));
+  }, 11000);
   // 대기 중에도 살아있게 — 4~8초마다 시선이 잠깐 옆으로
   setInterval(function () {
     if (!G.inCall || G.ttsSpeaking || Math.random() < 0.35) return;
@@ -2205,7 +2212,7 @@ window.APP = (function () {
     if (sel.options.length > 1 || !vs.length) return;
     vs.forEach(function (v) { var o = document.createElement("option"); o.value = v.name; o.textContent = v.name.replace(/Microsoft |Google |Server Speech.*- /g, ""); sel.appendChild(o); });
   }
-  var EMO_TTS = { angry: { rate: 0.1, pitch: -0.14 }, happy: { rate: 0.02, pitch: 0.14 }, interest: { rate: 0, pitch: 0.07 }, think: { rate: -0.06, pitch: -0.04 } };
+  var EMO_TTS = { angry: { rate: 0.06, pitch: -0.07 }, happy: { rate: 0.02, pitch: 0.09 }, interest: { rate: 0, pitch: 0.04 }, think: { rate: -0.03, pitch: -0.02 } }; // 편차를 줄였다 — 크면 목소리가 아픈 사람처럼 들린다
   var speakSeq = 0;
   var lastVoiceAt = 0; // 사용자 음성이 마지막으로 감지된 시각 (STT 기준)
   /* 마이크 VAD — 캠 유무와 무관하게 '지금 사용자가 말하는 중'을 직접 감지 (STT 지연·공백에 안 속는다) */
@@ -2231,12 +2238,6 @@ window.APP = (function () {
     } catch (e) {}
   }
   /* ── 마이크 상태 HUD — "내 말이 들어가고 있나"가 항상 보인다 ── */
-  function nodOnce() { // 👂 끄덕임 — '듣고 있다'는 가장 원초적인 신호 (말하는 내내, 그리고 받는 순간)
-    var vp = document.querySelector("#scr-play .vport");
-    if (!vp) return;
-    vp.classList.remove("nod"); void vp.offsetWidth; vp.classList.add("nod");
-    setTimeout(function () { vp.classList.remove("nod"); }, 640);
-  }
   function micState(txt, cls) {
     var d = document.querySelector("#micDot"), t = document.querySelector("#micState");
     if (d) d.className = "mdot " + (cls || "idle");
@@ -2324,7 +2325,7 @@ window.APP = (function () {
         if (i >= chunks.length) { fire(); return; }
         var u = new SpeechSynthesisUtterance(chunks[i]);
         u.lang = "ko-KR";
-        u.rate = Math.max(0.7, Math.min(1.6, vp.rate + d.rate + (i % 2 ? 0.03 : -0.02) - (myComp < 1 ? 0.04 : 0))); // 문장별 미세 변화 — 단조로움 완화
+        u.rate = Math.max(0.8, Math.min(1.5, vp.rate + d.rate + (i % 2 ? 0.015 : -0.01) - (myComp < 1 ? 0.03 : 0))); // 문장별 미세 변화 — 단조로움 완화
         u.pitch = Math.max(0.35, Math.min(2, (vp.pitch + d.pitch) * myComp)); // 성별 보이스 부재 시 저음/고음 보정
         if (myVoice) u.voice = myVoice;
         var started = false, advanced = false; // advanced = 이 청크의 바통은 단 한 번만 넘어간다 — 워치독과 onend가 각각 다음 문장을 큐잉해 대사가 2배씩 증식하던 중복 재생 캐스케이드 차단
@@ -2520,6 +2521,13 @@ window.APP = (function () {
       speak(pick("filler", (G.doc && FILLER_BY[G.doc.nm]) || ["음…"]), null, "think");
     } catch (e) {}
   }
+  function preSay(ansPre, text, cat, ctx, budget) { // 한 호흡의 앞부분 — 예산을 넘으면 장식(추임새 → 인용 → 답)부터 버린다
+    var react = reactLine(cat, ctx);
+    var a = ansPre ? ansPre + " " : "";
+    var cands = [withBeat(a + heardLine(text, cat) + react), a + heardLine(text, cat) + react, a + react, react];
+    for (var i = 0; i < cands.length; i++) if (String(cands[i]).length <= budget) return cands[i];
+    return react;
+  }
   function withBeat(line) { // 즉답 로봇 느낌 완화 — 35% 확률로 생각 추임새를 문두에
     return (Math.random() < 0.35 ? pick("beat", ["음… ", "아— ", "글쎄… ", "흠… "]) : "") + line;
   }
@@ -2618,13 +2626,19 @@ window.APP = (function () {
     ["praise", /(역시\s?원장님|대단하(시|십)|잘\s?알고\s?계시|정확하게\s?보(셨|시)|꼼꼼하(시|십)|예리하(시|십)|말씀\s?잘하시)/],
     ["agree", /^(네|예|맞아요|맞습니다|그렇죠|그렇습니다|동의합니다|당연하죠|그럼요|알겠습니다)[\s,.…!~]*$|^(네|예)[\s,]+(맞|그렇|당연|물론|동의)/],
     ["bye", /(그럼\s?이만|이만\s?(가|들어가|물러)|다음에\s?(또\s?)?(뵙|찾아|들르)|들어가\s?보겠|가\s?보겠습니다)/],
-    ["smalltalk", /(날씨|점심|식사(는|하셨)|더우|추우|비가|주차|환자\s?많으시|바쁘시(네|군)|오시는\s?길|막히)/],
-    ["greet", /(안녕하(세요|십니까)|처음\s?뵙|반갑습니다|인사\s?드리)/]
+    ["smalltalk", /(날씨|점심\s?(드셨|하셨)|식사(는|하셨)|더우시|추우시|비가\s?많이|주차(가|는)|오시는\s?길|길이\s?막히)/],
+    ["greet", /^(안녕하(세요|십니까)|처음\s?뵙|반갑습니다)/]
   ];
-  function readAct(t) { // 발화 행위 1종 (없으면 null)
+  var ACT_ANYLEN = { confused: 1, summarize: 1, askback: 1, nudge: 1, checktime: 1 }; // 길어도 뜻이 분명한 행위
+  function readAct(t) { // 발화 행위 1종 (없으면 null) — 긴 발화는 '진짜 응수'로 보고 건드리지 않는다
     var s = String(t || "").trim();
     if (!s) return null;
-    for (var i = 0; i < ACTS.length; i++) if (ACTS[i][1].test(s)) return ACTS[i][0];
+    for (var i = 0; i < ACTS.length; i++) {
+      if (!ACTS[i][1].test(s)) continue;
+      var a = ACTS[i][0];
+      if (!ACT_ANYLEN[a] && s.length > 45) return null; // 인사·감사·잡담류는 짧을 때만 — 긴 문장은 설득의 일부다
+      return a;
+    }
     return null;
   }
   // 행위별 원장 반응 — 캐릭터 4인 (사람이라면 이 말엔 이렇게 받는다)
@@ -2643,12 +2657,23 @@ window.APP = (function () {
     smalltalk: { "장인석": "예, 뭐. 그건 그렇고.", "강지은": "아 그쵸~ 오늘 진짜 그래요~ 근데요,", "신혁주": "그렇죠. 본론으로 가시죠.", "김민우": "네, 뭐 그렇죠. 그래서," },
     greet: { "장인석": "예, 인사는 아까 했고.", "강지은": "네~ 반가워요~ 그래서요?", "신혁주": "예, 인사는 됐습니다.", "김민우": "네. 용건 말하시죠." }
   };
-  var ACT_BACK = { // 받아준 뒤 하던 걱정으로 돌아가는 한 마디 (같은 반대 대사를 통째로 되풀이하지 않게)
-    "장인석": ["그래서 아까 그 걱정, 그건 어떻게 되는 겁니까?", "내 질문은 그대로예요.", "아까 물어본 거, 답을 줘요."],
-    "강지은": ["근데 아까 제가 여쭤본 거요~ 그건 어떻게 돼요?", "제 걱정은 아직 그대로인데요~", "아까 그거, 답 좀 주세요~"],
-    "신혁주": ["아까 질문은 아직 답이 없습니다.", "제 우려는 그대로입니다. 답을 주시죠.", "본론으로 — 아까 그 부분은요?"],
-    "김민우": ["근데 아까 그건 어떻게 되는 거예요?", "내 걱정은 아직 그대로입니다.", "아까 물은 거, 그거부터 답하시죠."]
+  var ACT_BACK = { // 받아준 뒤 하던 걱정으로 돌아가는 '짧은' 한 마디 (길면 원장이 혼자 떠드는 느낌이 된다)
+    "장인석": ["그래서, 아까 그건요?", "내 질문은 그대로예요.", "아까 거, 답을 줘요."],
+    "강지은": ["근데 아까 그건요~?", "제 걱정은 아직 그대로예요~", "아까 그거요~"],
+    "신혁주": ["아까 그건 아직 답이 없습니다.", "제 우려는 그대로입니다.", "본론으로 — 아까 그 부분은요?"],
+    "김민우": ["근데 아까 그건요?", "내 걱정은 그대로입니다.", "아까 물은 것부터."]
   };
+  var CLOSE_NUDGE = { // 마무리 직전 마지막 한 번 — '언제·누가'를 짚어준다 (훈련의 핵심 지점)
+    "장인석": "내용은 알겠어요. 근데 나는 말로만 끝나는 게 제일 싫어요 — 언제, 누가 오는 건지 그것만 말해요.",
+    "강지은": "좋아요~ 근데 그래서 언제 오시는 거예요? 누가 같이 오는지도 정해줘야 저도 준비를 하죠~",
+    "신혁주": "내용은 됐습니다. 남은 건 일정과 주체예요 — 언제, 누가 옵니까?",
+    "김민우": "얘기는 알겠어요. 그래서 언제, 누가 오는 겁니까? 그거 없으면 오늘 얘기는 없던 겁니다."
+  };
+  var SLOWER = { // 두 번 이상 못 알아들었다 — 사람은 이럴 때 더 천천히, 더 짧게 말한다
+    "장인석": "천천히 말할게요.", "강지은": "아 제가 빨랐죠~ 천천히 말할게요~", "신혁주": "천천히, 짧게 말씀드립니다.", "김민우": "아, 천천히 말하죠."
+  };
+  function lastSent(s2) { var m = String(s2 || "").match(/[^.!?…]+[.!?…]*/g); var l = m && m.length ? m[m.length - 1].trim() : ""; return l || String(s2 || "").trim(); } // 룩비하인드 금지 — 구형 사파리에서 통째로 죽는다
+  var ACT_NEEDBACK = { thanks: 1, apology: 1, praise: 1, smalltalk: 1, offer: 1, summarize: 1, askback: 1, nudge: 1 }; // 대사 자체가 본론을 안 밀어주는 행위만 복귀 문장을 붙인다
   var ACT_GOOD = { summarize: 1, askback: 1 };   // 경청의 증거 — 원장 마음이 열린다
   var ACT_BAD = { nudge: 1, bye: 1 };            // 재촉·이탈 — 마음이 식는다
   // 앞말에 붙어야 뜻이 되는 어절 — 여기서 인용을 시작하면 "…건으로 인사드리려고"처럼 말이 잘려 들린다
@@ -2717,7 +2742,7 @@ window.APP = (function () {
   function pickProbe(txt, o) {
     // ① 방금 뚫린 그 걱정에 딸린 전용 되파기가 최우선 — 원장이 '이 주제를 계속 생각하고 있다'는 신호
     var sp = objProbe(o);
-    G._probeSrc = sp ? o : null; // 전용 되파기면 그 걱정으로 채점한다 — 잡담 되파기는 채점 대상이 아니다
+    G._probeSrc = sp ? o : null; G._probeBare = sp || null; // 전용 되파기면 그 걱정으로 채점한다 — 잡담 되파기는 채점 대상이 아니다
     if (sp) return pick("plead", PROBE_LEAD[G.doc && G.doc.nm] || PROBE_LEAD["신혁주"]) + " " + sp;
     if (/385|38만|1\.9억|98,?080|4,?900|수가|검사비/.test(txt)) return "잠깐만요. 그 계산, 우리 병원 환자 수 기준으로 하면 실제로 얼마나 나와요?";
     if (/교육\s?간호사|파견|CM/.test(txt)) return "그 교육간호사는 한 번 오고 마는 거예요, 아니면 계속 와주는 거예요?";
@@ -3513,7 +3538,7 @@ window.APP = (function () {
       $("nvMini").textContent = "캠 없음 — 음성 대화 모드";
       $("playBanner").innerHTML = "<div class='banner info'>캠 없이 진행합니다. 자동 대화·음성 녹음은 그대로 동작합니다.</div>";
     }
-    G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.comboMax = 0; G.mem = {}; G.dlgLog = []; G.mannerFoul = false; G._probeUsed = {}; G.probeObj = null; G._probeSrc = null; G.actGood = 0;
+    G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.comboMax = 0; G.mem = {}; G.dlgLog = []; G.mannerFoul = false; G._probeUsed = {}; G.probeObj = null; G._probeSrc = null; G.actGood = 0; G.confN = 0; G.lastAsk = ""; G.closeMiss = 0;
     G.drCommit = false; G.drCommitEnded = false; G.silenceEnd = false; G.idleN = 0; G.gs = 0; G.bs = 0; G._phEnter = 0; G.converged = 0; disarmIdle(); moodSet(0); pgSet(50); // 새 판 — 감정·침묵·승낙·게이지 초기화
     ambStart(); // 미세한 진료실 룸톤 — 무음의 어색함 제거
     var vst = document.querySelector(".vstage");
@@ -3568,7 +3593,7 @@ window.APP = (function () {
   }
 
   /* ══════════ 자동 대화(핸즈프리) 엔진 ══════════ */
-  var VOICE_MIN_SEND = 10, VOICE_SILENCE_MS = 1500, NOISE_MIN = 4, BARGE_MIN = 6; // 1.5초 — 생각 멈춤 오인과 응답 지연 사이의 절충 (완결 문장은 0.33초)
+  var VOICE_MIN_SEND = 10, VOICE_SILENCE_MS = 2000, NOISE_MIN = 4, BARGE_MIN = 6; // 2.0초 — 말을 자르는 것보다 0.5초 기다리는 게 낫다 (v5.5의 1.5초 단축이 발화를 잘라 전송했다)
   function normTxt(s) { return String(s || "").replace(/[\s.,!?~…'"“”‘’、。]/g, ""); }
   // TTS 에코 가드: 인식된 조각이 직전 원장 대사의 일부면 에코로 판정
   function echoGuard(frag, doctorText) {
@@ -3587,7 +3612,7 @@ window.APP = (function () {
     return (buf ? buf + " " : "") + t;
   }
   var SENT_END_RE = /(니다|세요|해요|어요|아요|네요|하죠|이죠|거든요|잖아요|합시다|할게요|드릴게요|십시오|까요|나요|가요|시죠|는데요|요|다)[.!?…]?\s*$/; // 한국어 문장 종결 감지 — 끝났으면 빨리 보낸다
-  function resetSilence(fast) { if (G.silT) clearTimeout(G.silT); G.silT = setTimeout(checkAutoSend, fast ? Math.max(320, Math.round(VOICE_SILENCE_MS * 0.22)) : VOICE_SILENCE_MS); }
+  function resetSilence(fast) { if (G.silT) clearTimeout(G.silT); G.silT = setTimeout(checkAutoSend, fast ? Math.max(520, Math.round(VOICE_SILENCE_MS * 0.26)) : VOICE_SILENCE_MS); }
   // 침묵 대기(2.6초)는 '사용자가 말을 끝냈는지'를 판단하는 시간이다.
   // '원장이 아직 말하는 중인지'는 전혀 다른 질문이므로 같은 간격으로 재시도하면 안 된다 —
   // 원장이 말을 마친 직후에 확인이 지나가면 다음 확인까지 2.6초를 더 기다려 체감 3초의 정체가 생겼다.
@@ -3611,7 +3636,7 @@ window.APP = (function () {
     if (G.voiceOn) { b.classList.add("onair"); b.textContent = "🎙 자동 대화 중 — 그냥 말하세요 (탭하면 수동)"; }
     else { b.classList.remove("onair"); b.textContent = "🎤 자동 대화 켜기"; }
   }
-  var srFail = 0, srGotAudio = false, lastListenFx = 0, backN = 0;
+  var srFail = 0, srGotAudio = false, lastListenFx = 0;
   function micRescueHtml(msg) { // 차단 상태에서 사용자를 구조하는 10초 가이드 — 재검사 버튼 포함
     var isFile = typeof location !== "undefined" && location.protocol === "file:";
     return "<div class='banner err' id='micRescue' style='text-align:left;line-height:1.75;'>" +
@@ -3658,13 +3683,17 @@ window.APP = (function () {
       for (var i = ev.resultIndex; i < ev.results.length; i++) {
         var t = ev.results[i][0].transcript;
         if (ev.results[i].isFinal) {
-          if ((G.ttsSpeaking || Date.now() - (G._ttsEndAt || 0) < 700) && !sttStrong(t)) continue; // 🔇 스피커 에코 창 — 원장 목소리가 마이크로 되돌아온 것
+          // 🔇 스피커 에코 창 — 예전엔 '강한 신호'가 아니면 통째로 버려서, 원장이 말하는 동안 한 사용자의 진짜 말까지 사라졌다.
+          //    이제는 에코로 '확인'되거나 소음 수준으로 짧을 때만 버린다.
+          if (G.ttsSpeaking || Date.now() - (G._ttsEndAt || 0) < 700) {
+            if (echoGuard(t, G.lastDoctor) || (normTxt(t).length < 6 && !sttStrong(t))) continue;
+          }
           var nb = acceptFinal(($("mrInput").value || "").trim(), t, G.lastDoctor);
           if (nb !== null) {
             $("mrInput").value = nb; ALPI_NV.feedTranscript(t); lastVoiceAt = Date.now();
             // 문장이 끝났으면 침묵 대기를 단축한다. 음성 인식이 종결어미를 흘리는 경우가 잦아
             // '충분히 긴 발화(30자+)'도 완결로 본다 — 여기서 못 잡으면 매 턴 2.6초를 통째로 기다린다.
-            var fin = nb.length >= VOICE_MIN_SEND && (SENT_END_RE.test(nb.trim()) || nb.trim().length >= 16); // 16자+ = 사실상 완결 — 매 턴 1초 이상을 아낀다
+            var fin = nb.length >= VOICE_MIN_SEND && (SENT_END_RE.test(nb.trim()) || nb.trim().length >= 30); // 종결어미가 확실할 때만 빠른 경로. 길이 지름길은 30자+ (16자는 말 중간을 완결로 오인했다)
             resetSilence(fin);
             micState(fin ? "곧 전송…" : "듣는 중", fin ? "y" : "g");
           }
@@ -3674,15 +3703,15 @@ window.APP = (function () {
         if (normTxt(interim).length >= NOISE_MIN && !echoGuard(interim, G.lastDoctor)) lastVoiceAt = Date.now(); // 진짜 사용자 음성만 — 소음·에코로 원장 비트를 세우지 않게
         $("sttLive").textContent = "듣는 중: …" + interim.slice(-38);
         resetSilence(); // 인식이 이어지는 동안엔 무조건 대기 연장 — 말 끝나기 전 전송 방지
-        if (normTxt(interim).length >= BARGE_MIN && !echoGuard(interim, G.lastDoctor)) {
+        var bargeOK = !G.ttsSpeaking
+          ? normTxt(interim).length >= BARGE_MIN
+          // 원장이 말하는 중에 끊으려면 훨씬 확실해야 한다: 시작 1초 안엔 금지 + 12자 이상 + 알맹이 신호
+          : (Date.now() - (G._ttsStartAt || 0) > 1000 && normTxt(interim).length >= BARGE_MIN * 2 && sttStrong(interim));
+        if (bargeOK && !echoGuard(interim, G.lastDoctor)) {
           // barge-in — 원장이 입을 닫는다. speakSeq를 올려야 남은 문장이 150ms 뒤에 되살아나 사용자 말 위로 겹치지 않는다
           // (whenQuiet는 대사 '전체'가 끝난 뒤의 콜백만 보류시킬 뿐, 문장과 문장 사이는 못 막는다)
           if (G.ttsSpeaking) { speakSeq++; speechSynthesis.cancel(); setTalking(false); G.ttsSpeaking = false; }
-          if (Date.now() - lastListenFx > 1500) { // 👂 말하는 내내 끄덕이고 표정이 움직인다 — 이게 없어서 '듣고 있는지' 안 느껴졌다
-            lastListenFx = Date.now(); nodOnce();
-            backN = (backN + 1) % 3;
-            setExpr(backN === 0 ? "interest" : backN === 1 ? "think" : "neutral");
-          }
+          if (Date.now() - lastListenFx > 3200) { lastListenFx = Date.now(); softExpr("interest"); } // 👂 경청 표정은 아주 가끔만 — 자주 바꾸면 얼굴이 흔들려 오히려 몰입이 깨진다
         }
       } else $("sttLive").textContent = "";
     };
@@ -3807,6 +3836,7 @@ window.APP = (function () {
   var SAY_FIX = { "장인석": "…잠깐, 말이 엉켰네. 하던 얘기 계속해봐요.", "강지은": "앗, 제가 말이 꼬였어요~ 방금 얘기 계속해주세요!", "신혁주": "잠깐. 말이 꼬였네요. 하던 얘기 계속해요.", "김민우": "음, 말이 좀 샜네요. 계속하시죠." };
   function drSay(text, expr, emo, cb) {
     if (!G.inCall) return; // 통화 종료 후 유령 대사 방지
+    text = String(text || "").replace(/\s{2,}/g, " ").trim(); // 조립 과정의 이중 공백 정리
     if (!sayGuard(text)) text = (G.doc && SAY_FIX[G.doc.nm]) || "잠깐, 말이 엉켰네요. 계속하시죠."; // 오염 대사 교체
     $("bWho").textContent = G.doc.nm + " 원장";
     $("bText").textContent = text;
@@ -4015,6 +4045,7 @@ window.APP = (function () {
     if (!o) {
       drSay(pre + "음… 얘기는 알겠어요. 그래서, 그럼 뭐부터 하면 되는데요?", expr || "interest", emo || "interest");
       G.awaiting = "closing"; faidRender();
+      G.lastAsk = "그래서, 그럼 뭐부터 하면 되는데요? 언제 누가 오는지 말해줘요.";
       $("hudProg").textContent = "클로징 타임!";
       return;
     }
@@ -4023,7 +4054,8 @@ window.APP = (function () {
     var line = o.data.dr;
     var cbk = memCallback(o.data.n); // 아까 언급과 이어지는 반대면 기억을 짚고 들어간다
     if (G.qIdx > 0 && !prefix) line = (cbk || (G.lastMrText && Math.random() < 0.65 ? ackFromText(G.lastMrText) : pick("trans", TRANSITIONS))) + " " + line;
-    else if (cbk) line = cbk + " " + line;
+    else if (cbk && pre.length < 34) line = cbk + " " + line; // 앞말이 이미 길면 기억 인용까지 얹지 않는다
+    G.lastAsk = o.data.dr2 || o.data.dr; // 못 알아들었다고 하면 이걸 다시 말해준다
     drSay(pre + line, expr || "think", emo || null);
     G.awaiting = o; faidRender();
     if (($("mrInput").value || "").trim()) resetSilence(); // 원장 말 사이에 미리 말해둔 답 자동 발사
@@ -4480,7 +4512,7 @@ window.APP = (function () {
     else if (act === "confused" || act === "bye") { expr = "think"; emo = "think"; }
     var tail = "";
     if (act === "confused" && o && o.data) tail = " " + (o.data.dr2 || o.data.dr); // 못 알아들었다면 — 방금 걱정을 다시 풀어서 말해준다
-    else if (o && o.data && act !== "checktime") tail = " " + pick("actback", ACT_BACK[G.doc.nm] || ACT_BACK["신혁주"]);
+    else if (o && o.data && ACT_NEEDBACK[act]) tail = " " + pick("actback", ACT_BACK[G.doc.nm] || ACT_BACK["신혁주"]);
     G.awaiting = o; faidRender(); // 답을 아직 못 들었다 — 반대는 그대로
     drSay(line + tail, expr, emo);
     if (o && o.data) $("hudProg").textContent = "원장은 아직 답을 기다립니다";
@@ -4495,7 +4527,6 @@ window.APP = (function () {
     if (G.llmBusy) { toast("원장님이 생각 중… 잠시 후 전송하세요"); return; } // 입력은 그대로 남는다
     G.lastMrText = text; // 원장이 다음 반대로 넘어갈 때 이 말을 짚는다
     pokeIdle(); // 사용자가 응답했다 — 침묵 시계 리셋
-    nodOnce(); setExpr("think"); // 👂 보내는 즉시 원장이 받아들인다 — 응답 공백이 죽은 시간으로 느껴지지 않게
     speakSeq++; speechSynthesis.cancel(); setTalking(false); G.ttsSpeaking = false; // barge-in — 이전 대사 체인 무효화
     if (G.silT) clearTimeout(G.silT);
     $("sttLive").textContent = "";
@@ -4536,6 +4567,16 @@ window.APP = (function () {
         }
       }
     }
+    // 🗣 못 알아들었다는 신호에는 단계와 무관하게 항상 다시 말해준다 — 채점하지 않는다
+    //    (v5.5까진 반대 단계에서만 먹혀서, 되묻기·클로징에선 "네? 뭐라고요?"가 빗나감으로 채점되고 대화가 무너졌다)
+    if (readAct(text) === "confused") {
+      G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text), act: "confused" });
+      G.confN = (G.confN || 0) + 1;
+      var lead = G.confN >= 2 ? (SLOWER[G.doc.nm] || SLOWER["신혁주"]) : (ACT_REPLY.confused[G.doc.nm] || ACT_REPLY.confused["신혁주"]);
+      var ask = G.lastAsk ? (G.confN >= 2 ? lastSent(G.lastAsk) : G.lastAsk) : ""; // 두 번째부터는 핵심 한 문장만
+      drSay(lead + (ask ? " " + ask : ""), "think", "think");
+      return; // awaiting은 그대로 — 원장은 여전히 같은 답을 기다린다
+    }
     if (G.awaiting === "opening") { // MR의 인사·오프닝 비트
       var jo = judgeTurn(0, text);
       G.turns.push({ typeN: 0, text: text, judge: jo });
@@ -4560,6 +4601,14 @@ window.APP = (function () {
       var pTn = (po && po.kind === "v22" && po.data) ? po.data.n : 0; // 전용 되파기면 그 걱정으로 채점 (잡담 되파기는 채점 없음)
       var jp = judgeTurn(pTn, text);
       if (pTn) jp.crit = critCheck(jp, G.scen.diff);
+      var pAct = (jp.keyHit === 0 && jp.numsOk === 0 && jp.numsBad === 0) ? readAct(text) : null;
+      if (pAct) { // 되묻기에 감사·잡담·수긍으로 답했다 — 받아주되 질문은 살아있다 (예전엔 빗나감으로 채점되고 화제가 넘어갔다)
+        G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text), act: pAct });
+        G.awaiting = "probe"; G.probeObj = po; faidRender();
+        drSay(((ACT_REPLY[pAct] || {})[G.doc.nm] || "") + " " + pick("actback", ACT_BACK[G.doc.nm] || ACT_BACK["신혁주"]),
+          ACT_BAD[pAct] ? "angry" : "neutral", ACT_BAD[pAct] ? "angry" : null); // 질문을 통째로 되풀이하지 않는다 — 로봇처럼 들린다
+        return;
+      }
       G.turns.push({ typeN: pTn, text: text, judge: jp, probe: true });
       G.awaiting = false; faidRender();
       if (jp.numsBad) { stamp("bad", "오수치!"); badNumToast(jp); }
@@ -4592,8 +4641,21 @@ window.APP = (function () {
     }
     if (G.awaiting === "closing") {
       var jc = judgeTurn(0, text);
+      var cAct = CLOSING_ACT.test(text) ? null : readAct(text);
+      if (cAct && cAct !== "bye") { // 마무리 단계의 감사·잡담·요약 — 받아주되 날짜·주체를 다시 요구 (여기서 통화가 그냥 끝나버렸다)
+        G.turns.push({ typeN: 0, text: text, judge: jc, act: cAct });
+        drSay(((ACT_REPLY[cAct] || {})[G.doc.nm] || "") + " 그래서 — 언제, 누가 오는 건지 그것만 말해줘요.",
+          ACT_BAD[cAct] ? "angry" : "interest", ACT_BAD[cAct] ? "angry" : "interest");
+        return; // awaiting = "closing" 유지
+      }
       G.turns.push({ typeN: 0, text: text, judge: jc });
       var okc = CLOSING_ACT.test(text);
+      if (!okc && !jc.vague && (G.closeMiss || 0) < 1) { // 알맹이는 있는데 날짜·주체가 없다 — 끊기 전에 한 번은 짚어준다 (여기서 바로 끝나 억울했다)
+        G.closeMiss = 1; G.turns.pop();
+        G.turns.push({ typeN: 0, text: text, judge: jc, act: "closenudge" });
+        drSay((CLOSE_NUDGE[G.doc.nm] || CLOSE_NUDGE["신혁주"]), "interest", "interest");
+        return; // awaiting = "closing" 유지 — 한 번 더 기회
+      }
       if (okc && CLOSING.test(text)) stamp("crit", "합의 성립!");
       else if (okc) stamp("hit", "제안 접수");
       G.awaiting = false; faidRender();
@@ -4677,7 +4739,8 @@ window.APP = (function () {
       G.probeN++;
       var pq = pickProbe(text, o); // 방금 뚫린 그 걱정에 딸린 전용 되파기가 최우선
       G.probeObj = G._probeSrc || null; // 전용 되파기면 그 걱정으로 채점한다 — 잘 받아치면 게이지가 또 오른다
-      drSay(withBeat((ansPre ? ansPre + " " : "") + heardLine(text, cat) + reactLine(cat, ctx)) + " " + pq, expr, emo); // 답+인지+반응+되묻기 한 호흡
+      G.lastAsk = G._probeBare || pq; // 다시 말할 땐 "하나만 더 물어봐도 돼요?" 같은 앞말을 빼고 질문만
+      drSay(preSay(ansPre, text, cat, ctx, 54) + " " + pq, expr, emo); // 답+인지+반응+되묻기 한 호흡 (앞부분 54자 예산)
       G.awaiting = "probe"; faidRender();
       $("hudProg").textContent = G.probeObj ? "원장이 한 번 더 캐묻습니다 — 되파기" : "원장의 되묻기 — 티키타카";
       return;
@@ -4693,7 +4756,7 @@ window.APP = (function () {
           else { G.awaiting = "closing"; $("hudProg").textContent = "클로징 타임!"; }
         });
     } else {
-      nextObjection(cat === "vague3" ? GIVEUP[G.doc.nm] : withBeat((ansPre ? ansPre + " " : "") + heardLine(text, cat) + reactLine(cat, ctx)), expr, emo); // 답+인지+반응+다음 반대 한 호흡
+      nextObjection(cat === "vague3" ? GIVEUP[G.doc.nm] : preSay(ansPre, text, cat, ctx, 62), expr, emo); // 답+인지+반응+다음 반대 한 호흡 (앞부분 62자 예산)
     }
   }
 
@@ -6959,7 +7022,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "5.5";
+  var APP_VER = "5.6";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -7016,7 +7079,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
 })();
 
 </script>
