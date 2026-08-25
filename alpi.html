@@ -320,6 +320,7 @@ table.rank td.nm{font-weight:800;}
 .rpl.mr.best{background:#FBF3D9;outline:2px solid #C9A94E;}
 .rpl.dr{background:#F6F3EC;color:#444;}
 .rchip{display:inline-block;font-size:10.5px;font-weight:900;border-radius:99px;padding:1px 8px;margin-left:5px;vertical-align:1px;}
+.rwhy{font-size:11.5px;color:#7A6A45;margin-top:3px;background:#FBF8EE;border-left:2.5px solid #D8C48A;padding:2px 8px;border-radius:0 6px 6px 0;}
 .rc-crit{background:#B8860B;color:#fff;}
 .rc-hit{background:var(--acc);color:#fff;}
 .rc-mild{background:#DCE8E5;color:#2A5A52;}
@@ -1315,7 +1316,9 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v5.7 — 공정해진 채점</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v5.8 — 심판과 원장이 한 몸</h2>
+    <div class="ver-it"><b>🎙 5.8 — 일레븐 원장이 심판과 동기화</b>일레븐 음성 모드에서 채점기가 감지한 것 — <b>오수치(틀린 숫자와 정답), 걱정 해소, 마음 넘어옴</b> — 이 원장 AI에게 실시간으로 전달됩니다. 이제 일레븐 원장도 틀린 숫자를 짚고, 풀린 걱정을 되풀이하지 않고, 마음이 기울면 먼저 다음 단계를 묻습니다.</div>
+    <div class="ver-it"><b>📖 5.8 — 납득되는 대화 복기</b>결과 리포트의 대화 복기에 <b>판정 이유</b>가 달립니다: 어떤 명분이 인정됐는지, 빗나갔다면 남은 열쇠가 뭐였는지, 오수치라면 정답이 뭐였는지. 여러 턴에 나눠 말해 격파를 완성한 순간은 <b>🧩 합산 격파</b>로 표시됩니다.</div>
     <div class="ver-it"><b>🧮 5.7 — 나눠 말해도 합산됩니다</b>이제 명분을 <b>여러 턴에 나눠</b> 말해도 대화 전체로 합산해 격파로 인정합니다. 명분 1개+정확한 수치도 격파입니다. (기존엔 한 문장 안에 명분 2개를 요구해 — 실측 결과 현실 발화의 93%가 "절반"에 머물렀습니다)</div>
     <div class="ver-it"><b>🗣 5.7 — 더 넓어진 귀</b>"이 분이면 끝나요", "십 초", "사람 뽑으실 필요 없어요", "편한 분들부터 골라서" 같은 <b>실전 구어 표현</b>을 정답 논리로 알아듣습니다. 실측 59개 표현 100% 인정(오탐 0).</div>
     <div class="ver-it"><b>🎭 5.7 — 유령 맥락 제거</b>재도전 첫마디가 지난 통화에 <b>실제로 있었던 일만</b> 전제합니다. ("그때 나온 숫자"는 숫자를 정말 말했을 때만) 영상통화인데 "병원까지 오셨어요?"라고 묻던 것도 고쳤습니다.</div>
@@ -2867,6 +2870,21 @@ window.APP = (function () {
     drSay(G.doc.open, G.doc.nm === "강지은" ? "happy" : "neutral", G.doc.nm === "강지은" ? "happy" : null,
       q.length ? function () { if (G.inCall) { $("mrInput").value = q.join(" "); sendTurn(); } } : null);
   }
+  function elevenJudgeNote(j, att, resolvedNow, converged) { // 순수 — 심판의 판정을 에이전트가 연기에 쓸 관찰 노트로 (300자 이내)
+    var L = [];
+    if (j.numsBad && j.badClaims && j.badClaims.length) L.push("MR이 방금 말한 숫자 \"" + j.badClaims[0] + "\"" + (j.badClaims[0].indexOf("정답:") >= 0 ? "" : "는 표준과 다르다") + " — 그 숫자를 그대로 짚어 의심하라.");
+    else if (att.typeN && j.crit) L.push("방금 답은 논리와 수치가 전부 정확했다 — 살짝 감탄하고 그 걱정은 깨끗하게 인정하라.");
+    else if (resolvedNow) L.push("방금으로 그 걱정은 사실상 풀렸다 — 인정하고, 억지로 되풀이하지 마라.");
+    else if (att.typeN && j.vague) L.push("방금 답엔 알맹이(근거·수치)가 없었다 — 같은 걱정을 표현만 바꿔 한 번 더 캐물어라.");
+    if (converged) L.push("당신 마음이 사실상 넘어왔다 — 남은 걱정을 기계적으로 꺼내지 말고, \"그럼 뭐부터 하면 돼요? 언제 와줄 수 있어요?\"처럼 당신이 먼저 다음 단계를 물어라.");
+    var objs = (G.scen && G.scen.objs) || [];
+    if (objs.length) L.push("해소 현황 " + objs.filter(function (o) { return G.resolved[o.n]; }).length + "/" + objs.length + ".");
+    return L.length ? "[관찰] " + L.join(" ") : "";
+  }
+  function elevenPush(note) { // 끼어들지 않는 컨텍스트 주입 — 실패해도 대화는 계속된다
+    if (!note) return;
+    try { if (G.elClient && typeof G.elClient.sendContextualUpdate === "function") G.elClient.sendContextualUpdate(note); } catch (e) {}
+  }
   function elevenTurn(text) { // 일레븐이 대화를 운전 — 여기서는 심판만 본다 (결정론 채점 유지)
     if (mannerCheck(text)) { G.dlgLog.push({ w: "mr", t: text }); G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text), eleven: true }); return; } // 음성으로 뱉은 욕설도 잡는다
     var att = attributeTurn(text), j = att.judge;
@@ -2884,6 +2902,13 @@ window.APP = (function () {
     var total = G.scen.objs.length, done = G.scen.objs.filter(function (o) { return G.resolved[o.n]; }).length;
     $("hudProg").textContent = "걱정 해소 " + done + "/" + total + " " + G.scen.objs.map(function (o) { return G.resolved[o.n] ? "●" : "○"; }).join("");
     inbarSync(); // 대화가 흐르기 시작 — 음성 모드면 도우미 접힘
+    var convNow = false;
+    if (!G.converged && pgConverged()) { // 💘 일레븐 모드의 수렴 — 대사는 에이전트가, 연출·상태는 심판이
+      G.converged = 1; convNow = true;
+      heartBurst(6); moodSet(3); stamp("crit", "마음이 넘어왔다! 💘");
+      $("hudProg").textContent = "클로징 타임! 날짜·주체를 박아 끝내세요";
+    }
+    elevenPush(elevenJudgeNote(j, att, resolvedNow, convNow)); // 🧠 심판이 아는 것(오수치·해소·수렴)을 에이전트의 눈에도
     if (CLOSING_ACT.test(text) && CLOSING.test(text) && done === total && G.turns.length >= 3) { stamp("crit", "합의 성립!"); setTimeout(function () { if (G.inCall) endCall(false); }, 6000); } // 합의 통과 — 단 3턴 이상 주고받은 뒤에만 (첫 답 즉시 종료 방지)
   }
   function llmFetch(body, signal) { // 중계 서버(키 서버 보관)가 있으면 그쪽으로, 없으면 개인 키로 직접
@@ -4674,6 +4699,12 @@ window.APP = (function () {
     }
     if (G.awaiting === "closing") {
       var jc = judgeTurn(0, text);
+      if (jc.numsBad) { // 마무리 중에도 틀린 숫자는 그냥 넘어가지 않는다 — 원장은 숫자를 기억하는 사람이다
+        G.turns.push({ typeN: 0, text: text, judge: jc });
+        stamp("bad", "오수치!"); badNumToast(jc); bumpCombo(false);
+        drSay(reactLine("bad") + " 그 숫자부터 바로잡고 마무리합시다.", "angry", "angry");
+        return; // awaiting = "closing" 유지
+      }
       var cAct = CLOSING_ACT.test(text) ? null : readAct(text);
       if (cAct && cAct !== "bye") { // 마무리 단계의 감사·잡담·요약 — 받아주되 날짜·주체를 다시 요구 (여기서 통화가 그냥 끝나버렸다)
         G.turns.push({ typeN: 0, text: text, judge: jc, act: cAct });
@@ -5336,6 +5367,22 @@ window.APP = (function () {
       return "<div class='tlc tlc-" + cls + "' title='" + esc((t.text || "").slice(0, 90)) + "'></div>";
     }).join("");
     // 🎬 대화 복기 — 턴별 판정 칩 + 이 판의 명대사 (전사에 코치의 눈을 얹는다)
+    function turnWhy(t, uni) { // 이 턴이 왜 이 판정인지 — 인정된 명분·남은 열쇠·오수치 정답을 한 줄로
+      var j2 = t.judge; if (!j2) return "";
+      var v = t.typeN && V22.filter(function (x) { return x.n === t.typeN; })[0];
+      if (j2.numsBad && j2.badClaims && j2.badClaims.length) return "🔎 " + j2.badClaims[0];
+      var bits = [];
+      if (v && v.key && j2.keyHitIdx && j2.keyHitIdx.length) {
+        var names = j2.keyHitIdx.filter(function (ki) { return ki < v.key.length; }).map(function (ki) { return keyTopic(v.key[ki]) || null; }).filter(Boolean);
+        if (names.length) bits.push("인정: " + names.slice(0, 2).join(" · "));
+      }
+      if (j2.numsOk > 0) bits.push("정수치 " + j2.numsOk + "건");
+      if (v && v.key && j2.vague) {
+        var got = (uni && uni[t.typeN]) || {};
+        for (var ki2 = 0; ki2 < v.key.length; ki2++) if (!got[ki2]) { bits.push("남은 열쇠: " + (keyTopic(v.key[ki2]) || v.key[ki2].slice(0, 18))); break; }
+      }
+      return bits.length ? "🔎 " + bits.join(" · ") : "";
+    }
     if ($("dlgFull")) (function () {
       var tN = G.turns.filter(function (t) { return t.text; });
       var mrTotal = G.dlgLog.filter(function (d) { return d.w === "mr"; }).length;
@@ -5346,17 +5393,29 @@ window.APP = (function () {
         var s2 = (t.judge.crit ? 100 : 0) + (t.judge.keyHit || 0) * 10 + Math.min(9, (t.text || "").length / 60);
         if ((t.judge.crit || t.judge.keyHit >= 2) && s2 > starScore) { starScore = s2; star = i; }
       });
-      var mrSeq = 0;
+      var mrSeq = 0, uniWalk = {}; // 대화를 걸어가며 명분 누적을 재현 — '합산 격파' 순간을 복기에 표시
       $("dlgFull").innerHTML = G.dlgLog.length ? G.dlgLog.map(function (d) {
         if (d.w !== "mr") return "<div class='rpl dr'><b>" + esc(G.doc.nm) + "</b> — " + esc(d.t) + "</div>";
         var t = zip ? tN[mrSeq] : null, me = mrSeq; mrSeq++;
-        var chip = "";
+        var chip = "", why = "";
         if (t && t.judge) {
           var j2 = t.judge;
-          chip = j2.numsBad ? "<span class='rchip rc-bad'>⚠ 오수치</span>" : j2.crit ? "<span class='rchip rc-crit'>⚡ 크리티컬</span>" : (t.typeN && j2.keyHit >= 2) ? "<span class='rchip rc-hit'>🎯 적중</span>" : (t.typeN && j2.keyHit === 1) ? "<span class='rchip rc-mild'>◐ 절반</span>" : (t.typeN && j2.vague) ? "<span class='rchip rc-vague'>〰 빗나감</span>" : "<span class='rchip rc-talk'>💬 대화</span>";
+          var fused = false; // 이 턴의 명분이 이전 턴들과 합쳐져 격파를 '완성'했는가
+          if (t.typeN && j2.keyHitIdx) {
+            var slot = uniWalk[t.typeN] = uniWalk[t.typeN] || { idx: {}, num: false };
+            var before = Object.keys(slot.idx).length, beforeNum = slot.num;
+            j2.keyHitIdx.forEach(function (ki) { slot.idx[ki] = true; });
+            if (j2.numsOk > 0) slot.num = true;
+            var after = Object.keys(slot.idx).length;
+            var wasSolved = before >= 2 || (before >= 1 && beforeNum);
+            var isSolved = after >= 2 || (after >= 1 && slot.num);
+            fused = !wasSolved && isSolved && !(j2.crit || j2.keyHit >= 2);
+          }
+          chip = j2.numsBad ? "<span class='rchip rc-bad'>⚠ 오수치</span>" : j2.crit ? "<span class='rchip rc-crit'>⚡ 크리티컬</span>" : fused ? "<span class='rchip rc-crit'>🧩 합산 격파</span>" : (t.typeN && j2.keyHit >= 2) ? "<span class='rchip rc-hit'>🎯 적중</span>" : (t.typeN && j2.keyHit === 1) ? "<span class='rchip rc-mild'>◐ 절반</span>" : (t.typeN && j2.vague) ? "<span class='rchip rc-vague'>〰 빗나감</span>" : (t.act === "summarize" || t.act === "askback") ? "<span class='rchip rc-hit'>👂 경청</span>" : "<span class='rchip rc-talk'>💬 대화</span>";
           if (me === star) chip += "<span class='rchip rc-star'>⭐ 이 판의 명대사</span>";
+          why = turnWhy(t, (function () { var m2 = {}; Object.keys(uniWalk).forEach(function (k2) { m2[k2] = uniWalk[k2].idx; }); return m2; })());
         }
-        return "<div class='rpl mr" + (me === star ? " best" : "") + "'><b>나</b> " + chip + "<div style='margin-top:2px;'>" + esc(d.t) + "</div></div>";
+        return "<div class='rpl mr" + (me === star ? " best" : "") + "'><b>나</b> " + chip + "<div style='margin-top:2px;'>" + esc(d.t) + "</div>" + (why ? "<div class='rwhy'>" + esc(why) + "</div>" : "") + "</div>";
       }).join("") : "<div class='small'>기록 없음</div>";
     })();
     markPlayedToday(); // 🔥 연속 항해 스트릭 — 오늘의 훈련 도장
@@ -7056,7 +7115,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "5.7";
+  var APP_VER = "5.8";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -7113,7 +7172,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
 })();
 
 </script>
