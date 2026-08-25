@@ -1327,6 +1327,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
     <div id="sparBody" style="text-align:left;"></div>
     <div style="margin-top:12px;">
       <button class="btn" style="padding:9px 20px;" onclick="APP.sparClose(true)">⚡ 한 판 더</button>
+      <button class="btn ghost" style="padding:9px 18px;" onclick="APP.sparCodex()">📜 표준 스크립트 복습</button>
       <button class="btn ghost" style="padding:9px 18px;" onclick="APP.sparClose(false)">🗺 지도로</button>
     </div>
   </div>
@@ -1335,7 +1336,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.0 — 훈련의 새 무기 3종</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.1 — 스파링 마감 손질</h2>
+    <div class="ver-it"><b>🔑 6.1 — 스파링 결과에서 바로 배웁니다</b>빗나간 문제엔 <b>남은 열쇠 한 줄</b>과 <b>▶ 표준 듣기</b>가 결과 창에 바로 붙습니다. 뭉개진 음성은 문제를 소진하지 않고 되묻고, 지도에 스파링 누적 정답률이 표시됩니다. 미션 결과는 판 기록에 저장되어 조직 집계로 이어집니다.</div>
     <div class="ver-it"><b>⚡ 6.0 — 스파링 모드</b>클로징 없이 <b>반대 5연속</b>만 몰아치는 1분 드릴. 약한 유형(80점 미만)부터 자동 출제되고, 한 문제당 한 번의 응수를 본게임과 같은 심판이 즉시 판정합니다. 결과·랭킹 화면의 <b>⚡ 스파링</b> 버튼 — 실력은 판수에서 나옵니다.</div>
     <div class="ver-it"><b>🎧 6.0 — 표준 화법 듣고 따라 말하기</b>리포트의 각 반대 유형에서 <b>▶ 표준 화법 듣기</b>로 검증된 스크립트를 음성으로 듣고, <b>🎤 따라 말하기</b>로 내 입으로 재현하면 즉시 채점됩니다(명분 n/3 · 수치 · 완벽 재현 ⚡). 리포트가 곧 교보재입니다.</div>
     <div class="ver-it"><b>📈 6.0 — 원장 설득 곡선</b>결과 리포트에 통화 내내 원장 마음이 오르내린 <b>궤적 그래프</b>가 실립니다. 최고점·최저점이 표시되어 "언제 마음을 얻었고 언제 잃었는지"가 한눈에 보입니다.</div>
@@ -3548,7 +3550,9 @@ window.APP = (function () {
     $("hudProg").textContent = "스파링 1/5";
     $("sitLine").innerHTML = "<div class='sitcard'><div class='sc-top'><span class='sc-ht' style='background:#8a2f2f;'>⚡ 스파링</span><span class='sc-nm'>반대 5연속 드릴</span></div><div class='sc-ms'>원장의 걱정에 <b>정답 명분 + 정확한 수치</b>로 즉답하세요 — 한 문제당 한 번의 응수</div></div>";
     faidHide(); G._inbarPin = 0; inbarSync();
-    $("playBanner").innerHTML = "<div class='banner info'>⚡ <b>스파링</b> — 클로징 없이 반대만 5연속. 그냥 말하면 자동 전송됩니다.</div>";
+    try { if (G.elClient) { G.elClient.endSession(); G.elClient = null; } } catch (e) {} // 이전 판의 일레븐 세션이 살아있으면 목소리가 겹친다
+    var hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    $("playBanner").innerHTML = "<div class='banner info'>⚡ <b>스파링</b> — 클로징 없이 반대만 5연속. " + (hasSR ? "그냥 말하면 자동 전송됩니다." : "이 기기엔 음성인식이 없어 <b>타이핑</b>으로 진행합니다.") + "</div>";
     show("scr-play"); G.inCall = true;
     $("btnMic").classList.remove("hidden");
     if (window.SpeechRecognition || window.webkitSpeechRecognition) startVoiceLoop(); else setMicBtn();
@@ -3560,13 +3564,20 @@ window.APP = (function () {
   function sparTurn(text) {
     var o = G.scen.objs[G.sparIdx];
     if (!o) return;
+    if (misheard(text) && !G._sparReask) { // 🎤 뭉개진 음성 — 문제를 소진하지 않고 한 번 되묻는다
+      G._sparReask = 1;
+      drSay(REASK[G.doc.nm] || REASK["신혁주"], "think", "think");
+      return;
+    }
+    G._sparReask = 0;
     G.dlgLog.push({ w: "mr", t: text });
     var j = judgeTurn(o.n, text);
     j.crit = critCheck(j, 2);
     G.turns.push({ typeN: o.n, text: text, judge: j, spar: true });
     var solved = j.crit || j.keyHit >= 2 || (j.keyHit >= 1 && j.numsOk >= 1);
     var half = !solved && j.keyHit >= 1;
-    G.sparRes.push({ n: o.n, t: o.t, solved: solved, half: half, crit: !!j.crit, numsBad: j.numsBad || 0 });
+    G.sparRes.push({ n: o.n, t: o.t, solved: solved, half: half, crit: !!j.crit, numsBad: j.numsBad || 0,
+      hint: (!solved && o.key && o.key.length) ? (missingKey({ data: o }, j) || o.key[0]) : null }); // 빗나간 문제엔 '남은 열쇠'를 결과에서 바로 보여준다
     if (j.numsBad) { stamp("bad", "오수치!"); badNumToast(j); }
     else if (j.crit) stamp("crit", "크리티컬 ⚡");
     else if (solved) stamp("hit", "격파!");
@@ -3595,9 +3606,10 @@ window.APP = (function () {
     hist.n += res.length; hist.ok += ok; if (ok > (hist.best || 0)) hist.best = ok;
     store("spar", hist);
     var rows = res.map(function (r) {
-      return "<div style='display:flex;gap:8px;align-items:center;margin:4px 0;'><span class='cdx-n'>" + r.n + "</span><span style='flex:1;'>" + esc(r.t) + "</span>" +
+      return "<div style='margin:5px 0;'><div style='display:flex;gap:8px;align-items:center;'><span class='cdx-n'>" + r.n + "</span><span style='flex:1;'>" + esc(r.t) + "</span>" +
         (r.crit ? "<b style='color:#B9932B;'>⚡ 크리티컬</b>" : r.solved ? "<b style='color:#0B5B54;'>✓ 격파</b>" : r.half ? "<b style='color:#A8652F;'>◐ 절반</b>" : "<b style='color:#B0392E;'>✗ 빗나감</b>") +
-        (r.numsBad ? " <span class='small' style='color:#B0392E;'>오수치 " + r.numsBad + "</span>" : "") + "</div>";
+        (r.numsBad ? " <span class='small' style='color:#B0392E;'>오수치 " + r.numsBad + "</span>" : "") + "</div>" +
+        (r.hint ? "<div class='small' style='margin:1px 0 0 30px;color:#8A6410;'>🔑 " + esc(String(r.hint).split(" — ")[0].slice(0, 46)) + " <button class='rdis' style='vertical-align:0;' onclick='APP.stdPlay(" + r.n + ")'>▶ 표준 듣기</button></div>" : "") + "</div>";
     }).join("");
     var ov = $("sparOv");
     if (ov) {
@@ -3607,6 +3619,7 @@ window.APP = (function () {
       ov.classList.add("show");
     } else { toast(ok + "/" + res.length + " 격파"); show("scr-map"); }
   }
+  function sparCodex() { var ov = $("sparOv"); if (ov) ov.classList.remove("show"); toCodex(); }
   function sparClose(again) { var ov = $("sparOv"); if (ov) ov.classList.remove("show"); if (again) sparStart(); else show("scr-map"); }
   async function gearGo(useCam) {
     if (useCam && G.gearPending) {
@@ -5449,8 +5462,10 @@ window.APP = (function () {
     if ($("coachSum") && !sc.noPlay) (function () { // 🎯 미션 판정 — 지난 판 처방이 이번 판 행동으로 이어졌나
       var cur = loadK("mission", null);
       var line = "";
+      G._missionLog = null;
       if (cur && cur.t && MISSIONS[cur.ax]) {
         var doneM = missionDone(cur, G.turns);
+        G._missionLog = { ax: cur.ax, t: cur.t, done: doneM };
         line += "<div style='margin-bottom:8px;padding:9px 12px;border-radius:10px;border:1.5px solid " + (doneM ? "var(--teal)" : "#D8C48A") + ";background:" + (doneM ? "#EAF6F3" : "#FFFDF4") + ";color:var(--ink);'>" +
           (doneM ? "🎯 <b>미션 달성!</b> — " + esc(cur.t) + " <b style='color:var(--acc);'>+₿ 5,000,000 보너스 현상금</b>"
                  : "🎯 <b>미션 미달</b> — " + esc(cur.t) + " <span class='small'>(" + esc(cur.tip) + ")</span>") + "</div>";
@@ -5548,7 +5563,8 @@ window.APP = (function () {
     if (sc.total >= 80) types.forEach(function (n) { if (!G.conquered[n]) { G.conquered[n] = true; newConq.push(n); } });
     if (Object.keys(G.conquered).length >= 20) G.badges["그랜드라인 마스터"] = true;
     G.sessions.push({ no: G.sessions.length + 1, doc: G.doc.nm, types: types.slice(), sc: sc, crits: crits, bounty: bounty, date: todayStr(), diff: G.scen && G.scen.diff,
-      turns: G.turns.slice(), nv: nv, llm: llmOn() ? G.claudeModel : null, ht: G.scen.ht, diff: G.scen.diff }); // 캘리브레이션 스냅샷
+      turns: G.turns.slice(), nv: nv, llm: llmOn() ? G.claudeModel : null, ht: G.scen.ht, diff: G.scen.diff,
+      mission: G._missionLog || null }); // 캘리브레이션 스냅샷 + 🎯 미션 결과(향후 조직 집계용)
     var cum = G.sessions.reduce(function (a, s) { return a + s.bounty; }, 0);
     $("wBounty").textContent = cum.toLocaleString();
     // 잘한 점 / 개선할 점 / 조언
@@ -7320,6 +7336,8 @@ window.APP = (function () {
       vt += "<tr><td>" + ss.no + "</td><td>" + esc(ss.doc) + "</td><td>[" + ss.types.join("][") + "]</td><td><b>" + ss.sc.total + "</b></td><td>" + ss.sc.grade + "</td><td>" + (ss.crits || "-") + "</td><td>" + ss.sc.xp + "</td></tr>";
     });
     $("voyTable").innerHTML = vt + (G.sessions.length ? "" : "<tr><td colspan='7' class='small'>아직 기록 없음 — 첫 출항을 기다립니다</td></tr>");
+    var sp = loadK("spar", null);
+    if (sp && sp.n) { var mc = $("mapCount"); if (mc && String(mc.textContent).indexOf("스파링") < 0) mc.textContent = (mc.textContent || "") + " · ⚡ 스파링 누적 " + sp.n + "문제 · 정답률 " + Math.round(100 * sp.ok / Math.max(1, sp.n)) + "%"; }
     show("scr-map");
   }
 
@@ -7363,7 +7381,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "6.0";
+  var APP_VER = "6.1";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -7419,7 +7437,7 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, sparStart: sparStart, sparClose: sparClose, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
     _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
 })();
 
