@@ -616,6 +616,13 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 .rdoc .pdlg{font-size:12.5px;margin:5px 0;line-height:1.6;color:#3A4540;}
 .rdoc .pdlg b{color:#0B5B54;margin-right:5px;}
 .rdoc .pdlg.dr b{color:#8A6A2B;}
+.pdlgwrap .pdlg{font-size:13px;margin:6px 0;line-height:1.65;}
+.pdlgwrap .pdlg b{color:#0B5B54;margin-right:5px;}
+.pdlgwrap .pdlg.dr b{color:#8A6A2B;}
+.pdlgwrap .pdlg.mr.disp{background:#FDF0EE;border-left:3px solid #8a2f2f;border-radius:0 8px 8px 0;padding:4px 8px;margin-left:-8px;}
+.pdlgwrap .pjl{font-size:10px;font-weight:900;border-radius:99px;padding:1px 7px;margin-left:4px;}
+.pdlgwrap .pjl.crit{background:#B8860B;color:#fff;}.pdlgwrap .pjl.hit{background:#0B5B54;color:#fff;}
+.pdlgwrap .pjl.half{background:#DCE8E5;color:#2A5A52;}.pdlgwrap .pjl.vague{background:#EFEADF;color:#7A6A4A;}.pdlgwrap .pjl.bad{background:#B0392E;color:#fff;}
 .rdoc .pjl{font-size:10.5px;font-weight:900;border-radius:99px;padding:1px 8px;margin-left:4px;white-space:nowrap;}
 .rdoc .pjl.crit{background:#B8860B;color:#fff;} .rdoc .pjl.hit{background:#0B5B54;color:#fff;}
 .rdoc .pjl.half{background:#DCE8E5;color:#2A5A52;} .rdoc .pjl.vague{background:#EFEADF;color:#7A6A4A;} .rdoc .pjl.bad{background:#B0392E;color:#fff;}
@@ -1336,7 +1343,12 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.1 — 스파링 마감 손질</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.3 — 보고서형 인사이트</h2>
+    <div class="ver-it"><b>🗂 6.3 — 전사→사업부→사무소→개인 4단 보고</b>관리자 인사이트가 탭 대신 <b>회사 보고 표준</b>으로 재편됐습니다: 판정 배지+3문장 종합 요약(현황→갭→할 일) → 사업부 현황(전사 대비 갭) → 사무소 현황 → 개인 현황. 모든 표에 전사 대비 ▲▼ 수치가 붙습니다.</div>
+    <div class="ver-it"><b>🏅 6.3 — 상위·성장 구간 구분</b>개인은 <b>상위 5</b>(강점 전파 대상)와 <b>성장 구간 5</b>(집중 지원 대상)로 나뉘어 표시됩니다 — 서열 공개가 아니라 코칭 대상 선별입니다. 판수 1회 인원은 순위에서 제외(표본 얇음 각주).</div>
+    <div class="ver-it"><b>🧭 6.3 — 개인별 인사이트</b>개인 [코칭]을 누르면 <b>전사·사업부·사무소 대비 위치(▲▼)</b> + 잘한 점 + 개선할 점 + 처방 + 처방 실행률이 한 카드로 나옵니다. 평가의 목적 — 현황과 문제를 파악해 피드백하고 개선한다 — 에 맞춘 구조입니다.</div>
+    <div class="ver-it"><b>📊 6.2 — 처방 실행률</b>관리자 인사이트에 <b>처방 실행률</b>이 생겼습니다 — 지난 판에서 받은 미션을 다음 판에서 실제로 해냈는가. 전사 KPI + 사업부/사무소/개인별 컬럼 + CSV. 점수보다 정직한 성장 지표입니다.</div>
+    <div class="ver-it"><b>⚖ 6.2 — 이의가 코치 눈앞에</b>MR이 이의를 제기한 판은 CM 평가 대기열 <b>최상단</b>에 ⚖ 배지로 올라오고, 평가 화면에서 해당 턴이 붉게 하이라이트됩니다. "이의 → 우선 검토" 약속이 화면으로 이행됩니다. (서버 컬럼이 없어도 평가 요청이 실패하지 않도록 자동 폴백도 보강)</div>
     <div class="ver-it"><b>🔑 6.1 — 스파링 결과에서 바로 배웁니다</b>빗나간 문제엔 <b>남은 열쇠 한 줄</b>과 <b>▶ 표준 듣기</b>가 결과 창에 바로 붙습니다. 뭉개진 음성은 문제를 소진하지 않고 되묻고, 지도에 스파링 누적 정답률이 표시됩니다. 미션 결과는 판 기록에 저장되어 조직 집계로 이어집니다.</div>
     <div class="ver-it"><b>⚡ 6.0 — 스파링 모드</b>클로징 없이 <b>반대 5연속</b>만 몰아치는 1분 드릴. 약한 유형(80점 미만)부터 자동 출제되고, 한 문제당 한 번의 응수를 본게임과 같은 심판이 즉시 판정합니다. 결과·랭킹 화면의 <b>⚡ 스파링</b> 버튼 — 실력은 판수에서 나옵니다.</div>
     <div class="ver-it"><b>🎧 6.0 — 표준 화법 듣고 따라 말하기</b>리포트의 각 반대 유형에서 <b>▶ 표준 화법 듣기</b>로 검증된 스크립트를 음성으로 듣고, <b>🎤 따라 말하기</b>로 내 입으로 재현하면 즉시 채점됩니다(명분 n/3 · 수치 · 완벽 재현 ⚡). 리포트가 곧 교보재입니다.</div>
@@ -5672,9 +5684,10 @@ window.APP = (function () {
       G.reviewSent = true;
       (function () {
         var rp = reviewPayload(); if (!rp) return;
+        var rpBase = {}; Object.keys(rp).forEach(function (k) { if (k !== "disputes") rpBase[k] = rp[k]; }); // 서버에 disputes 컬럼이 없어도 요청은 반드시 올라간다
         var ab = audioBlob();
-        if (ab && ab.size > 0 && ab.size <= AUDIO_MAX) audioUpload(ab, function (path) { if (path) rp.audio = path; cloudUpload("rp_review", rp); });
-        else cloudUpload("rp_review", rp);
+        if (ab && ab.size > 0 && ab.size <= AUDIO_MAX) audioUpload(ab, function (path) { if (path) { rp.audio = path; rpBase.audio = path; } cloudUpload("rp_review", rp, rpBase); });
+        else cloudUpload("rp_review", rp, rpBase);
       })();
     }
     if (!sc.noPlay) (function () { // 과정관리 데이터(턴수·소요초) 동봉 — 서버에 컬럼이 없으면 기본형으로 자동 폴백
@@ -5683,6 +5696,7 @@ window.APP = (function () {
         ht: G.scen.ht, diff: G.scen.diff, cp: sc.cpN || 0, llm: elevenOn() ? "eleven" : llmOn() ? G.claudeModel : null, device: IS_MOBILE ? "mobile" : "desktop" };
       var ext = {}; Object.keys(base).forEach(function (k) { ext[k] = base[k]; });
       ext.turns = G.turns.length; ext.dur = durSec;
+      if (G._missionLog) ext.mission = G._missionLog; // 🎯 처방 실행 여부 — 조직 인사이트의 '실행률' 근거
       cloudUpload("rp_sessions", ext, base);
     })();
     // 비언어 분석 표
@@ -6066,7 +6080,10 @@ window.APP = (function () {
       doc: s.doc, diff: G.scen && G.scen.diff, llm: elevenOn() ? "eleven" : llmOn() ? G.claudeModel : null,
       total: s.sc.total, axes: { A: s.sc.A, B: s.sc.B, C: s.sc.C, D: s.sc.D, E: s.sc.E },
       turns: turns, dlg: dlg, scen: { objs: (G.scen && G.scen.objs || []).map(function (o) { return o.n; }), ht: G.scen && G.scen.ht },
-      disputes: (G.disputes || []).slice(0, 20), // ⚖ MR이 이의 표시한 턴 인덱스 — 코치가 여기부터 본다
+      disputes: (G.disputes || []).slice(0, 20).map(function (di) { // ⚖ 인덱스+원문 조각 — CM 화면에서 해당 턴을 정확히 짚는다
+        var tw = (G.turns || []).filter(function (t2) { return t2.text; });
+        return { i: di, text: tw[di] ? String(tw[di].text).slice(0, 160) : "" };
+      }),
       status: "pending" };
   }
   /* 음성 첨부 — 녹음(다시 듣기용으로 이미 로컬에 있음)을 '요청한 판'에 한해 Storage로 올린다.
@@ -6154,19 +6171,29 @@ window.APP = (function () {
       "④ <b>코멘트 한 줄</b> — 특히 AI와 다르게 준 축은 이유를 남겨주세요. 채점 규칙 개정의 근거가 됩니다.</div>" +
       "<div class='small' style='margin-top:8px;'>절차: [평가하기] → 음성이 있으면 먼저 듣기 → 대화 읽기 → 5축 클릭 → 이름·코멘트 → 제출 (판당 3~5분). CP(컴플라이언스) 지적은 점수와 무관하게 별도 표시됩니다.</div>";
   }
+  function revSort(rows) { // 순수 — 대기 우선, 그 안에서 ⚖ 이의 제기 건 최우선, 이후 최신순
+    return (rows || []).slice().sort(function (a, b) {
+      var ad = a.status !== "done" ? 0 : 1, bd = b.status !== "done" ? 0 : 1;
+      if (ad !== bd) return ad - bd;
+      var ai = (a.disputes && a.disputes.length) ? 0 : 1, bi = (b.disputes && b.disputes.length) ? 0 : 1;
+      if (ad === 0 && ai !== bi) return ai - bi;
+      return String(b.created_at || "").localeCompare(String(a.created_at || ""));
+    });
+  }
   function renderReviewQueue() {
     var box = $("admReview"); if (!box) return;
-    var rows = G.review || [], pend = rows.filter(function (r) { return r.status !== "done"; });
+    var rows = revSort(G.review || []), pend = rows.filter(function (r) { return r.status !== "done"; });
+    var dispN = pend.filter(function (r) { return r.disputes && r.disputes.length; }).length;
     var h = "<details style='margin-bottom:10px;border:1.5px solid var(--gold);border-radius:10px;padding:8px 12px;background:#FFFDF4;'" + (loadK("cmg1", false) ? "" : " open") + ">" +
       "<summary style='cursor:pointer;font-weight:800;font-size:13px;color:var(--ink);'>📖 처음 평가하시나요? — 평가자 가이드 (3분, 첫 평가 제출 전까지 펼쳐져 있습니다)</summary>" +
       "<div style='margin-top:8px;'>" + cmGuideHtml() + "</div></details>";
-    h += "<div class='small' style='margin-bottom:8px;'>평가 대기 <b>" + pend.length + "건</b> · 완료 " + (rows.length - pend.length) + "건 " +
+    h += "<div class='small' style='margin-bottom:8px;'>평가 대기 <b>" + pend.length + "건</b>" + (dispN ? " · <b style='color:#8a2f2f;'>⚖ 이의 포함 " + dispN + "건 — 최상단 배치</b>" : "") + " · 완료 " + (rows.length - pend.length) + "건 " +
       "<button class='btn ghost' style='margin:0 0 0 6px;padding:4px 12px;font-size:12px;' onclick='APP.reviewFetch()'>↻ 새로고침</button></div>";
     if (!rows.length) { box.innerHTML = h + "<div class='small'>아직 요청된 판이 없습니다 — MR이 결과 화면에서 <b>[코치 평가 요청]</b>을 누르면 여기 쌓입니다.</div>"; return; }
     h += "<table class='voy'><tr><th>요청일</th><th>MR</th><th>사무소</th><th>상대</th><th>AI점수</th><th>상태</th><th></th></tr>";
     rows.slice(0, 40).forEach(function (r) {
       var done = r.status === "done";
-      h += "<tr><td class='small'>" + esc(String(r.created_at || "").slice(5, 16).replace("T", " ")) + "</td><td><b>" + esc(r.player || "-") + "</b>" + (r.audio ? " 🎧" : "") + "</td><td>" + esc(r.office || "-") + "</td><td>" + esc(r.doc || "-") + "</td><td><b>" + (r.total != null ? r.total : "-") + "</b></td>" +
+      h += "<tr><td class='small'>" + esc(String(r.created_at || "").slice(5, 16).replace("T", " ")) + "</td><td><b>" + esc(r.player || "-") + "</b>" + (r.audio ? " 🎧" : "") + ((r.disputes && r.disputes.length) ? " <span class='chip warn' title='MR이 판정에 이의를 제기했습니다'>⚖ 이의 " + r.disputes.length + "</span>" : "") + "</td><td>" + esc(r.office || "-") + "</td><td>" + esc(r.doc || "-") + "</td><td><b>" + (r.total != null ? r.total : "-") + "</b></td>" +
         "<td>" + (done ? "<span class='chip'>완료 · " + esc(r.reviewer || "") + "</span>" : "<span class='chip warn'>대기</span>") + "</td>" +
         "<td><button class='btn " + (done ? "ghost" : "") + "' style='margin:0;padding:5px 12px;font-size:12px;' onclick='APP.reviewOpen(" + r.id + ")'>" + (done ? "다시 보기" : "평가하기") + "</button></td></tr>";
     });
@@ -6184,9 +6211,12 @@ window.APP = (function () {
         (t.typeN && t.keyHit >= 2) ? "<span class='pjl hit'>정답 명분</span>" : (t.typeN && t.keyHit === 1) ? "<span class='pjl half'>절반</span>" :
         (t.typeN && t.vague) ? "<span class='pjl vague'>근거 부족</span>" : "";
     };
+    var dispTexts = (r.disputes || []).map(function (d2) { return String((d2 && d2.text) || "").trim(); }).filter(Boolean);
+    var isDisp = function (t2) { var s2 = String(t2 || "").trim(); return dispTexts.some(function (dt) { return s2.indexOf(dt.slice(0, 60)) === 0 || dt.indexOf(s2.slice(0, 60)) === 0; }); };
     var script = dlg.map(function (x) {
       if (x.w === "dr") return "<div class='pdlg dr'><b>" + esc(r.doc || "원장") + "</b> " + esc(x.t) + "</div>";
-      return "<div class='pdlg mr'><b>" + esc(r.player || "MR") + "</b> " + esc(x.t) + " " + lab(byText[x.t]) + "</div>";
+      var dd = isDisp(x.t);
+      return "<div class='pdlg mr" + (dd ? " disp" : "") + "'><b>" + esc(r.player || "MR") + "</b> " + esc(x.t) + " " + lab(byText[x.t]) + (dd ? " <span class='pjl bad' style='background:#8a2f2f;'>⚖ MR 이의</span>" : "") + "</div>";
     }).join("");
     var ax = r.axes || {};
     var rows = AX_META.map(function (m) {
@@ -6199,6 +6229,7 @@ window.APP = (function () {
     pane.innerHTML = "<div class='card' style='margin-top:14px;border:2px solid var(--acc);'>" +
       "<h2>🎓 " + esc(r.player || "-") + " · vs " + esc(r.doc || "-") + " 원장 <span class='small'>AI 총점 " + (r.total != null ? r.total : "-") + "점</span></h2>" +
       (r.audio ? "<div style='margin:4px 0 10px;'><div class='small' style='margin-bottom:4px;'>🎧 <b>실제 음성</b> — 말투·속도·톤을 직접 들어보세요 (MR 동의 하에 첨부됨)</div><audio controls preload='none' style='width:100%;' src='" + esc(audioPublicUrl(r.audio)) + "'></audio></div>" : "") +
+      ((r.disputes && r.disputes.length) ? "<div class='banner warn' style='margin:4px 0 8px;'>⚖ <b>MR이 " + r.disputes.length + "개 판정에 이의를 제기했습니다</b> — 붉게 표시된 턴을 먼저 봐주세요. 코치님 판단이 AI와 다르면 그 축부터 매겨주시면 됩니다.</div>" : "") +
       "<div class='small' style='margin-bottom:8px;'>대화를 읽고, <b>코치님 기준으로</b> 각 축을 5점 척도로 매겨주세요. AI와 다르면 그 차이가 곧 보정 신호입니다.</div>" +
       "<div class='pdlgwrap' style='max-height:360px;overflow:auto;background:#F7F9F8;border-radius:10px;padding:10px 12px;margin-bottom:12px;'>" + (script || "<span class='small'>대화 기록 없음</span>") + "</div>" +
       "<div class='cbscale'>" + LV_META.map(function (l) { return "<span><b>" + l[0] + "(" + l[1] + ")</b> " + l[2] + "점</span>"; }).join("") + "</div>" + rows +
@@ -6635,7 +6666,7 @@ window.APP = (function () {
   var AX_ACT = { A: "약점 유형의 표준 스크립트를 소리 내어 3회 낭독 → 같은 유형 즉시 재도전", B: "핵심 수치 3종(인당 385,290원 · 500명=연 1.9억 · 행위당 10초~2분) 암기 특훈", C: "병원 상황(경영난·인력부족·경쟁)별 명분 매칭 훈련 — 리포트의 명분 섹션 복습", D: "한 턴에 질문 1개 + 공감 1문장 룰로 재구성 — 발표가 아니라 대화", E: "“다음 주 화요일 2시, 교육간호사와 방문하겠습니다” 문형을 몸에 붙이기 — 날짜·주체 없는 마무리 금지" };
   function orgInsight(rows, today) { // 순수 함수 — 테스트 대상. today를 주면 전주 대비 성장률(wkDelta)까지 계산
     var kept = rankFilter(rows || []);
-    var mk = function () { return { n: 0, sum: 0, best: 0, silent: 0, ax: { A: 0, B: 0, C: 0, D: 0, E: 0 }, axN: 0, last: "", trend: [], types80: {} }; };
+    var mk = function () { return { n: 0, sum: 0, best: 0, silent: 0, ax: { A: 0, B: 0, C: 0, D: 0, E: 0 }, axN: 0, last: "", trend: [], types80: {}, mN: 0, mDone: 0 }; };
     var acc = function (u, r) {
       u.n++; u.sum += (r.total || 0); if ((r.total || 0) > u.best) u.best = r.total || 0;
       if (!(r.types && r.types.length)) u.silent++;
@@ -6643,13 +6674,15 @@ window.APP = (function () {
       var t = String(r.created_at || "").slice(0, 16); if (t > u.last) u.last = t;
       u.trend.push({ t: t, v: r.total || 0 });
       if ((r.total || 0) >= 80 && r.types) r.types.forEach(function (n) { u.types80[n] = 1; });
+      if (r.mission && r.mission.ax) { u.mN++; if (r.mission.done) u.mDone++; } // 🎯 처방(미션) 실행률 — 받은 처방을 다음 판에서 실제로 했는가
     };
     var fin = function (u, name, extra) {
       var pairs = u.trend.sort(function (a, b) { return a.t < b.t ? -1 : 1; });
       var o = { name: name, n: u.n, avg: u.n ? Math.round(u.sum / u.n) : 0, best: u.best,
         silentPct: u.n ? Math.round(100 * u.silent / u.n) : 0, last: u.last.replace("T", " "),
         trend: pairs.map(function (x) { return x.v; }).slice(-12),
-        prog: Object.keys(u.types80).length };
+        prog: Object.keys(u.types80).length,
+        mN: u.mN, mDone: u.mDone, mPct: u.mN ? Math.round(100 * u.mDone / u.mN) : null };
       if (today) { // 전주 대비: 최근 7일 평균 vs 그 전 7일 평균
         var t0 = new Date(today + "T23:59:59").getTime();
         var cur = [], prev = [];
@@ -6695,57 +6728,124 @@ window.APP = (function () {
       rx: AX_ACT[u.lowAx] };
   }
   function insRowsOf(tab, ins) { return tab === "div" ? ins.divs : tab === "office" ? ins.offices : ins.people; }
+  function gapTxt(v, base) { // 단위 평균 − 기준 평균 → "▲7 / ▼3 / ±0" (모든 비교에 수치 라벨)
+    if (v === null || v === undefined || base === null || base === undefined) return "<span class='small'>—</span>";
+    var d2 = Math.round(v - base);
+    return d2 > 0 ? "<b style='color:var(--acc);'>▲" + d2 + "</b>" : d2 < 0 ? "<b style='color:var(--red);'>▼" + (-d2) + "</b>" : "±0";
+  }
+  function unitRowsHtml(list, label, allAvg, offset) { // 사업부/사무소 공통 표 — 전사 대비 갭 컬럼 포함
+    var h = "<table class='voy'><tr><th>순위</th><th>" + label + "</th><th>판수</th><th>평균</th><th>전사 대비</th><th>최고</th><th>정복</th><th>미션</th><th>무발화</th><th>주간</th><th>추세</th><th></th></tr>";
+    list.forEach(function (u, i) {
+      var medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
+      h += "<tr><td>" + medal + "</td><td><b>" + esc(u.name) + "</b></td><td>" + u.n + "</td><td><b>" + u.avg + "</b></td><td>" + gapTxt(u.avg, allAvg) + "</td><td>" + u.best + "</td><td>" + (u.prog || 0) + "/20</td>" +
+        "<td>" + (u.mN ? (u.mPct >= 50 ? "<b style='color:var(--acc);'>" : "<b style='color:#A8652F;'>") + u.mDone + "/" + u.mN + "</b>" : "<span class='small'>—</span>") + "</td>" +
+        "<td>" + (u.silentPct ? u.silentPct + "%" : "-") + "</td>" +
+        "<td>" + (u.wkDelta === null || u.wkDelta === undefined ? "<span class='small'>—</span>" : (u.wkDelta > 0 ? "<b style='color:var(--acc);'>▲" + u.wkDelta + "</b>" : u.wkDelta < 0 ? "<b style='color:var(--red);'>▼" + (-u.wkDelta) + "</b>" : "±0")) + "</td>" +
+        "<td>" + (u.trend.length >= 2 ? sparkSvg(u.trend) : "-") + "</td>" +
+        "<td><button class='btn ghost' style='margin:0;padding:4px 10px;font-size:11.5px;' onclick='APP.insCoach(\"" + (offset || "u") + "\"," + i + ")'>코칭</button></td></tr>";
+    });
+    return h + "</table>";
+  }
+  function personRowHtml(u, rank, allAvg, idxInPeople) { // 개인 행 — 전사 대비 갭 포함
+    return "<tr><td>" + rank + "</td><td><b>" + esc(u.name) + "</b></td><td>" + esc(u.office || "") + "</td><td>" + u.n + "</td><td><b>" + u.avg + "</b></td><td>" + gapTxt(u.avg, allAvg) + "</td><td>" + u.best + "</td><td>" + (u.prog || 0) + "/20</td>" +
+      "<td>" + (u.mN ? (u.mPct >= 50 ? "<b style='color:var(--acc);'>" : "<b style='color:#A8652F;'>") + u.mDone + "/" + u.mN + "</b>" : "<span class='small'>—</span>") + "</td>" +
+      "<td>" + (u.wkDelta === null || u.wkDelta === undefined ? "<span class='small'>—</span>" : (u.wkDelta > 0 ? "<b style='color:var(--acc);'>▲" + u.wkDelta + "</b>" : u.wkDelta < 0 ? "<b style='color:var(--red);'>▼" + (-u.wkDelta) + "</b>" : "±0")) + "</td>" +
+      "<td>" + (u.trend.length >= 2 ? sparkSvg(u.trend) : "-") + "</td>" +
+      "<td><button class='btn ghost' style='margin:0;padding:4px 10px;font-size:11.5px;' onclick='APP.insCoach(\"p\"," + idxInPeople + ")'>코칭</button></td></tr>";
+  }
+  var PERSON_TH = "<tr><th>순위</th><th>MR</th><th>사무소</th><th>판수</th><th>평균</th><th>전사 대비</th><th>최고</th><th>정복</th><th>미션</th><th>주간</th><th>추세</th><th></th></tr>";
+  function personInsight(u, ins) { // 🧭 개인 인사이트 — 전사·사업부·사무소 '평가에 따라' 위치와 잘한점/개선점을 붙인다 (순수)
+    var all = ins.overall;
+    var div2 = (ins.divs || []).filter(function (x) { return x.name === u.div; })[0];
+    var off = (ins.offices || []).filter(function (x) { return x.name === u.office; })[0];
+    var pos = [];
+    if (all && all.n) pos.push(["전사", u.avg - all.avg]);
+    if (div2) pos.push([u.div + " 사업부", u.avg - div2.avg]);
+    if (off) pos.push([u.office + " 사무소", u.avg - off.avg]);
+    var c = unitCoach(u);
+    return { pos: pos, coach: c,
+      thin: u.n < 3, // 정직성 각주 — 표본 얇음
+      mLine: u.mN ? ("처방 실행 " + u.mDone + "/" + u.mN + " (" + u.mPct + "%)" + (u.mPct >= 50 ? " — 받은 처방을 실행에 옮기고 있습니다" : " — 처방이 실행으로 이어지지 않고 있습니다. 다음 판 미션부터 함께 확인해주세요")) : null };
+  }
   function renderOrgInsight() {
     var el = $("admInsight"); if (!el) return;
     var rows = G.cloud || [];
     var ins = orgInsight(rows, todayStr());
     G._ins = ins;
     if (!ins.overall.n) { el.innerHTML = "<div class='small'>아직 서버 실기록이 없습니다 — 판이 끝나면 자동으로 쌓입니다. (개발·테스트 이름은 제외)</div>"; return; }
-    var tab = G.insTab || "office";
     var o = ins.overall, oc = unitCoach(o);
-    var h = "<div class='ins-hero'>" +
+    // ── 1. 종합 요약 — 판정 배지 + 3문장 (현황 → 갭 구조 → 할 일) ──
+    var grade = o.avg >= 80 ? ["양호", "#0B6B4F"] : o.avg >= 65 ? ["보통", "#8A6410"] : ["집중 지원", "#B3402E"];
+    var worstDiv = (ins.divs || []).slice().sort(function (a, b) { return a.avg - b.avg; })[0];
+    var sum3 = "전사 평균 <b>" + o.avg + "점</b>(" + o.n + "판, 최고 " + o.best + "점)" + (o.wkDelta !== null && o.wkDelta !== undefined ? " · 전주 대비 " + (o.wkDelta >= 0 ? "▲" + o.wkDelta : "▼" + (-o.wkDelta)) : "") + ". " +
+      "약한 축은 <b>" + ({ A: "반대극복", B: "근거기반", C: "고객의득", D: "경청공감", E: "클로징" }[o.lowAx] || "—") + "</b>" + (worstDiv && ins.divs.length > 1 ? ", 갭이 큰 단위는 <b>" + esc(worstDiv.name) + "</b>(" + worstDiv.avg + "점)" : "") + (o.mN ? ", 처방 실행률 <b>" + o.mPct + "%</b>" : "") + ". " +
+      "할 일 — " + esc(oc.rx);
+    var h = "<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'><span style='background:" + grade[1] + ";color:#fff;font-weight:900;border-radius:8px;padding:4px 12px;font-size:13px;'>" + grade[0] + "</span><b style='font-size:15px;'>1. 종합 요약</b></div>" +
+      "<div class='hl' style='margin-bottom:10px;line-height:1.75;'>" + sum3 + "</div>";
+    h += "<div class='ins-hero'>" +
       "<div class='ins-kpi'><small>전사 평균</small><b>" + o.avg + "</b><span>점</span></div>" +
       "<div class='ins-kpi'><small>총 판수</small><b>" + o.n + "</b><span>판</span></div>" +
       "<div class='ins-kpi'><small>최고점</small><b>" + o.best + "</b><span>점</span></div>" +
+      (o.mN ? "<div class='ins-kpi" + (o.mPct < 50 ? " warn" : "") + "'><small>처방 실행률</small><b>" + o.mPct + "</b><span>% (" + o.mDone + "/" + o.mN + ")</span></div>" : "") +
       "<div class='ins-kpi" + (o.silentPct >= 40 ? " warn" : "") + "'><small>무발화 이탈</small><b>" + o.silentPct + "</b><span>%</span></div>" +
       (o.trend.length >= 2 ? "<div class='ins-kpi'><small>추세</small>" + sparkSvg(o.trend) + "</div>" : "") + "</div>" +
       "<div class='ins-coach'><span class='ic-good'>👍 " + esc(oc.good) + "</span><span class='ic-weak'>🔧 " + esc(oc.weak) + "</span><span class='ic-rx'>▶ " + esc(oc.rx) + "</span></div>";
-    h += "<div class='rk-tabs' style='margin-top:10px;'>" +
-      [["div", "사업부별"], ["office", "사무소별"], ["person", "개인별"]].map(function (t) {
-        return "<button class='rk-tab" + (tab === t[0] ? " on" : "") + "' onclick='APP.insTab(\"" + t[0] + "\")'>" + t[1] + "</button>";
-      }).join("") +
-      "<button class='rk-tab' onclick='APP.insCsv()'>⬇ CSV</button></div>";
-    var list = insRowsOf(tab, ins);
-    h += "<table class='voy'><tr><th>순위</th><th>" + (tab === "person" ? "MR" : tab === "div" ? "사업부" : "사무소") + "</th>" + (tab === "person" ? "<th>사무소</th>" : "") + "<th>판수</th><th>평균</th><th>최고</th><th>정복</th><th>무발화</th><th>주간</th><th>추세</th><th></th></tr>";
-    list.slice(0, 30).forEach(function (u, i) {
-      var medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
-      h += "<tr><td>" + medal + "</td><td><b>" + esc(u.name) + "</b></td>" + (tab === "person" ? "<td>" + esc(u.office || "") + "</td>" : "") +
-        "<td>" + u.n + "</td><td><b>" + u.avg + "</b></td><td>" + u.best + "</td><td>" + (u.prog || 0) + "/20</td><td>" + (u.silentPct ? u.silentPct + "%" : "-") + "</td>" +
-        "<td>" + (u.wkDelta === null || u.wkDelta === undefined ? "<span class='small'>—</span>" : (u.wkDelta > 0 ? "<b style='color:var(--acc);'>▲" + u.wkDelta + "</b>" : u.wkDelta < 0 ? "<b style='color:var(--red);'>▼" + (-u.wkDelta) + "</b>" : "0")) + "</td>" +
-        "<td>" + (u.trend.length >= 2 ? sparkSvg(u.trend) : "-") + "</td>" +
-        "<td><button class='btn ghost' style='margin:0;padding:4px 10px;font-size:11.5px;' onclick='APP.insCoach(" + i + ")'>코칭</button></td></tr>";
-      h += "<tr class='ins-detail hidden' id='insd_" + i + "'><td colspan='" + (tab === "person" ? 11 : 10) + "'></td></tr>";
-    });
-    h += "</table><div class='small' style='margin-top:6px;'>평균 점수 순 정렬 · 정복 = 80점 이상으로 격파한 반대 유형 수 · 코칭 참고용 — 인사평가 비연동 원칙</div>";
+    // ── 2. 사업부별 현황 ──
+    if (ins.divs.length) h += "<h3 style='margin:16px 0 6px;font-size:14px;'>2. 사업부별 현황 <span class='small'>(전사 대비 = 평균점 갭)</span></h3>" + unitRowsHtml(ins.divs, "사업부", o.avg, "d");
+    // ── 3. 사무소별 현황 ──
+    if (ins.offices.length) h += "<h3 style='margin:16px 0 6px;font-size:14px;'>3. 사무소별 현황</h3>" + unitRowsHtml(ins.offices, "사무소", o.avg, "o");
+    // ── 4. 개인별 현황 — 상위 / 집중 지원 구분 ──
+    var ppl = ins.people || [];
+    var qual = ppl.filter(function (u) { return u.n >= 2; }); // 1판짜리는 순위 대상에서 제외 (표본 정직성)
+    var topCut = Math.min(5, Math.ceil(qual.length / 2)); // 소규모 조직에서도 상·하위가 반드시 나뉜다 (절반 분할, 각 최대 5)
+    var topN = qual.slice(0, topCut);
+    var botN = qual.slice(topCut).slice(-5).reverse();
+    h += "<h3 style='margin:16px 0 6px;font-size:14px;'>4. 개인별 현황</h3>";
+    if (topN.length) {
+      h += "<div class='small' style='font-weight:800;color:#8A6410;margin:4px 0;'>🏅 상위 — 강점을 전파할 인원 (판수 2+ 기준)</div><table class='voy'>" + PERSON_TH;
+      topN.forEach(function (u, i) { h += personRowHtml(u, i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1, o.avg, ppl.indexOf(u)); });
+      h += "</table>";
+    }
+    if (botN.length) {
+      h += "<div class='small' style='font-weight:800;color:#B3402E;margin:10px 0 4px;'>🌱 성장 구간 — 집중 지원이 필요한 인원 (서열 공개가 아니라 코칭 대상 선별입니다)</div><table class='voy'>" + PERSON_TH;
+      botN.forEach(function (u, i) { h += personRowHtml(u, qual.length - i, o.avg, ppl.indexOf(u)); });
+      h += "</table>";
+    }
+    h += "<details style='margin-top:8px;'><summary style='cursor:pointer;font-weight:700;font-size:13px;'>전체 명단 (" + ppl.length + "명" + (ppl.length - qual.length ? " · 판수 1회 " + (ppl.length - qual.length) + "명 포함" : "") + ")</summary><table class='voy'>" + PERSON_TH;
+    ppl.slice(0, 60).forEach(function (u, i) { h += personRowHtml(u, i + 1, o.avg, i); });
+    h += "</table></details>";
+    h += "<div id='insPersonPane' style='margin-top:10px;'></div>";
+    h += "<div style='margin-top:10px;'><button class='rk-tab' onclick='APP.insCsv()'>⬇ CSV (개인별)</button></div>";
+    h += "<div class='small' style='margin-top:6px;'>정복 = 80점 이상 격파 유형 수 · <b>미션</b> = 지난 판 처방을 이번 판에서 실행(달성/발급) · 판수 1회 인원은 순위 제외(표본 얇음) · 코칭 참고용 — 인사평가 비연동 원칙</div>";
     el.innerHTML = h;
   }
-  function insTabSet(t) { G.insTab = t; renderOrgInsight(); }
-  function insCoach(i) { // 행 아래로 잘한점/보완/처방 펼치기
+  function insTabSet(t) { G.insTab = t; renderOrgInsight(); } // (구버전 호환 — 이제 탭 없이 전 단위가 한 화면)
+  function insCoach(kind, i) { // 코칭 패널 — 개인은 전사·사업부·사무소 대비 위치까지
     var ins = G._ins; if (!ins) return;
-    var u = insRowsOf(G.insTab || "office", ins)[i]; if (!u) return;
-    var row = $("insd_" + i); if (!row) return;
-    if (!row.classList.contains("hidden")) { row.classList.add("hidden"); return; }
-    var c = unitCoach(u);
-    row.querySelector("td").innerHTML = "<div class='ins-coach' style='margin:4px 0;'><span class='ic-good'>👍 잘한 점 — " + esc(c.good) + "</span><span class='ic-weak'>🔧 보완 — " + esc(c.weak) + "</span><span class='ic-rx'>▶ 처방 — " + esc(c.rx) + "</span></div>";
-    row.classList.remove("hidden");
+    var pane = $("insPersonPane") || $("admInsight"); if (!pane) return;
+    var u = (kind === "d" ? ins.divs : kind === "o" ? ins.offices : ins.people)[i]; if (!u) return;
+    if (kind === "p") {
+      var pi = personInsight(u, ins);
+      pane.innerHTML = "<div class='card' style='border:2px solid var(--acc);margin:0;'><h2 style='font-size:15px;'>🧭 " + esc(u.name) + " <span class='small'>" + esc(u.div || "") + " · " + esc(u.office || "") + " · " + u.n + "판 평균 " + u.avg + "점</span></h2>" +
+        "<div style='display:flex;gap:8px;flex-wrap:wrap;margin:6px 0;'>" + pi.pos.map(function (p2) { return "<span class='chip" + (p2[1] >= 0 ? "" : " warn") + "'>" + esc(p2[0]) + " 대비 " + (p2[1] >= 0 ? "▲" + Math.round(p2[1]) : "▼" + Math.round(-p2[1])) + "</span>"; }).join("") + "</div>" +
+        "<div class='ins-coach' style='margin:6px 0;'><span class='ic-good'>👍 잘한 점 — " + esc(pi.coach.good) + "</span><span class='ic-weak'>🔧 개선할 점 — " + esc(pi.coach.weak) + "</span><span class='ic-rx'>▶ 처방 — " + esc(pi.coach.rx) + "</span></div>" +
+        (pi.mLine ? "<div class='small' style='margin-top:4px;'>🎯 " + esc(pi.mLine) + "</div>" : "") +
+        (pi.thin ? "<div class='small' style='color:#8A6410;margin-top:4px;'>※ 판수 " + u.n + "회 — 표본이 얇아 해석에 주의가 필요합니다</div>" : "") +
+        "</div>";
+    } else {
+      var c = unitCoach(u);
+      pane.innerHTML = "<div class='card' style='border:2px solid var(--acc);margin:0;'><h2 style='font-size:15px;'>🧭 " + esc(u.name) + " <span class='small'>" + u.n + "판 평균 " + u.avg + "점 · 전사 대비 " + (u.avg - ins.overall.avg >= 0 ? "▲" + Math.round(u.avg - ins.overall.avg) : "▼" + Math.round(ins.overall.avg - u.avg)) + "</span></h2>" +
+        "<div class='ins-coach' style='margin:6px 0;'><span class='ic-good'>👍 " + esc(c.good) + "</span><span class='ic-weak'>🔧 " + esc(c.weak) + "</span><span class='ic-rx'>▶ " + esc(c.rx) + "</span></div></div>";
+    }
+    try { pane.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) {}
   }
   function insCsv() {
     var ins = G._ins; if (!ins) { toast("먼저 서버 데이터를 불러오세요"); return; }
     var tab = G.insTab || "office", list = insRowsOf(tab, ins);
-    var head = ["순위", "이름", "사무소", "판수", "평균", "최고", "정복", "무발화%", "강점축", "약점축"];
+    var head = ["순위", "이름", "사무소", "판수", "평균", "최고", "정복", "미션달성", "미션발급", "무발화%", "주간증감", "강점축", "약점축"];
     var lines = [head.join(",")];
     list.forEach(function (u, i) {
-      lines.push([i + 1, u.name, u.office || "", u.n, u.avg, u.best, u.prog || 0, u.silentPct, u.topAx || "", u.lowAx || ""].join(","));
+      lines.push([i + 1, u.name, u.office || "", u.n, u.avg, u.best, u.prog || 0, u.mDone || 0, u.mN || 0, u.silentPct, (u.wkDelta === null || u.wkDelta === undefined) ? "" : u.wkDelta, u.topAx || "", u.lowAx || ""].join(","));
     });
     dlFile("알피왕_인사이트_" + tab + "_" + todayStr().replace(/-/g, "") + ".csv", "﻿" + lines.join("\n"));
   }
@@ -7381,7 +7481,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "6.1";
+  var APP_VER = "6.3";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -7438,7 +7538,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
 })();
 
 </script>
