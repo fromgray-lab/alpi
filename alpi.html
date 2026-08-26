@@ -1343,7 +1343,10 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.3 — 보고서형 인사이트</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.4 — 현장과 관리, 양쪽 진화</h2>
+    <div class="ver-it"><b>🗺 6.4 — 유형별 전사 격파율</b>관리자 인사이트에 반대 20유형의 <b>전사 격파율 히트맵</b>이 실립니다 — 붉은 칸이 전사 공통 약점이고, 그 유형이 다음 교육 주제입니다. <b>🖨 보고서 인쇄</b>로 경영보고 지면 그대로 출력됩니다.</div>
+    <div class="ver-it"><b>🎯 6.4 — 미션, 그 자리에서 달성</b>통화 중 미션을 달성하는 <b>순간</b> 스탬프와 알림이 뜹니다 — 결과 화면까지 기다리지 않습니다 (판정식은 결과와 동일).</div>
+    <div class="ver-it"><b>📱 6.4 — 통화 후 원장의 문자</b>결과 화면에 원장이 보낸 짧은 문자가 도착합니다. 승낙이면 약속 확인, 애매하면 숙제, 미흡하면 차가운 한 줄 — 다음 판을 걸게 만드는 여운입니다.</div>
     <div class="ver-it"><b>🗂 6.3 — 전사→사업부→사무소→개인 4단 보고</b>관리자 인사이트가 탭 대신 <b>회사 보고 표준</b>으로 재편됐습니다: 판정 배지+3문장 종합 요약(현황→갭→할 일) → 사업부 현황(전사 대비 갭) → 사무소 현황 → 개인 현황. 모든 표에 전사 대비 ▲▼ 수치가 붙습니다.</div>
     <div class="ver-it"><b>🏅 6.3 — 상위·성장 구간 구분</b>개인은 <b>상위 5</b>(강점 전파 대상)와 <b>성장 구간 5</b>(집중 지원 대상)로 나뉘어 표시됩니다 — 서열 공개가 아니라 코칭 대상 선별입니다. 판수 1회 인원은 순위에서 제외(표본 얇음 각주).</div>
     <div class="ver-it"><b>🧭 6.3 — 개인별 인사이트</b>개인 [코칭]을 누르면 <b>전사·사업부·사무소 대비 위치(▲▼)</b> + 잘한 점 + 개선할 점 + 처방 + 처방 실행률이 한 카드로 나옵니다. 평가의 목적 — 현황과 문제를 파악해 피드백하고 개선한다 — 에 맞춘 구조입니다.</div>
@@ -3720,7 +3723,7 @@ window.APP = (function () {
       $("nvMini").textContent = "캠 없음 — 음성 대화 모드";
       $("playBanner").innerHTML = "<div class='banner info'>캠 없이 진행합니다. 자동 대화·음성 녹음은 그대로 동작합니다.</div>";
     }
-    G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.comboMax = 0; G.mem = {}; G.dlgLog = []; G.mannerFoul = false; G._probeUsed = {}; G.probeObj = null; G._probeSrc = null; G.actGood = 0; G.confN = 0; G.lastAsk = ""; G.closeMiss = 0; G.keyGot = {}; G.pgTrail = [];
+    G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.comboMax = 0; G.mem = {}; G.dlgLog = []; G.mannerFoul = false; G._probeUsed = {}; G.probeObj = null; G._probeSrc = null; G.actGood = 0; G.confN = 0; G.lastAsk = ""; G.closeMiss = 0; G.keyGot = {}; G.pgTrail = []; G.curMission = loadK("mission", null); G.missionLive = 0;
     G.drCommit = false; G.drCommitEnded = false; G.silenceEnd = false; G.idleN = 0; G.gs = 0; G.bs = 0; G._phEnter = 0; G.converged = 0; disarmIdle(); moodSet(0); pgSet(50); // 새 판 — 감정·침묵·승낙·게이지 초기화
     ambStart(); // 미세한 진료실 룸톤 — 무음의 어색함 제거
     var vst = document.querySelector(".vstage");
@@ -3744,6 +3747,12 @@ window.APP = (function () {
     G.timerId = setInterval(function () {
       var s = Math.floor((Date.now() - G.t0) / 1000);
       $("hudTimer").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+      // 🎯 미션 실시간 판정 — 달성한 순간 그 자리에서 알려준다 (결과 화면과 같은 판정식이라 어긋나지 않는다)
+      if (!G.missionLive && G.curMission && G.curMission.ax && (G.turns || []).length && missionDone(G.curMission, G.turns)) {
+        G.missionLive = 1;
+        stamp("crit", "미션 달성! 🎯");
+        toast("🎯 이번 판 미션 달성 — " + G.curMission.t + " (보너스 현상금은 결과에서)");
+      }
     }, 1000);
     show("scr-play");
     G.inCall = true;
@@ -5450,6 +5459,18 @@ window.APP = (function () {
     if (at >= 0) { G.disputes.splice(at, 1); if (btn) btn.classList.remove("on"); toast("이의 표시를 해제했습니다"); }
     else { G.disputes.push(turnIdx); if (btn) btn.classList.add("on"); toast("⚖ 이의 접수 — 코치 평가 요청 시 이 판정부터 우선 검토됩니다"); }
   }
+  var AFTER_TEXT = { // 통화가 끝난 뒤 원장이 보낸 짧은 문자 — 결과에 따라 톤이 다르다 (게임 용어 없음)
+    "장인석": { win: "아까 통화한 장인석입니다. 말한 날짜, 달력에 적어뒀어요. 늦지 마요.", mid: "장인석입니다. 오늘 얘기 중에 숫자는 쓸 만했어요. 다음엔 결론까지 갑시다.", low: "장인석입니다. 오늘 같은 얘기면 다음 통화는 어렵습니다. 준비되면 연락해요." },
+    "강지은": { win: "아까 강지은이에요~ 얘기 재밌었어요. 오시기 전에 문자 한 번 주세요!", mid: "강지은이에요~ 오늘 들은 것 중에 좋은 것도 있었어요. 다음엔 우리 병원에 맞는 걸로 딱 정리해와 주실래요?", low: "강지은이에요~ 음… 오늘은 잘 모르겠더라고요. 준비되시면 그때 다시 얘기해요~" },
+    "신혁주": { win: "신혁주입니다. 오늘 숫자, 기록해 두었습니다. 방문 시 자료로 다시 확인하죠.", mid: "신혁주입니다. 절반은 검증됐고 절반은 비었습니다. 다음 통화 전에 채워 오세요.", low: "신혁주입니다. 오늘은 근거가 부족했습니다. 데이터를 갖추고 다시 연락 주세요." },
+    "김민우": { win: "김민우입니다. 오늘 얘기한 대로만 되면 나쁘지 않겠어요. 그날 봅시다.", mid: "김민우예요. 흐지부지 끝났네요. 나는 결론 없는 통화를 두 번 하지 않습니다.", low: "김민우입니다. 오늘 얘기로는 움직일 이유가 없었어요. 이유가 생기면 연락해요." }
+  };
+  function afterText(nm, sc, drCommit) { // 순수 — 결과 → 문자 한 통
+    var P = AFTER_TEXT[nm] || AFTER_TEXT["강지은"];
+    if (drCommit || (sc && sc.total >= 80)) return P.win;
+    if (sc && sc.total >= 60) return P.mid;
+    return P.low;
+  }
   function renderResult(sc, nv, manual) {
     G.disputes = []; // 새 결과 화면 = 이의 목록 초기화
     var crits = G.turns.filter(function (t) { return t.judge && t.judge.crit; }).length;
@@ -5488,6 +5509,8 @@ window.APP = (function () {
       if (nm2) line += "<div style='margin-bottom:8px;padding:8px 12px;border-radius:10px;border:1.5px dashed #B9932B;background:#FFFDF4;color:var(--ink);'>📌 <b>다음 판 미션</b> — " + esc(nm2.t) + " <span class='small'>(" + esc(nm2.tip) + ")</span></div>";
       if (line) $("coachSum").innerHTML = line + $("coachSum").innerHTML;
     })();
+    if ($("coachSum") && !sc.noPlay && !G.mannerFoul) $("coachSum").innerHTML += // 📱 통화 후 문자 — 원장의 여운 한 통
+      "<div style='margin-top:9px;display:flex;gap:8px;align-items:flex-start;'><span style='font-size:19px;'>📱</span><div style='background:#F3F6F5;border-radius:4px 14px 14px 14px;padding:9px 13px;max-width:520px;'><div class='small' style='font-weight:800;color:#5B6663;margin-bottom:2px;'>" + esc(G.doc.nm) + " 원장 · 통화 후 문자</div><div style='font-size:13.5px;line-height:1.6;'>" + esc(afterText(G.doc.nm, sc, G.drCommit)) + "</div></div></div>";
     if ($("coachSum") && G.scen && G.scen.weakPick && !sc.noPlay) { // 🎯 설욕전 서사 — 약점과 다시 붙은 판은 결과를 정면에 박는다
       var wp = G.scen.weakPick, wWin = sc.total > wp.best, wConq = sc.total >= 80;
       $("coachSum").innerHTML = "<div style='margin-bottom:8px;padding:9px 12px;border-radius:10px;border:1.5px solid " + (wWin ? "var(--teal)" : "var(--gold)") + ";background:" + (wWin ? "#EAF6F3" : "#FFFDF4") + ";color:var(--ink);'>" +
@@ -6727,6 +6750,40 @@ window.APP = (function () {
       weak: "[" + nm[u.lowAx] + "] " + AX_DIAG[u.lowAx].lo,
       rx: AX_ACT[u.lowAx] };
   }
+  function typeHeat(rows) { // 순수 — 반대 유형 20종별 등장·격파(80점+) 집계. "유형이 다르면 전략이 달라야 한다"의 조직판
+    var kept = rankFilter(rows || []);
+    var m = {};
+    for (var n2 = 1; n2 <= 20; n2++) m[n2] = { n: n2, appear: 0, win: 0 };
+    kept.forEach(function (r) {
+      (r.types || []).forEach(function (tn) {
+        if (!m[tn]) return;
+        m[tn].appear++;
+        if ((r.total || 0) >= 80) m[tn].win++;
+      });
+    });
+    return Object.keys(m).map(function (k) { var x = m[k]; x.rate = x.appear ? Math.round(100 * x.win / x.appear) : null; return x; });
+  }
+  function typeHeatHtml(heat) { // 20칸 그리드 — 색은 격파율, 라벨은 수치 (라벨 없는 차트 금지)
+    return "<div style='display:grid;grid-template-columns:repeat(5,1fr);gap:6px;'>" + heat.map(function (x) {
+      var col = x.rate === null ? "#EFF3F2" : x.rate >= 60 ? "#DCEDE8" : x.rate >= 40 ? "#F7EFD8" : "#FBE4E0";
+      var ink = x.rate === null ? "#9AA3AB" : x.rate >= 60 ? "#0B5B54" : x.rate >= 40 ? "#8A6410" : "#B3402E";
+      return "<div style='background:" + col + ";border-radius:9px;padding:7px 8px;'>" +
+        "<div style='font-size:11px;font-weight:800;color:#5B6663;'>[" + x.n + "] " + esc(ISLE_NM[x.n] || "") + "</div>" +
+        "<div style='font-size:16px;font-weight:900;color:" + ink + ";'>" + (x.rate === null ? "—" : x.rate + "%") + "</div>" +
+        "<div style='font-size:10.5px;color:#7A8B85;'>" + (x.appear ? x.win + "/" + x.appear + "판" : "미출제") + "</div></div>";
+    }).join("") + "</div>";
+  }
+  function insPrint() { // 🖨 인사이트를 경영보고 출력물로 — printSheet 채널 재사용 (@media print가 화면을 숨기고 이것만 인쇄)
+    var src2 = $("admInsight"); if (!src2 || !G._ins) { toast("먼저 서버 데이터를 불러오세요"); return; }
+    var ps = $("printSheet"); if (!ps) return;
+    ps.innerHTML = "<div class='psec'><div style='display:flex;justify-content:space-between;align-items:baseline;border-bottom:3px solid #1A1F1C;padding-bottom:6px;margin-bottom:10px;'>" +
+      "<div><div style='font-size:9pt;letter-spacing:.2em;color:#0B5B54;font-weight:800;'>CHECKTALK</div><h1 style='margin:0;font-size:17pt;'>웰체크 RP 훈련 현황</h1></div>" +
+      "<div style='font-size:9.5pt;color:#5B6663;'>" + todayStr() + " · 신사업전략팀</div></div>" +
+      src2.innerHTML.replace(/<button[^>]*>[^<]*<\/button>/g, "") + // 버튼은 지면에서 제거
+      "<div style='margin-top:10px;font-size:8.5pt;color:#7A8B85;'>코칭 참고용 — 인사평가 비연동 원칙 · AI 채점 + 코치 검수 병행</div></div>";
+    window.print();
+    setTimeout(function () { ps.innerHTML = ""; }, 600);
+  }
   function insRowsOf(tab, ins) { return tab === "div" ? ins.divs : tab === "office" ? ins.offices : ins.people; }
   function gapTxt(v, base) { // 단위 평균 − 기준 평균 → "▲7 / ▼3 / ±0" (모든 비교에 수치 라벨)
     if (v === null || v === undefined || base === null || base === undefined) return "<span class='small'>—</span>";
@@ -6790,6 +6847,9 @@ window.APP = (function () {
       "<div class='ins-kpi" + (o.silentPct >= 40 ? " warn" : "") + "'><small>무발화 이탈</small><b>" + o.silentPct + "</b><span>%</span></div>" +
       (o.trend.length >= 2 ? "<div class='ins-kpi'><small>추세</small>" + sparkSvg(o.trend) + "</div>" : "") + "</div>" +
       "<div class='ins-coach'><span class='ic-good'>👍 " + esc(oc.good) + "</span><span class='ic-weak'>🔧 " + esc(oc.weak) + "</span><span class='ic-rx'>▶ " + esc(oc.rx) + "</span></div>";
+    // ── 1.5 유형별 전사 격파율 ──
+    var heat = typeHeat(rows);
+    if (heat.some(function (x) { return x.appear; })) h += "<h3 style='margin:14px 0 6px;font-size:14px;'>유형별 전사 격파율 <span class='small'>(80점 이상 판 비율 — 붉은 칸이 전사 공통 약점)</span></h3>" + typeHeatHtml(heat);
     // ── 2. 사업부별 현황 ──
     if (ins.divs.length) h += "<h3 style='margin:16px 0 6px;font-size:14px;'>2. 사업부별 현황 <span class='small'>(전사 대비 = 평균점 갭)</span></h3>" + unitRowsHtml(ins.divs, "사업부", o.avg, "d");
     // ── 3. 사무소별 현황 ──
@@ -6815,7 +6875,7 @@ window.APP = (function () {
     ppl.slice(0, 60).forEach(function (u, i) { h += personRowHtml(u, i + 1, o.avg, i); });
     h += "</table></details>";
     h += "<div id='insPersonPane' style='margin-top:10px;'></div>";
-    h += "<div style='margin-top:10px;'><button class='rk-tab' onclick='APP.insCsv()'>⬇ CSV (개인별)</button></div>";
+    h += "<div style='margin-top:10px;'><button class='rk-tab' onclick='APP.insCsv()'>⬇ CSV (개인별)</button><button class='rk-tab' onclick='APP.insPrint()'>🖨 보고서 인쇄</button></div>";
     h += "<div class='small' style='margin-top:6px;'>정복 = 80점 이상 격파 유형 수 · <b>미션</b> = 지난 판 처방을 이번 판에서 실행(달성/발급) · 판수 1회 인원은 순위 제외(표본 얇음) · 코칭 참고용 — 인사평가 비연동 원칙</div>";
     el.innerHTML = h;
   }
@@ -7481,7 +7541,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "6.3";
+  var APP_VER = "6.4";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -7537,8 +7597,8 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
+    toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, insPrint: insPrint, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
 })();
 
 </script>
