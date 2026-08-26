@@ -321,6 +321,12 @@ table.rank td.nm{font-weight:800;}
 .rpl.dr{background:#F6F3EC;color:#444;}
 .rchip{display:inline-block;font-size:10.5px;font-weight:900;border-radius:99px;padding:1px 8px;margin-left:5px;vertical-align:1px;}
 .rwhy{font-size:11.5px;color:#7A6A45;margin-top:3px;background:#FBF8EE;border-left:2.5px solid #D8C48A;padding:2px 8px;border-radius:0 6px 6px 0;}
+#bText .unrev{opacity:.22;transition:opacity .18s;}
+#endOv{position:absolute;inset:0;background:#04101C;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;opacity:0;pointer-events:none;transition:opacity .45s ease;}
+#endOv.show{opacity:1;}
+#endOv .eo-ic{font-size:34px;}
+#endOv .eo-t{font-size:15px;font-weight:800;color:#B9C6C1;letter-spacing:.06em;}
+#endOv .eo-s{font-size:12px;color:#5E7A72;}
 .rdis{font-size:10px;font-weight:800;border:1px solid #C9BFa6;background:#fff;color:#8A7A55;border-radius:99px;padding:1px 7px;margin-left:5px;cursor:pointer;font-family:inherit;vertical-align:1px;}
 .rdis.on{background:#5B4A16;border-color:#5B4A16;color:#FFE9A8;}
 @keyframes phNodV2{0%{transform:translateY(0);}30%{transform:translateY(5px);}62%{transform:translateY(-1.5px);}100%{transform:translateY(0);}}
@@ -976,6 +982,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
         <span class="pglab bot">거절</span>
         <span class="pgdelta" id="pgDelta"></span>
       </div>
+      <div id="endOv"><div class="eo-ic">📴</div><div class="eo-t">통화 종료 · <span id="endOvT">00:00</span></div><div class="eo-s">평가 리포트를 만드는 중…</div></div>
       <div class="grainov"></div>
       <div class="connect hidden" id="connOv"><div><span class="cdot"></span> 영상통화 연결 중…</div></div>
     </div>
@@ -1343,7 +1350,9 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.4 — 현장과 관리, 양쪽 진화</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.5 — 자막이 말과 함께 흐릅니다</h2>
+    <div class="ver-it"><b>💬 6.5 — 라이브 자막</b>원장 대사가 통째로 뜨지 않고 <b>말한 만큼만 밝아집니다</b>(아직 안 한 말은 흐리게). 대사를 미리 읽어버려 듣기가 죽던 문제의 해법 — 브라우저 음성은 단어 경계, 일레븐은 말 속도에 맞춰 흐릅니다. 시스템의 동작 줄이기 설정을 켜면 즉시 전체 표시.</div>
+    <div class="ver-it"><b>📴 6.5 — 통화 종료 시퀀스</b>통화가 끝나면 결과로 뚝 떨어지지 않고 <b>뚜… 뚜 소리와 함께 검은 화면 + 통화 시간</b>이 잠깐 지나갑니다 — 채점이 도는 공백을 영상통화의 마지막 1초로 덮습니다.</div>
     <div class="ver-it"><b>🗺 6.4 — 유형별 전사 격파율</b>관리자 인사이트에 반대 20유형의 <b>전사 격파율 히트맵</b>이 실립니다 — 붉은 칸이 전사 공통 약점이고, 그 유형이 다음 교육 주제입니다. <b>🖨 보고서 인쇄</b>로 경영보고 지면 그대로 출력됩니다.</div>
     <div class="ver-it"><b>🎯 6.4 — 미션, 그 자리에서 달성</b>통화 중 미션을 달성하는 <b>순간</b> 스탬프와 알림이 뜹니다 — 결과 화면까지 기다리지 않습니다 (판정식은 결과와 동일).</div>
     <div class="ver-it"><b>📱 6.4 — 통화 후 원장의 문자</b>결과 화면에 원장이 보낸 짧은 문자가 도착합니다. 승낙이면 약속 확인, 애매하면 숙제, 미흡하면 차가운 한 줄 — 다음 판을 걸게 만드는 여운입니다.</div>
@@ -2370,9 +2379,12 @@ window.APP = (function () {
       var vp = (G.doc && G.doc.voice) || { rate: 1.02, pitch: 1 };
       var d = EMO_TTS[emo] || { rate: 0, pitch: 0 };
       var chunks = splitSentences(text);
+      var cleanTotal = chunks.join(" ").length || 1;
+      var chunkBase = []; (function () { var acc = 0; chunks.forEach(function (c2) { chunkBase.push(acc); acc += c2.length + 1; }); })();
+      var subMap = function (cleanPos) { return Math.round((cleanPos / cleanTotal) * (SUB.full.length || cleanPos)); }; // 정화문→표시문 근사 매핑
       var done = false;
-      var fire = function () { if (done) return; done = true; quiet(); if (cb) whenQuiet(cb); }; // 사용자가 말하는 중이면 다음 비트를 보류 — 서로 말 안 끊는 대화
-      var abort = function () { done = true; quiet(); }; // 새 발화에 밀려난 체인 — 조용히 죽되 상태는 반드시 반납
+      var fire = function () { if (done) return; done = true; subDone(); quiet(); if (cb) whenQuiet(cb); }; // 끝나면 자막 전부 공개 // 사용자가 말하는 중이면 다음 비트를 보류 — 서로 말 안 끊는 대화
+      var abort = function () { done = true; subDone(); quiet(); }; // 새 발화에 밀려난 체인 — 조용히 죽되 상태는 반드시 반납
       speechSynthesis.cancel();
       var sayChunk = function (i) {
         if (myId !== speakSeq) { abort(); return; }
@@ -2382,6 +2394,8 @@ window.APP = (function () {
         u.rate = Math.max(0.8, Math.min(1.5, vp.rate + d.rate + (i % 2 ? 0.015 : -0.01) - (myComp < 1 ? 0.03 : 0))); // 문장별 미세 변화 — 단조로움 완화
         u.pitch = Math.max(0.35, Math.min(2, (vp.pitch + d.pitch) * myComp)); // 성별 보이스 부재 시 저음/고음 보정
         if (myVoice) u.voice = myVoice;
+        subTo(subMap(chunkBase[i])); // 문장 시작 — 그 앞까지는 다 말했다
+        u.onboundary = function (ev) { try { if (myId === speakSeq && ev && typeof ev.charIndex === "number") subTo(subMap(chunkBase[i] + ev.charIndex + 2)); } catch (e2) {} }; // 단어 경계 카라오케
         var started = false, advanced = false; // advanced = 이 청크의 바통은 단 한 번만 넘어간다 — 워치독과 onend가 각각 다음 문장을 큐잉해 대사가 2배씩 증식하던 중복 재생 캐스케이드 차단
         var handoff = function () { // 다음 청크로 전진 (유일한 전진 경로)
           if (advanced) return;
@@ -2417,6 +2431,32 @@ window.APP = (function () {
     }, 8000);
   }
 
+  /* ══════════ 💬 라이브 자막 — 대사 전문이 한 번에 뜨면 '듣기'가 죽는다. 말한 만큼만 밝힌다 ══════════
+     구현 원칙: #bText.textContent는 언제나 '전문'(스크린리더·판정·테스트 불변) — 아직 안 말한 부분만 흐리게. */
+  var SUB = { full: "", pos: 0, timer: null };
+  function reduceMotion() { try { return window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
+  function subRender() {
+    var el = $("bText"); if (!el) return;
+    var f = SUB.full, p2 = Math.max(0, Math.min(f.length, SUB.pos));
+    if (p2 >= f.length) { el.textContent = f; return; }
+    el.innerHTML = "<span>" + esc(f.slice(0, p2)) + "</span><span class='unrev'>" + esc(f.slice(p2)) + "</span>";
+  }
+  function subSet(full, instant) { // 새 대사 시작 — 0에서 출발 (instant=전부 공개)
+    if (SUB.timer) { clearInterval(SUB.timer); SUB.timer = null; }
+    SUB.full = String(full || ""); SUB.pos = (instant || reduceMotion()) ? SUB.full.length : 0;
+    subRender();
+  }
+  function subTo(pos) { if (pos > SUB.pos) { SUB.pos = pos; subRender(); } } // 뒤로는 안 간다 — 자막이 다시 어두워지면 어지럽다
+  function subDone() { subTo(SUB.full.length); }
+  function subDrift(cps) { // 경계 이벤트가 없는 환경(일레븐·일부 브라우저) — 초당 글자수로 흘린다
+    if (SUB.timer) clearInterval(SUB.timer);
+    var per = Math.max(6, cps || 13);
+    SUB.timer = setInterval(function () {
+      if (!G.ttsSpeaking && SUB.pos > 0) { subDone(); clearInterval(SUB.timer); SUB.timer = null; return; } // 말이 끝났으면 전부 공개
+      subTo(SUB.pos + Math.round(per / 5));
+      if (SUB.pos >= SUB.full.length) { clearInterval(SUB.timer); SUB.timer = null; }
+    }, 200);
+  }
   /* ── 사운드 (WebAudio — 외부 파일 0) ── */
   var bellCtx = null, bellTimer = null;
   function tone(ctx, f, t0, dur, vol, type) {
@@ -2882,7 +2922,7 @@ window.APP = (function () {
           var msg = String(ev.message || "").trim();
           if (!msg) return;
           if (ev.source === "ai") {
-            $("bWho").textContent = G.doc.nm + " 원장"; $("bText").textContent = msg; G.lastDoctor = msg; G.saidLog.push(msg); G.dlgLog.push({ w: "dr", t: msg });
+            $("bWho").textContent = G.doc.nm + " 원장"; subSet(msg); subDrift(14); G.lastDoctor = msg; G.saidLog.push(msg); G.dlgLog.push({ w: "dr", t: msg }); // 💬 일레븐도 자막이 말과 함께 흐른다
             if (G.drCommit && !G.drCommitEnded) { G.drCommitEnded = true; setTimeout(function () { if (G.inCall) endCall(false); }, 4000); } // 승낙 뒤 이어진 작별 인사가 끝나면 통과
             else { checkDrCommit(msg); pokeIdle(); }
           }
@@ -4033,7 +4073,7 @@ window.APP = (function () {
     text = text.replace(/^((?:음|흠|아|글쎄|어)[…—~.]*\s+)(?:음|흠|아|글쎄|어)[…—~.]*\s+/, "$1"); // 문두 추임새 2연속 → 1개 (조립 사고 방어)
     if (!sayGuard(text)) text = (G.doc && SAY_FIX[G.doc.nm]) || "잠깐, 말이 엉켰네요. 계속하시죠."; // 오염 대사 교체
     $("bWho").textContent = G.doc.nm + " 원장";
-    $("bText").textContent = text;
+    subSet(text); // 💬 자막은 말한 만큼만 — textContent는 전문 유지
     G.lastDoctor = text; // 에코 가드 기준
     G.saidLog.push(text); // LLM 문맥 승계용
     G.dlgLog.push({ w: "dr", t: text }); // 전사 기록
@@ -5000,9 +5040,21 @@ window.APP = (function () {
   }
 
   /* ── 종료·채점 ── */
+  function endTone() { // 뚜… 뚜 — 통화가 끊기는 소리 (설정의 효과음 스위치를 따른다)
+    if (G.sfxOn === false) return;
+    try { var c = new (window.AudioContext || window.webkitAudioContext)(); tone(c, 440, 0, 0.22, 0.09); tone(c, 440, 0.42, 0.22, 0.09); setTimeout(function () { try { c.close(); } catch (e) {} }, 1200); } catch (e) {}
+  }
+  function endOverlay(sec) { // 📴 검은 화면 + 통화 시간 — 영상통화가 끊기는 그 1.4초
+    var ov = $("endOv"); if (!ov) return;
+    $("endOvT").textContent = String(Math.floor(sec / 60)).padStart(2, "0") + ":" + String(sec % 60).padStart(2, "0");
+    ov.classList.add("show");
+    setTimeout(function () { ov.classList.remove("show"); }, 2400); // 결과 화면 전환 뒤 정리
+  }
   function endCall(manual) {
     if (G.sparMode) { G.sparRes = G.sparRes || []; sparEnd(); return; } // ⚡ 스파링 중 종료 버튼 = 드릴 종료 (풀 채점 없음)
     if (!G.inCall) return; // 승낙·침묵·수동이 겹쳐도 종료는 한 번만
+    subDone(); // 자막 잔여분 공개
+    endTone(); endOverlay(Math.max(1, Math.round((Date.now() - G.t0) / 1000))); // 📴 종료 연출 — 채점이 도는 동안 어색한 공백을 덮는다
     G.inCall = false;
     G.llmBusy = false; // 응답 대기 중에 끊어도 플래그를 반납한다
     disarmIdle();
@@ -7541,7 +7593,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "6.4";
+  var APP_VER = "6.5";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -7598,7 +7650,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, insPrint: insPrint, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
 })();
 
 </script>
