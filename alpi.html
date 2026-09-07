@@ -899,7 +899,11 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
             <input type="text" id="elevenVoiceM" value="JsyP5NIpAZhfPw5mwSP0" placeholder="남성 원장 보이스 ID" style="flex:1;">
             <input type="text" id="elevenVoiceF" value="0acaXyU36iMbRS9PXzmk" placeholder="여성 원장 보이스 ID" style="flex:1;">
           </div>
-          <div class="small" style="margin-top:4px;color:#0B5B54;font-weight:700;">✅ 일레븐 연결 준비 완료 — 그대로 시작하면 됩니다. (끄려면 위 칸 비우기)</div>
+          <div style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button class="btn ghost" type="button" style="margin:0;padding:7px 14px;font-size:12.5px;" onclick="APP.elevenTest()">🧪 일레븐 연결 테스트 (10초)</button>
+            <span class="small" id="elevenTestOut"></span>
+          </div>
+          <div class="small" style="margin-top:4px;color:#0B5B54;font-weight:700;">✅ 위 테스트가 성공하면 성우 목소리로 시작됩니다. (끄려면 위 칸 비우기)</div>
           <div class="small" style="margin-top:4px;">일레븐이 켜져 있으면 아래 Claude 설정은 무시됩니다.</div>
           <label class="lbl" style="margin-top:12px;">🧠 애드립 모드 — Claude API 키 (원장이 대본 없이 진짜 대화)</label>
           <input type="password" id="claudeKey" placeholder="sk-ant-…  (발급: console.anthropic.com → API Keys)" style="width:100%;">
@@ -1350,7 +1354,9 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.5 — 자막이 말과 함께 흐릅니다</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.6 — 일레븐 목소리 지킴이</h2>
+    <div class="ver-it"><b>🎙 6.6 — 일레븐이 안 붙으면 크게 알려줍니다</b>일레븐 연결이 실패하면 이제 <b>"지금 들리는 목소리는 일레븐이 아닙니다"</b>라고 명확히 알리고, 실패 원인을 우리말로 번역해줍니다(구독·크레딧 / Agent 없음 / 오버라이드 거부 / 마이크 / 네트워크). 결제·설정을 고친 뒤 <b>🔄 재연결</b> 버튼으로 판을 다시 열 필요 없이 그 자리에서 복구됩니다.</div>
+    <div class="ver-it"><b>🧪 6.6 — 출항 전 연결 테스트</b>장비 화면의 <b>🧪 일레븐 연결 테스트</b> 버튼 — 판을 열지 않고 10초 만에 성공/실패와 원인을 확인합니다.</div>
     <div class="ver-it"><b>💬 6.5 — 라이브 자막</b>원장 대사가 통째로 뜨지 않고 <b>말한 만큼만 밝아집니다</b>(아직 안 한 말은 흐리게). 대사를 미리 읽어버려 듣기가 죽던 문제의 해법 — 브라우저 음성은 단어 경계, 일레븐은 말 속도에 맞춰 흐릅니다. 시스템의 동작 줄이기 설정을 켜면 즉시 전체 표시.</div>
     <div class="ver-it"><b>📴 6.5 — 통화 종료 시퀀스</b>통화가 끝나면 결과로 뚝 떨어지지 않고 <b>뚜… 뚜 소리와 함께 검은 화면 + 통화 시간</b>이 잠깐 지나갑니다 — 채점이 도는 공백을 영상통화의 마지막 1초로 덮습니다.</div>
     <div class="ver-it"><b>🗺 6.4 — 유형별 전사 격파율</b>관리자 인사이트에 반대 20유형의 <b>전사 격파율 히트맵</b>이 실립니다 — 붉은 칸이 전사 공통 약점이고, 그 유형이 다음 교육 주제입니다. <b>🖨 보고서 인쇄</b>로 경영보고 지면 그대로 출력됩니다.</div>
@@ -2944,13 +2950,35 @@ window.APP = (function () {
     clearTimeout(G._elT);
     G._elT = setTimeout(function () { if (G.inCall && !G.elClient && !G.elDead) elevenFail("연결 시간 초과"); }, 12000);
   }
+  function elWhy(msg) { // 실패 사유 번역 — 사용자가 뭘 고쳐야 하는지까지 (순수)
+    var m = String(msg || "").toLowerCase();
+    if (/quota|payment|402|credit|subscript|billing|insufficient/.test(m)) return "구독·크레딧 문제로 보입니다 — ElevenLabs 대시보드에서 결제 상태와 남은 크레딧을 확인하세요";
+    if (/404|not.?found|does not exist|invalid.?agent|unknown.?agent/.test(m)) return "Agent를 찾을 수 없습니다 — 구독이 끊겼다 다시 결제하면 다른 워크스페이스로 로그인됐을 수 있어요. ElevenLabs 콘솔 → Agents에서 이 ID가 그대로 있는지 확인하세요";
+    if (/override/.test(m)) return "오버라이드가 거부됐습니다 — 콘솔에서 Agent → Security(보안) → Overrides의 System prompt·First message·Language·Voice를 전부 허용으로 켜세요 (구독 갱신 때 초기화되기도 합니다)";
+    if (/401|403|unauthor|forbidden/.test(m)) return "권한 오류 — Agent가 비공개로 바뀌었거나 인증 설정이 변경됐습니다. 콘솔에서 Agent 공개/인증 설정을 확인하세요";
+    if (/notallowed|permission|microphone|getusermedia/.test(m)) return "마이크 권한 문제 — 주소창의 마이크 아이콘에서 허용으로 바꾸세요";
+    if (/시간 초과|timeout|websocket|network|failed to fetch|import/.test(m)) return "네트워크·차단 문제 — 사내망이면 elevenlabs.io / cdn.jsdelivr.net 접근이 열려 있어야 합니다";
+    return "원인 미상 — 아래 원문을 확인하세요";
+  }
+  function elevenRetry() { // 🔄 결제·설정을 고친 뒤 그 자리에서 재연결 — 새 판을 다시 열 필요 없다
+    if (!G.inCall) { toast("통화 중에만 재연결할 수 있습니다"); return; }
+    G.elDead = false; G.elQueue = [];
+    speakSeq++; try { speechSynthesis.cancel(); } catch (e) {} setTalking(false); G.ttsSpeaking = false;
+    stopVoiceLoop(); // 브라우저 인식은 반납 — 일레븐이 마이크를 가져간다
+    $("playBanner").innerHTML = "";
+    G.awaiting = "free";
+    startEleven();
+  }
   function elevenFail(msg) {
     if (G.elDead) return; // 재진입 금지 — onError와 catch가 겹쳐 들어와 원장 오프닝이 두 번 깔리던 문제
     clearTimeout(G._elT);
     try { if (G.elClient) G.elClient.endSession(); } catch (e) {} // 세션이 반쯤 살아있는 채로 폴백하면 일레븐+기계음이 동시에 말한다 — 확실히 끊고 넘어간다
     G.elDead = true; G.elClient = null;
     setTalking(false); G.ttsSpeaking = false; // 말하는 중에 끊겼다면 상태를 반드시 반납 (안 그러면 감시 타이머가 죽는다)
-    $("playBanner").innerHTML = "<div class='banner err'>🎙 일레븐 연결 실패 — " + esc(msg) + ". " + (llmOn() ? "🧠 Claude 애드립으로 전환합니다." : "🎭 대본 모드로 전환합니다.") + "</div>";
+    $("playBanner").innerHTML = "<div class='banner err' style='line-height:1.7;'><b>🎙 일레븐 연결 실패 — 지금 들리는 목소리는 일레븐이 아니라 브라우저 내장 음성입니다.</b>" +
+      "<div>↳ " + esc(elWhy(msg)) + "</div><div class='small'>원문: " + esc(String(msg).slice(0, 140)) + "</div>" +
+      "<div style='margin-top:6px;'><button class='btn' style='margin:0;padding:7px 16px;font-size:13px;' onclick='APP.elevenRetry()'>🔄 고쳤어요 — 일레븐 재연결</button></div>" +
+      "<div class='small' style='margin-top:4px;'>" + (llmOn() ? "우선 🧠 Claude 애드립으로 계속합니다." : "우선 🎭 대본 모드로 계속합니다.") + "</div></div>";
     $("btnMic").classList.remove("hidden"); setMicBtn(); // 폴백에서는 자동 대화 버튼을 되살린다
     G.awaiting = llmOn() ? "free" : "opening";
     if (window.SpeechRecognition || window.webkitSpeechRecognition) { if (!G.voiceOn) startVoiceLoop(); }
@@ -2972,6 +3000,29 @@ window.APP = (function () {
   function elevenPush(note) { // 끼어들지 않는 컨텍스트 주입 — 실패해도 대화는 계속된다
     if (!note) return;
     try { if (G.elClient && typeof G.elClient.sendContextualUpdate === "function") G.elClient.sendContextualUpdate(note); } catch (e) {}
+  }
+  function elevenTest() { // 🧪 설정 화면에서 일레븐만 딱 테스트 — 판을 열 필요 없이 원인을 짚는다
+    var out = $("elevenTestOut"); if (!out) return;
+    var aid = (($("elevenAgent") && $("elevenAgent").value) || "").trim();
+    if (!aid) { out.innerHTML = "<b style='color:#B0392E'>Agent ID가 비어 있습니다</b>"; return; }
+    out.textContent = "테스트 중… (마이크 허용이 뜨면 허용해주세요)";
+    var fin = function (ok, msg) {
+      out.innerHTML = ok ? "<b style='color:#0B5B54'>✅ 일레븐 연결 성공 — 이대로 시작하면 성우 목소리가 나옵니다</b>"
+        : "<b style='color:#B0392E'>❌ 실패: " + esc(elWhy(msg)) + "</b><div class='small'>원문: " + esc(String(msg).slice(0, 160)) + "</div>";
+    };
+    var done = false, once = function (ok, msg) { if (done) return; done = true; fin(ok, msg); };
+    var conv2 = null;
+    import("https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm").then(function (mod) {
+      var vid = (($("elevenVoiceF") && $("elevenVoiceF").value) || "").trim();
+      var ov = { agent: { prompt: { prompt: "테스트입니다. 아무 말도 하지 마세요." }, firstMessage: "연결 테스트 성공.", language: "ko" } };
+      if (vid) ov.tts = { voiceId: vid };
+      return mod.Conversation.startSession({ agentId: aid, overrides: ov,
+        onConnect: function () { once(true); setTimeout(function () { try { if (conv2) conv2.endSession(); } catch (e) {} }, 2500); }, // 첫마디 한 번 듣고 정리 — 크레딧 최소 소모
+        onError: function (m) { once(false, typeof m === "string" ? m : (m && m.message) || "연결 오류"); },
+        onDisconnect: function () { if (!done) once(false, "연결이 즉시 끊어졌습니다 (오버라이드 거부 또는 권한 문제일 가능성)"); }
+      }).then(function (c2) { conv2 = c2; setTimeout(function () { try { c2.endSession(); } catch (e) {} }, 5000); });
+    }).catch(function (e) { once(false, (e && e.message) || String(e)); });
+    setTimeout(function () { once(false, "시간 초과 — 네트워크 또는 마이크 권한"); }, 12000);
   }
   function elevenTurn(text) { // 일레븐이 대화를 운전 — 여기서는 심판만 본다 (결정론 채점 유지)
     if (mannerCheck(text)) { G.dlgLog.push({ w: "mr", t: text }); G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text), eleven: true }); return; } // 음성으로 뱉은 욕설도 잡는다
@@ -7593,7 +7644,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "6.5";
+  var APP_VER = "6.6";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -7649,8 +7700,8 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, insPrint: insPrint, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
+    toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, elevenRetry: elevenRetry, elevenTest: elevenTest, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, insPrint: insPrint, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, elWhy: elWhy, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
 })();
 
 </script>
