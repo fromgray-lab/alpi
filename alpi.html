@@ -921,6 +921,11 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
             <input type="password" id="sbKey" placeholder="anon public 키" style="flex:1;">
           </div>
           <div class="small" style="margin-top:4px;">배포 팁: 주소 뒤에 <b>#sb=프로젝트URL|anon키</b>를 붙여 공유하면 전 직원 기기에 자동 설정됩니다 (입력 불필요).</div>
+          <div style="margin-top:6px;">
+            <button class="btn ghost" type="button" style="margin:0;padding:7px 14px;font-size:12.5px;" onclick="APP.sbDiag()">🩺 서버 기록 진단 (5초)</button>
+            <span id="sbLiveChip" class="small"></span>
+          </div>
+          <div id="sbDiagOut" class="small" style="margin-top:4px;line-height:1.7;"></div>
           <div style="margin-top:8px;">
             <button class="btn" type="button" onclick="APP.testClaude()">🔌 연결 테스트</button>
             <span id="claudeTestOut" class="small"></span>
@@ -1354,7 +1359,9 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.6 — 일레븐 목소리 지킴이</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v6.7 — 기록은 한 판도 잃지 않습니다</h2>
+    <div class="ver-it"><b>☁ 6.7 — 서버 기록 안전망</b>서버(Supabase)가 꺼져 있어도 판 기록을 버리지 않습니다 — <b>이 기기 보관함에 저장</b>했다가 서버가 돌아오면 <b>자동 재전송</b>되고, 꺼진 동안 플레이한 판도 기기 기록과 서버를 대조해 <b>빠진 판만 복구 업로드</b>됩니다(중복 없음). 실패는 이제 조용히 사라지지 않고 "이 기기에 보관됨"으로 정직하게 알립니다.</div>
+    <div class="ver-it"><b>🩺 6.7 — 서버 기록 진단</b>장비 화면 고급 설정의 <b>🩺 서버 기록 진단</b> 버튼 — 연결 생존·누적 세션 수·확장 컬럼(SQL 델타)·보관함 대기 건수를 5초 안에 확인하고, 연결돼 있으면 그 자리에서 보관분 전송·복구까지 실행합니다. 서버가 꺼진 원인도 우리말로 알려줍니다(무료 플랜 7일 미사용 자동 일시정지 등).</div>
     <div class="ver-it"><b>🎙 6.6 — 일레븐이 안 붙으면 크게 알려줍니다</b>일레븐 연결이 실패하면 이제 <b>"지금 들리는 목소리는 일레븐이 아닙니다"</b>라고 명확히 알리고, 실패 원인을 우리말로 번역해줍니다(구독·크레딧 / Agent 없음 / 오버라이드 거부 / 마이크 / 네트워크). 결제·설정을 고친 뒤 <b>🔄 재연결</b> 버튼으로 판을 다시 열 필요 없이 그 자리에서 복구됩니다.</div>
     <div class="ver-it"><b>🧪 6.6 — 출항 전 연결 테스트</b>장비 화면의 <b>🧪 일레븐 연결 테스트</b> 버튼 — 판을 열지 않고 10초 만에 성공/실패와 원인을 확인합니다.</div>
     <div class="ver-it"><b>💬 6.5 — 라이브 자막</b>원장 대사가 통째로 뜨지 않고 <b>말한 만큼만 밝아집니다</b>(아직 안 한 말은 흐리게). 대사를 미리 읽어버려 듣기가 죽던 문제의 해법 — 브라우저 음성은 단어 경계, 일레븐은 말 속도에 맞춰 흐릅니다. 시스템의 동작 줄이기 설정을 켜면 즉시 전체 표시.</div>
@@ -4439,17 +4446,168 @@ window.APP = (function () {
     document.body.appendChild(w);
   }
   function sbHeaders() { return { "content-type": "application/json", "apikey": G.sbKey, "Authorization": "Bearer " + G.sbKey, "Prefer": "return=minimal" }; }
-  function cloudUpload(table, row, fb2) { // fb2: 확장 컬럼이 서버에 아직 없을 때 되돌아갈 기본 페이로드 (배포 순서에 안전)
+  /* ── ☁ v6.7 서버 기록 안전망 — 실패를 삼키지 않는다 ──
+     사건: Supabase 무료 플랜이 7일 미사용으로 일시정지됐는데, 업로드 실패가 조용히 버려져 몇 주간 아무도 몰랐다.
+     원칙: ① 실패는 반드시 보인다 ② 실패한 기록은 이 기기 보관함(alpi_upq)에 남는다
+           ③ 서버가 돌아오면 자동 재전송된다 ④ 꺼진 동안 플레이한 판도 기기 기록(G.sessions)과 서버를 대조해 복구 업로드된다 */
+  var UPQ_MAX = 40;
+  function upqLoad() { var q = loadK("upq", []); return Array.isArray(q) ? q : []; }
+  function upqSave(q) { store("upq", q.slice(-UPQ_MAX)); }
+  function upqPush(table, row) {
+    try {
+      var r2 = {}; Object.keys(row || {}).forEach(function (k) { r2[k] = row[k]; });
+      if (!r2.created_at) r2.created_at = new Date().toISOString(); // 재전송돼도 '사건 시각'이 남는다 — 복구 대조의 기준
+      var q = upqLoad(); q.push({ t: table, r: r2 }); upqSave(q);
+    } catch (e) {}
+  }
+  function sbWhy(st) { // 실패 사유 → 사람 말 (관리자가 읽고 바로 조치할 수 있게)
+    if (st === "NET") return "서버 주소에 연결 안 됨 — Supabase 무료 플랜은 7일 미사용 시 자동 일시정지됩니다. supabase.com/dashboard 로그인 → 프로젝트 → Restore project";
+    if (st === 401 || st === 403) return "키 거부(HTTP " + st + ") — 장비 화면 고급 설정의 anon 키가 현재 키인지 확인";
+    if (st === 404) return "테이블 없음(404) — 서버기록_설치.sql 실행 여부 확인";
+    if (st === 400) return "컬럼 불일치(400) — 서버기록_설치.sql 하단 최신 델타(alter table …) 실행";
+    return "HTTP " + st;
+  }
+  function sbBadge() { // 장비 화면 서버 상태 칩 — 상태가 바뀔 때마다 갱신
+    var el = $("sbLiveChip"); if (!el) return;
+    if (G.sbLive === true) el.innerHTML = "<b style='color:#0B5B54'>✅ 서버 연결됨</b>";
+    else if (G.sbLive === false) el.innerHTML = "<b style='color:#B0392E'>⛔ 서버 연결 안 됨</b> — 기록은 이 기기에 보관 중";
+    else el.textContent = "";
+  }
+  function sbPing(cb) { // 서버 생존 확인 — 가장 싼 요청 1개
+    if (!sbOn()) { if (cb) cb(false, "설정 없음"); return; }
+    fetch(G.sbUrl + "/rest/v1/rp_sessions?select=id&limit=1", { headers: sbHeaders() })
+      .then(function (r) { G.sbLive = !!r.ok; sbBadge(); if (cb) cb(!!r.ok, r.ok ? "" : sbWhy(r.status)); })
+      .catch(function () { G.sbLive = false; sbBadge(); if (cb) cb(false, sbWhy("NET")); });
+  }
+  function upqFlush(onDone) { // 보관분 재전송 — 독이 든 행(영구 4xx)은 버리고, 서버가 꺼져 있으면 멈춘다
+    if (!sbOn() || G._upqBusy) { if (onDone) onDone(0); return; }
+    var q = upqLoad();
+    if (!q.length) { if (onDone) onDone(0); return; }
+    G._upqBusy = true;
+    var sent = 0;
+    (function next() {
+      if (!q.length) {
+        upqSave(q); G._upqBusy = false;
+        if (sent) toast("☁ 보관해둔 기록 " + sent + "건 서버로 전송 완료");
+        if (onDone) onDone(sent); return;
+      }
+      var it = q[0];
+      fetch(G.sbUrl + "/rest/v1/" + it.t, { method: "POST", headers: sbHeaders(), body: JSON.stringify(it.r) })
+        .then(function (r) {
+          if (r.ok) { q.shift(); sent++; next(); return; }
+          if (r.status >= 400 && r.status < 500 && r.status !== 401 && r.status !== 403 && r.status !== 429) { q.shift(); next(); return; } // 서버가 영원히 거부할 행 — 큐를 막지 않는다
+          it.n = (it.n || 0) + 1; if (it.n >= 8) q.shift(); // 8회 기회 뒤 포기
+          upqSave(q); G._upqBusy = false;
+          if (sent) toast("☁ 보관 기록 " + sent + "건 전송 (" + q.length + "건은 다음에)");
+          if (onDone) onDone(sent);
+        })
+        .catch(function () { G.sbLive = false; sbBadge(); upqSave(q); G._upqBusy = false; if (onDone) onDone(sent); });
+    })();
+  }
+  function sessFillRow(s) { // 기기 기록 한 판 → 서버 행 (복구 업로드용) — created_at에 플레이한 날을 새긴다
+    var u = G.user || {}, sc = s.sc || {};
+    var row = { player: u.name, empno: u.empno || null, office: u.office, div: u.div,
+      doc: s.doc, types: s.types || [], total: sc.total || 0, axes: { A: sc.A || 0, B: sc.B || 0, C: sc.C || 0, D: sc.D || 0, E: sc.E || 0 },
+      crits: s.crits || 0, ht: s.ht || null, diff: s.diff || null, cp: sc.cpN || 0, llm: s.llm || null,
+      device: IS_MOBILE ? "mobile" : "desktop", turns: (s.turns || []).length, dur: null };
+    if (s.date) row.created_at = s.date + "T12:00:00+09:00";
+    if (s.mission) row.mission = s.mission;
+    return row;
+  }
+  function backfill(onDone) { // 서버가 꺼진 동안의 판 — 날짜|총점 멀티셋으로 대조해 빠진 판만 올린다 (중복 없음)
+    if (!sbOn() || G._bkBusy) { if (onDone) onDone(0); return; }
+    var u = G.user || {};
+    if (!u.name && !u.empno) { if (onDone) onDone(0); return; }
+    var cand = (G.sessions || []).filter(function (s) { return !s.up && s.sc && !s.sc.noPlay; });
+    if (!cand.length) { if (onDone) onDone(0); return; }
+    G._bkBusy = true;
+    var who = u.empno ? "empno=eq." + encodeURIComponent(u.empno) : "player=eq." + encodeURIComponent(u.name || "");
+    fetch(G.sbUrl + "/rest/v1/rp_sessions?" + who + "&select=created_at,total&order=created_at.desc&limit=1000", { headers: sbHeaders() })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+      .then(function (rows) {
+        var have = {}; // 날짜|총점 멀티셋 — 같은 날 같은 점수 판 수까지 맞춘다
+        (rows || []).forEach(function (r2) { var k = String(r2.created_at || "").slice(0, 10) + "|" + (r2.total || 0); have[k] = (have[k] || 0) + 1; });
+        var miss = [];
+        cand.forEach(function (s) {
+          var k = (s.date || "") + "|" + ((s.sc && s.sc.total) || 0);
+          if (have[k] > 0) { have[k]--; s.up = 1; } // 이미 서버에 있는 판 — 표시만 남기고 통과
+          else miss.push(s);
+        });
+        miss = miss.slice(-20); // 한 번에 최대 20판 — 서버를 때리지 않는다
+        var done = 0;
+        (function next() {
+          if (!miss.length) {
+            persistAll(); G._bkBusy = false;
+            if (done) toast("☁ 서버가 꺼진 동안의 " + done + "판, 기기 기록에서 복구 완료");
+            if (onDone) onDone(done); return;
+          }
+          var s = miss.shift(), row = sessFillRow(s);
+          fetch(G.sbUrl + "/rest/v1/rp_sessions", { method: "POST", headers: sbHeaders(), body: JSON.stringify(row) })
+            .then(function (r2) {
+              if (r2.ok) { s.up = 1; done++; next(); return; }
+              var row2 = {}; Object.keys(row).forEach(function (k2) { if (k2 !== "created_at" && k2 !== "mission" && k2 !== "turns" && k2 !== "dur") row2[k2] = row[k2]; });
+              fetch(G.sbUrl + "/rest/v1/rp_sessions", { method: "POST", headers: sbHeaders(), body: JSON.stringify(row2) }) // 서버가 확장 컬럼을 거부하면 기본형으로
+                .then(function (r3) { if (r3.ok) { s.up = 1; done++; } next(); })
+                .catch(function () { persistAll(); G._bkBusy = false; if (onDone) onDone(done); });
+            })
+            .catch(function () { persistAll(); G._bkBusy = false; if (onDone) onDone(done); });
+        })();
+      })
+      .catch(function () { G._bkBusy = false; if (onDone) onDone(0); });
+  }
+  function sbWake(src) { // 깨어날 때마다: 생존 확인 → 보관분 재전송 → 누락 판 복구 (순서 보장 — 중복 방지)
+    sbPing(function (ok, why) {
+      if (ok) { upqFlush(function () { backfill(); }); return; }
+      var hasWork = upqLoad().length || (G.sessions || []).some(function (s) { return !s.up && s.sc && !s.sc.noPlay; });
+      if (src === "boot" && hasWork && !G._downToast) { G._downToast = true; toast("☁ 기록 서버 연결 안 됨 — 판 기록은 이 기기에 보관됩니다"); }
+    });
+  }
+  function cloudUpload(table, row, fb2, onOk) { // fb2: 확장 컬럼이 서버에 아직 없을 때 되돌아갈 기본 페이로드 (배포 순서에 안전)
     if (!sbOn()) return;
+    function keep(why) { // 실패 → 버리지 않고 이 기기에 보관 + 정직한 안내 (판당 1회)
+      upqPush(table, fb2 || row);
+      G.sbLive = false; sbBadge();
+      if (!G._upKeptToast) { G._upKeptToast = true; toast("☁ 서버 연결 안 됨 — 기록은 이 기기에 보관됨 (서버 복구 시 자동 전송)"); }
+      try { console.warn("[알피왕] 서버 기록 보관:", table, why); } catch (e) {}
+    }
     try {
       fetch(G.sbUrl + "/rest/v1/" + table, { method: "POST", headers: sbHeaders(), body: JSON.stringify(row) })
         .then(function (r) {
-          if (r.ok) { toast("☁ 서버에 기록됨"); return; }
-          if (fb2) fetch(G.sbUrl + "/rest/v1/" + table, { method: "POST", headers: sbHeaders(), body: JSON.stringify(fb2) })
-            .then(function (r2) { if (r2.ok) toast("☁ 서버에 기록됨"); }).catch(function () {});
+          if (r.ok) { G.sbLive = true; sbBadge(); toast("☁ 서버에 기록됨"); if (onOk) onOk(); return; }
+          if (fb2) return fetch(G.sbUrl + "/rest/v1/" + table, { method: "POST", headers: sbHeaders(), body: JSON.stringify(fb2) })
+            .then(function (r2) { if (r2.ok) { G.sbLive = true; sbBadge(); toast("☁ 서버에 기록됨"); if (onOk) onOk(); } else keep(sbWhy(r2.status)); })
+            .catch(function () { keep(sbWhy("NET")); });
+          keep(sbWhy(r.status));
         })
+        .catch(function () { keep(sbWhy("NET")); });
+    } catch (e) { keep("예외: " + (e && e.message)); }
+  }
+  function sbDiag() { // 🩺 서버 기록 진단 — 연결·행수·확장 컬럼·보관함을 5초 안에 한눈에
+    var out = $("sbDiagOut"); if (!out) return;
+    var L = [];
+    function paint() { out.innerHTML = L.map(function (x) { return "<div>" + x + "</div>"; }).join(""); }
+    var host = (G.sbUrl || "").replace(/^https?:\/\//, "") || "(미설정)";
+    L.push("① 설정: <b>" + esc(host) + "</b> · 키 " + (G.sbKey ? "있음 (" + esc(String(G.sbKey).slice(0, 15)) + "…)" : "<b style='color:#B0392E'>없음</b>"));
+    var qn = upqLoad().length, bn = (G.sessions || []).filter(function (s) { return !s.up && s.sc && !s.sc.noPlay; }).length;
+    L.push("② 이 기기 보관함: 전송 대기 " + qn + "건 · 서버 대조 전 판 기록 " + bn + "판");
+    L.push("③ 연결: 확인 중…"); paint();
+    sbPing(function (ok, why) {
+      L[2] = ok ? "③ 연결: <b style='color:#0B5B54'>✅ 살아 있음</b>" : "③ 연결: <b style='color:#B0392E'>⛔ 실패</b> — " + esc(why);
+      if (!ok) { L.push("→ 서버를 되살린 뒤 이 버튼을 다시 누르면 보관분이 자동 전송됩니다."); paint(); return; }
+      paint();
+      fetch(G.sbUrl + "/rest/v1/rp_sessions?select=id", { headers: Object.assign(sbHeaders(), { Prefer: "count=exact", Range: "0-0" }) })
+        .then(function (r) { var cr = r.headers.get("content-range") || ""; var m = /\/(\d+)/.exec(cr); L.push("④ 누적 세션: <b>" + (m ? m[1] + "건" : "확인 불가") + "</b>"); paint(); })
         .catch(function () {});
-    } catch (e) {}
+      fetch(G.sbUrl + "/rest/v1/rp_sessions?select=mission&limit=1", { headers: sbHeaders() }).then(function (r) {
+        return fetch(G.sbUrl + "/rest/v1/rp_review?select=disputes&limit=1", { headers: sbHeaders() }).then(function (r2) {
+          var miss = []; if (!r.ok) miss.push("rp_sessions.mission"); if (!r2.ok) miss.push("rp_review.disputes");
+          L.push(miss.length ? "⑤ 확장 컬럼: <b style='color:#E8B44C'>⚠ " + miss.join(", ") + " 없음</b> — 서버기록_설치.sql 하단 델타 2줄 실행 권장 (없어도 기본 기록은 됩니다)"
+            : "⑤ 확장 컬럼: ✅ 최신 (mission · disputes)");
+          paint();
+        });
+      }).catch(function () {});
+      if (qn || bn) { L.push("⑥ 보관분 전송·복구 실행 중…"); paint(); upqFlush(function (s1) { backfill(function (s2) { L[L.length - 1] = "⑥ 전송·복구 완료: 보관함 " + s1 + "건 + 복구 " + s2 + "판"; paint(); }); }); }
+    });
   }
   function cloudFetch() {
     if (!sbOn()) { toast("설정 화면 고급 설정에 Supabase URL·anon 키를 넣거나, 주소 #sb= 해시로 접속하세요"); return; }
@@ -4463,7 +4621,11 @@ window.APP = (function () {
       G.cloud = res[0] || []; G.cloudCalib = res[1] || []; G.cloudFb = res[2] || [];
       $("cloudStat").textContent = "☁ 실데이터 모드 — 세션 " + G.cloud.length + "건 · 전문가 평가 " + G.cloudCalib.length + "건 · 경험 의견 " + G.cloudFb.length + "건";
       renderAdmin();
-    }).catch(function (e) { $("cloudStat").textContent = "☁ 불러오기 실패: " + (e.message || e) + " — URL·키·RLS 정책 확인"; });
+    }).catch(function (e) {
+      var net = /failed to fetch|networkerror|load failed/i.test(String((e && e.message) || e));
+      $("cloudStat").textContent = "☁ 불러오기 실패: " + (net ? sbWhy("NET") : (e.message || e) + " — URL·키·RLS 정책 확인");
+      G.sbLive = net ? false : G.sbLive; sbBadge();
+    });
   }
   function cloudRoster(rows) { // 서버 세션 → 관리장 로스터 (사람별 평균·정복 유형)
     var by = {};
@@ -5823,7 +5985,10 @@ window.APP = (function () {
       var ext = {}; Object.keys(base).forEach(function (k) { ext[k] = base[k]; });
       ext.turns = G.turns.length; ext.dur = durSec;
       if (G._missionLog) ext.mission = G._missionLog; // 🎯 처방 실행 여부 — 조직 인사이트의 '실행률' 근거
-      cloudUpload("rp_sessions", ext, base);
+      cloudUpload("rp_sessions", ext, base, function () { // 성공 → 이 판은 서버에 있음 표시 + 밀린 보관분도 이 틈에 전송
+        var ls = G.sessions[G.sessions.length - 1]; if (ls) { ls.up = 1; persistAll(); }
+        upqFlush();
+      });
     })();
     // 비언어 분석 표
     if (nv && nv.얼굴검출률 >= 30) {
@@ -7644,7 +7809,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "6.6";
+  var APP_VER = "6.7";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -7665,6 +7830,13 @@ window.APP = (function () {
     if (hs) { G.sbUrl = hs.url; G.sbKey = hs.key; store("sbUrl", G.sbUrl); store("sbKey", G.sbKey); }
     try { if ($("sbUrl")) $("sbUrl").value = G.sbUrl; if ($("sbKey")) $("sbKey").value = G.sbKey; } catch (e) {}
   })();
+  // ☁ v6.7 — 부팅·회선 복구 시 서버 생존 확인 → 보관분 재전송 → 누락 판 복구 (실패가 조용히 묻히지 않는다)
+  try {
+    if (typeof window !== "undefined" && window.addEventListener) {
+      setTimeout(function () { sbWake("boot"); }, 2500);
+      window.addEventListener("online", function () { setTimeout(function () { sbWake("online"); }, 1200); });
+    }
+  } catch (e) {}
   // 기기별 안내 — 폰에서 파일로 직접 열면 카메라·마이크가 막힌다
   (function () {
     var tips = [];
@@ -7700,8 +7872,8 @@ window.APP = (function () {
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
-    toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, elevenRetry: elevenRetry, elevenTest: elevenTest, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, insPrint: insPrint, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, elWhy: elWhy, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK } };
+    toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, elevenRetry: elevenRetry, elevenTest: elevenTest, sbDiag: sbDiag, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, insPrint: insPrint, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, elWhy: elWhy, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK, sbWhy: sbWhy, upqLoad: upqLoad, upqPush: upqPush, upqFlush: upqFlush, upqSave: upqSave, sbPing: sbPing, sessFillRow: sessFillRow, backfill: backfill, sbWake: sbWake, cloudUpload: cloudUpload, sbBadge: sbBadge, UPQ_MAX: UPQ_MAX } };
 })();
 
 </script>
