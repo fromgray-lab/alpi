@@ -777,6 +777,8 @@ summary:hover{background:rgba(127,160,150,.13);}
 .chip{transition:filter .13s ease;}
 button.chip:hover,.rk-tab:hover{filter:brightness(1.05);}
 @media (prefers-reduced-motion:reduce){.btn,.btn:hover,summary,input,select,textarea{transition:none;transform:none;}}
+.av-photo{animation:avFade .22s ease;}
+@keyframes avFade{from{opacity:0;}}
 </style>
 </head>
 <body>
@@ -1395,7 +1397,8 @@ button.chip:hover,.rk-tab:hover{filter:brightness(1.05);}
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v7.2 — 디자인 리뉴얼 1차</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v7.3 — 실사 즉시 표시</h2>
+    <div class="ver-it"><b>📷 7.3 — 일러스트 깜빡임 제거</b>화면 전환 때 옛 일러스트가 잠깐 보이던 문제 — 사진 세트를 접속마다 처음부터 다시 확인하던 구조가 원인이었습니다. 이제 <b>한 번 확인된 실사 세트는 기기에 기억</b>되어 다음 접속부터 첫 화면부터 실사로 그려지고, 부팅 직후 4인 전체를 선로드해 전환 깜빡임을 없앴습니다. 교체·삭제된 컷은 자동으로 목록에서 내려 깨진 이미지를 무대에 올리지 않습니다.</div>
     <div class="ver-it"><b>✨ 7.2 — 프리미엄 타이포·인터랙션</b>전 화면의 글꼴이 <b>Pretendard</b>로 교체되고(특히 Windows에서 체감 큼), 버튼엔 들림·눌림, 입력창엔 포커스 링, 표엔 행 하이라이트가 생겼습니다. 스크롤바·접기 메뉴까지 결이 통일된 <b>프리미엄 클린 레이어</b> — 바다·모험의 정체성은 그대로입니다. (다음 차수: 통화·결과 화면 정밀 손질)</div>
     <div class="ver-it"><b>🔮 7.1 — 원장 반응 맞히기</b>수배전단의 새 종목. 원장의 반대와 MR의 답을 보고 <b>"원장이 다음에 뭐라 할까"</b>를 맞힙니다 — 명분+수치가 실리면 수긍, 안심만 시키면 재공격. 원장의 수가 읽히기 시작하면 실전에서 답이 먼저 보입니다.</div>
     <div class="ver-it"><b>⚖ 7.1 — 심사위원 체험</b>동료의 실전 리플레이를 <b>내가 5축으로 채점</b>하고 AI 심판과의 일치도가 점수가 됩니다. 어느 축을 후하게/짜게 보는지 비교표로 확인 — 채점 기준이 몸에 붙으면 내 리포트가 왜 그 점수인지 보입니다.</div>
@@ -2225,9 +2228,16 @@ window.APP = (function () {
     G.photoHave = G.photoHave || {};
     PHOTO_EXPRS.forEach(function (e2) {
       var im = new Image();
+      im.onerror = function () { // 교체·삭제된 컷 자기치유 — 캐시된 매니페스트가 깨진 이미지를 무대에 올리지 않게
+        try {
+          if (G.photoHave[nm] && G.photoHave[nm][e2]) { delete G.photoHave[nm][e2]; store("photoHave", G.photoHave); }
+          if (e2 === "neutral" && G.photoOk && G.photoOk[nm]) { delete G.photoOk[nm]; if (!G.inCall) { try { if (document.querySelector("#scr-pick.on")) renderPick(); } catch (e3) {} } }
+        } catch (e4) {}
+      };
       im.onload = function () {
         G.photoHave[nm] = G.photoHave[nm] || {};
         G.photoHave[nm][e2] = 1;
+        try { store("photoHave", G.photoHave); } catch (e5) {} // 📷 매니페스트 영속화 — 다음 접속엔 일러스트 없이 첫 화면부터 실사 (v7.3)
         if (e2 === "neutral") {
           G.photoOk = G.photoOk || {}; G.photoOk[nm] = 1;
           if (G.doc && G.doc.nm === nm) {
@@ -6771,7 +6781,8 @@ window.APP = (function () {
     { v: "5.6", rx: /(잘못된 수치라고|정확한 수가를 답변해도)/, t: "수치 인식 절단 수리 (소수점·쉼표)" },
     { v: "5.4", rx: /(파고들|추가 질문|금방 마무리)/, t: "짧은 답에 원장이 되파고듦" },
     { v: "6.6", rx: /(음성은 저번|더 사실적|기계음)/, t: "일레븐 장애 가시화·재연결" },
-    { v: "7.2", rx: /(촌스럽|디자인|레이아웃|글꼴|폰트|완성도가?\s?(부족|떨어))/, t: "프리미엄 타이포·인터랙션 리뉴얼" }
+    { v: "7.2", rx: /(촌스럽|디자인|레이아웃|글꼴|폰트|완성도가?\s?(부족|떨어))/, t: "프리미엄 타이포·인터랙션 리뉴얼" },
+    { v: "7.3", rx: /(일러스트가?\s?(남|잠깐|보여)|깜빡|전환될 때|그림이 바뀌)/, t: "실사 즉시 표시 (매니페스트 기억+선로드)" }
   ];
   function fbFixedTag(txt) { var s = String(txt || ""); if (s.length < 4) return null; for (var i = 0; i < FIXED_LOG.length; i++) if (FIXED_LOG[i].rx.test(s)) return FIXED_LOG[i]; return null; }
   function renderReviewQueue() {
@@ -8127,7 +8138,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "7.2";
+  var APP_VER = "7.3";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -8148,6 +8159,15 @@ window.APP = (function () {
     if (hs) { G.sbUrl = hs.url; G.sbKey = hs.key; store("sbUrl", G.sbUrl); store("sbKey", G.sbKey); }
     try { if ($("sbUrl")) $("sbUrl").value = G.sbUrl; if ($("sbKey")) $("sbKey").value = G.sbKey; } catch (e) {}
   })();
+  // 📷 v7.3 — 실사 매니페스트 복원: 한 번 확인된 사진 세트는 다음 접속의 '첫 렌더'부터 실사 (일러스트 깜빡임 제거)
+  try {
+    var _ph = loadK("photoHave", null);
+    if (_ph && typeof _ph === "object") {
+      G.photoHave = _ph; G.photoOk = G.photoOk || {};
+      Object.keys(_ph).forEach(function (nm2) { if (_ph[nm2] && _ph[nm2].neutral) G.photoOk[nm2] = 1; });
+    }
+  } catch (e) {}
+  try { if (typeof window !== "undefined" && location.protocol !== "file:") setTimeout(function () { Object.keys(PHOTO_KEYS).forEach(photoProbe); }, 650); } catch (e) {} // 부팅 직후 4인 선로드 — 전환 깜빡임의 마지막 꼬리 제거
   // ☁ v6.7 — 부팅·회선 복구 시 서버 생존 확인 → 보관분 재전송 → 누락 판 복구 (실패가 조용히 묻히지 않는다)
   try {
     if (typeof window !== "undefined" && window.addEventListener) {
