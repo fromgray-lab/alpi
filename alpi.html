@@ -742,7 +742,7 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
   ol.prx b{color:#0B2F2A;}
   .pfoot{margin-top:14pt;border-top:1pt solid #DCE4E1;padding-top:5pt;font-size:8pt;color:#8A948F;display:flex;justify-content:space-between;letter-spacing:.04em;}
 }
-.av-photo{transition:transform .16s ease;transform-origin:60px 75px;}
+.av-photo{transition:transform .16s ease,opacity .26s ease;transform-origin:60px 75px;}
 .pax-why{font-size:11px;color:var(--sub);margin:-3px 0 7px 2px;}
 .pax-appeal{font-size:11.5px;color:var(--sub);background:#FFFDF4;border:1px dashed var(--gold);border-radius:8px;padding:7px 10px;margin-top:6px;}
 /* ══════════ v7.2 디자인 리뉴얼 — 프리미엄 클린 레이어 (토큰·타이포·컴포넌트 통일, 바다·모험 정체성 유지) ══════════
@@ -1397,7 +1397,9 @@ button.chip:hover,.rk-tab:hover{filter:brightness(1.05);}
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v7.3 — 실사 즉시 표시</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v7.4 — 표정 연기 수업</h2>
+    <div class="ver-it"><b>🎭 7.4 — 표정이 '점프'하지 않습니다</b>표정 교체가 사실상 하드컷이던 문제를 고쳤습니다: ① 컷 사이에 <b>진짜 크로스페이드(0.26초)</b>가 걸리고 ② 분노↔미소처럼 반대 감정은 <b>중립 한 컷을 경유</b>해 넘어가며(사람 얼굴의 문법) ③ 입모양 박자에 <b>미세 지터</b>를 넣어 메트로놈 같던 기계 입을 없앴습니다.</div>
+    <div class="ver-it"><b>🌱 7.4 — 살아있는 초상 (선택)</b>원장당 <b>neutral2.webp 한 장</b>(아주 미세하게 다른 중립 컷)만 img 폴더에 추가하면, 대기 중 자세가 가끔 바뀌는 '숨 쉬는 초상'이 자동으로 켜집니다 — 파일이 없으면 아무 일도 안 일어납니다.</div>
     <div class="ver-it"><b>📷 7.3 — 일러스트 깜빡임 제거</b>화면 전환 때 옛 일러스트가 잠깐 보이던 문제 — 사진 세트를 접속마다 처음부터 다시 확인하던 구조가 원인이었습니다. 이제 <b>한 번 확인된 실사 세트는 기기에 기억</b>되어 다음 접속부터 첫 화면부터 실사로 그려지고, 부팅 직후 4인 전체를 선로드해 전환 깜빡임을 없앴습니다. 교체·삭제된 컷은 자동으로 목록에서 내려 깨진 이미지를 무대에 올리지 않습니다.</div>
     <div class="ver-it"><b>✨ 7.2 — 프리미엄 타이포·인터랙션</b>전 화면의 글꼴이 <b>Pretendard</b>로 교체되고(특히 Windows에서 체감 큼), 버튼엔 들림·눌림, 입력창엔 포커스 링, 표엔 행 하이라이트가 생겼습니다. 스크롤바·접기 메뉴까지 결이 통일된 <b>프리미엄 클린 레이어</b> — 바다·모험의 정체성은 그대로입니다. (다음 차수: 통화·결과 화면 정밀 손질)</div>
     <div class="ver-it"><b>🔮 7.1 — 원장 반응 맞히기</b>수배전단의 새 종목. 원장의 반대와 MR의 답을 보고 <b>"원장이 다음에 뭐라 할까"</b>를 맞힙니다 — 명분+수치가 실리면 수긍, 안심만 시키면 재공격. 원장의 수가 읽히기 시작하면 실전에서 답이 먼저 보입니다.</div>
@@ -2137,10 +2139,10 @@ window.APP = (function () {
     else G._ttsStartAt = Date.now(); // 🔇 말을 막 시작한 직후의 "끼어들기"는 대개 스피커 에코다
     if (on) micState("원장 말하는 중", "b");
     else if (G.inCall) micState((G.voiceOn || elevenOn()) ? "듣는 중 — 말씀하세요" : "타이핑 대기", (G.voiceOn || elevenOn()) ? "g" : "idle");
-    if (mouthTimer) { clearInterval(mouthTimer); mouthTimer = null; }
+    if (mouthTimer) { clearTimeout(mouthTimer); mouthTimer = null; }
     if (on) {
       var open = false;
-      mouthTimer = setInterval(function () { // 표정 전환으로 SVG가 재렌더돼도 매 틱 새로 조회
+      var lipTick = function () { // 표정 전환으로 SVG가 재렌더돼도 매 틱 새로 조회
         open = !open;
         document.querySelectorAll(".av-mouthline").forEach(function (l) { l.style.opacity = "0"; });
         document.querySelectorAll(".av-mouth").forEach(function (m) { m.setAttribute("opacity", "1"); m.setAttribute("ry", open ? "5" : "2"); });
@@ -2155,7 +2157,9 @@ window.APP = (function () {
             pAct.setAttribute("href", photoUrl(nm2, fr));
           }
         }
-      }, 95);
+        mouthTimer = setTimeout(lipTick, 74 + Math.round(Math.random() * 58)); // 74~132ms 지터 — 고정 박자(메트로놈 입)가 기계 느낌의 주범
+      };
+      mouthTimer = setTimeout(lipTick, 90);
     } else {
       document.querySelectorAll(".av-mouth").forEach(function (m) { m.setAttribute("opacity", "0"); });
       document.querySelectorAll(".av-mouthline").forEach(function (l) { l.style.opacity = "1"; });
@@ -2164,7 +2168,13 @@ window.APP = (function () {
   }
   /* ── 📷 실사 아바타 레이어 (v4.8) — img/{원장}/{표정}.webp 세트가 리포지토리에 있으면 자동 전환, 없으면 만화 아바타 유지 ── */
   var PHOTO_KEYS = { "장인석": "jang", "강지은": "kang", "신혁주": "shin", "김민우": "kim" };
-  var PHOTO_EXPRS = ["neutral", "angry", "interest", "happy", "think", "talk1", "talk2", "talk_h", "blink1", "blink2"]; // talk_h=반개 입, blink1/2=반감·감은 눈 (있으면 자동 사용)
+  var PHOTO_EXPRS = ["neutral", "neutral2", "angry", "interest", "happy", "think", "talk1", "talk2", "talk_h", "blink1", "blink2"]; // talk_h=반개 입, blink1/2=반감·감은 눈, neutral2=미세 변형 중립(살아있는 초상) — 있으면 자동 사용
+  var EXPR_POLE = { angry: -1, think: 0, neutral: 0, interest: 1, happy: 1 }; // 감정 극성 — 반대 극성 직행 금지의 기준
+  function exprRoute(cur, next) { // 순수 — 사람 얼굴은 분노→미소로 직행하지 않는다: 반대 극성이면 중립 한 컷을 경유
+    var a = EXPR_POLE[cur], b = EXPR_POLE[next];
+    if (a !== undefined && b !== undefined && a !== 0 && b !== 0 && a !== b) return ["neutral", next];
+    return [next];
+  }
   function lipFrame(i, hasHalf, hold) { // 순수 — 립싱크 프레임 시퀀서: 닫힘→반개→열림→반개, 멈춤 틱은 닫힘
     if (hold > 0) return "talk2";
     if (!hasHalf) return (i % 2 === 0) ? "talk2" : "talk1";
@@ -2267,12 +2277,20 @@ window.APP = (function () {
   }
   function setExpr(name) {
     if (!G.doc || curExpr === name) return;
+    var prev = curExpr;
     lastExprAt = Date.now();
     curExpr = name;
     var el = $("avPlay");
     if (photoMode(G.doc)) { // 🎬 실사: DOM을 갈아끼우지 않고 크로스페이드 — 배경·몸은 그대로, 얼굴만 스르륵 변한다
       if (el.querySelectorAll(".av-photo").length < 2) el.innerHTML = '<g class="pg">' + photoDual(G.doc.nm, name === "neutral" ? null : name) + '</g>';
-      else photoSwap(photoHrefOf(G.doc.nm, name === "neutral" ? null : name));
+      else {
+        var route = exprRoute(prev, name); // 반대 극성(분노↔미소)은 중립 경유 — 2단 보간
+        G._exprSeq = (G._exprSeq || 0) + 1; var tok = G._exprSeq;
+        photoSwap(photoHrefOf(G.doc.nm, route[0] === "neutral" ? null : route[0]));
+        if (route.length > 1) setTimeout(function () {
+          if (G._exprSeq === tok && curExpr === name && G.inCall) photoSwap(photoHrefOf(G.doc.nm, name === "neutral" ? null : name));
+        }, 170);
+      }
     } else {
       el.innerHTML = '<g class="pg">' + portraitSvg(G.doc.av, name === "neutral" ? null : name) + '</g>'; // .pg = 숨쉬기 레이어
     }
@@ -2290,6 +2308,18 @@ window.APP = (function () {
       if (curExpr === amb) { curExpr = null; setExpr("neutral"); pgFace(); } // 원래 기분(게이지 구간)으로 복귀
     }, 1600 + Math.round(Math.random() * 900));
   }, 11000);
+  setInterval(function () { // 🌱 살아있는 초상 — neutral2 컷이 있으면 중립 자세가 가끔 미세하게 바뀐다 (원장당 1장만 추가하면 켜짐)
+    if (!G.inCall || G.ttsSpeaking || !photoMode(G.doc)) return;
+    if (curExpr && curExpr !== "neutral") return;
+    var have = (G.photoHave && G.photoHave[G.doc.nm]) || {};
+    if (!have.neutral2 || Math.random() < 0.5) return;
+    var p = photoActive(); if (!p) return;
+    p.setAttribute("href", photoUrl(G.doc.nm, "neutral2"));
+    setTimeout(function () {
+      var p2 = photoActive();
+      if (p2 && !G.ttsSpeaking && (!curExpr || curExpr === "neutral")) p2.setAttribute("href", photoUrl(G.doc.nm, "neutral"));
+    }, 2200 + Math.round(Math.random() * 1400));
+  }, 7000);
   // 대기 중에도 살아있게 — 4~8초마다 시선이 잠깐 옆으로
   setInterval(function () {
     if (!G.inCall || G.ttsSpeaking || Math.random() < 0.35) return;
@@ -6782,7 +6812,8 @@ window.APP = (function () {
     { v: "5.4", rx: /(파고들|추가 질문|금방 마무리)/, t: "짧은 답에 원장이 되파고듦" },
     { v: "6.6", rx: /(음성은 저번|더 사실적|기계음)/, t: "일레븐 장애 가시화·재연결" },
     { v: "7.2", rx: /(촌스럽|디자인|레이아웃|글꼴|폰트|완성도가?\s?(부족|떨어))/, t: "프리미엄 타이포·인터랙션 리뉴얼" },
-    { v: "7.3", rx: /(일러스트가?\s?(남|잠깐|보여)|깜빡|전환될 때|그림이 바뀌)/, t: "실사 즉시 표시 (매니페스트 기억+선로드)" }
+    { v: "7.3", rx: /(일러스트가?\s?(남|잠깐|보여)|깜빡|전환될 때|그림이 바뀌)/, t: "실사 즉시 표시 (매니페스트 기억+선로드)" },
+    { v: "7.4", rx: /(표정이?\s?(부자연|어색|이상)|얼굴이?\s?(어색|부자연)|입모양|입이 어색)/, t: "표정 크로스페이드·중립 경유·입 지터" }
   ];
   function fbFixedTag(txt) { var s = String(txt || ""); if (s.length < 4) return null; for (var i = 0; i < FIXED_LOG.length; i++) if (FIXED_LOG[i].rx.test(s)) return FIXED_LOG[i]; return null; }
   function renderReviewQueue() {
@@ -8138,7 +8169,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "7.3";
+  var APP_VER = "7.4";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -8211,7 +8242,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, elevenRetry: elevenRetry, elevenTest: elevenTest, sbDiag: sbDiag, predQuiz: predQuiz, pqPick: pqPick, pqNext: pqNext, pqClose: pqClose, judgeGame: judgeGame, jgLv: jgLv, jgSubmit: jgSubmit, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, insPrint: insPrint, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, elWhy: elWhy, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK, MOCK_RE: MOCK_RE, MOCK_WARN: MOCK_WARN, mockCheck: mockCheck, CASE_RE: CASE_RE, FIXED_LOG: FIXED_LOG, fbFixedTag: fbFixedTag, silWait: silWait, drSay: drSay, revDue: revDue, pqBuild: pqBuild, jgScore: jgScore, officeHeat: officeHeat, PQ_WEAK: PQ_WEAK, PQ_ACC: PQ_ACC, JG_AX: JG_AX, axisWhy: axisWhy, buildReportDoc2: buildReportDoc, sbWhy: sbWhy, upqLoad: upqLoad, upqPush: upqPush, upqFlush: upqFlush, upqSave: upqSave, sbPing: sbPing, sessFillRow: sessFillRow, backfill: backfill, sbWake: sbWake, cloudUpload: cloudUpload, sbBadge: sbBadge, UPQ_MAX: UPQ_MAX } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, elWhy: elWhy, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK, MOCK_RE: MOCK_RE, MOCK_WARN: MOCK_WARN, mockCheck: mockCheck, CASE_RE: CASE_RE, FIXED_LOG: FIXED_LOG, fbFixedTag: fbFixedTag, silWait: silWait, drSay: drSay, revDue: revDue, pqBuild: pqBuild, jgScore: jgScore, exprRoute: exprRoute, EXPR_POLE: EXPR_POLE, officeHeat: officeHeat, PQ_WEAK: PQ_WEAK, PQ_ACC: PQ_ACC, JG_AX: JG_AX, axisWhy: axisWhy, buildReportDoc2: buildReportDoc, sbWhy: sbWhy, upqLoad: upqLoad, upqPush: upqPush, upqFlush: upqFlush, upqSave: upqSave, sbPing: sbPing, sessFillRow: sessFillRow, backfill: backfill, sbWake: sbWake, cloudUpload: cloudUpload, sbBadge: sbBadge, UPQ_MAX: UPQ_MAX } };
 })();
 
 </script>
