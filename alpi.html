@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="알피왕">
 <link rel="manifest" href='data:application/manifest+json,%7B%22name%22%3A%20%22%EB%82%B4%EA%BF%88%EC%9D%80%20%EC%95%8C%ED%94%BC%EC%99%95%21%22%2C%20%22short_name%22%3A%20%22%EC%95%8C%ED%94%BC%EC%99%95%22%2C%20%22display%22%3A%20%22standalone%22%2C%20%22start_url%22%3A%20%22.%22%2C%20%22background_color%22%3A%20%22%230A1E33%22%2C%20%22theme_color%22%3A%20%22%230A1E33%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20rx%3D%2722%27%20fill%3D%27%25230A1E33%27/%3E%3Ctext%20x%3D%2750%27%20y%3D%2763%27%20font-size%3D%2746%27%20text-anchor%3D%27middle%27%3E%E2%9A%93%3C/text%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2744%27%20fill%3D%27none%27%20stroke%3D%27%2523E8B44C%27%20stroke-width%3D%275%27/%3E%3C/svg%3E%22%2C%20%22sizes%22%3A%20%22any%22%2C%20%22type%22%3A%20%22image/svg%2Bxml%22%7D%5D%7D'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{--sea:#0A1E33;--sea2:#123252;--gold:#E8B44C;--gold2:#B9932B;--teal:#19B39B;--acc:#0B5B54;--ink:#1A1F1C;--paper:#F4E9D0;--paper2:#E8D9B8;--red:#C0392B;--line:#E3E8E6;--sub:#5B6663;--soft:#EAF3F1;--bg:#FAFBFA;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -744,6 +745,38 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 .av-photo{transition:transform .16s ease;transform-origin:60px 75px;}
 .pax-why{font-size:11px;color:var(--sub);margin:-3px 0 7px 2px;}
 .pax-appeal{font-size:11.5px;color:var(--sub);background:#FFFDF4;border:1px dashed var(--gold);border-radius:8px;padding:7px 10px;margin-top:6px;}
+/* ══════════ v7.2 디자인 리뉴얼 — 프리미엄 클린 레이어 (토큰·타이포·컴포넌트 통일, 바다·모험 정체성 유지) ══════════
+   원칙: ① DOM 불변 — CSS 캐스케이드 끝에서 덮는다 ② 상호작용(호버·포커스·전환)이 '완성도'의 체감 ③ 색은 기존 토큰만 재사용 */
+:root{--sh1:0 1px 2px rgba(10,30,51,.07),0 4px 14px rgba(10,30,51,.09);--sh2:0 2px 8px rgba(10,30,51,.12),0 14px 34px rgba(10,30,51,.16);--focus:0 0 0 3px rgba(25,179,155,.26);}
+html{scroll-behavior:smooth;}
+body{letter-spacing:-.011em;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;}
+h1,h2,h3{letter-spacing:-.022em;}
+.btn{border-radius:11px;letter-spacing:-.01em;box-shadow:var(--sh1);transition:transform .13s ease,box-shadow .13s ease,filter .13s ease;}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--sh2);filter:brightness(1.06);}
+.btn:active{transform:translateY(0) scale(.985);box-shadow:var(--sh1);filter:brightness(.96);}
+.btn.ghost{box-shadow:none;}
+.btn.ghost:hover{box-shadow:var(--sh1);}
+input[type=text],input[type=password],select,textarea{border-radius:10px;transition:border-color .15s ease,box-shadow .15s ease;}
+input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:var(--focus);}
+input[type=text]:hover,input[type=password]:hover,select:hover{border-color:#B9CBC5;}
+.lbl{font-weight:800;color:#44534E;margin:14px 0 5px;letter-spacing:.005em;}
+.banner{border-radius:10px;border-left:4px solid rgba(0,0,0,.12);}
+.banner.info{border-left-color:var(--teal);}
+.banner.warn{border-left-color:var(--gold);}
+.banner.err{border-left-color:var(--red);}
+.voy th{letter-spacing:.015em;}
+.voy tr:hover td{background:rgba(25,179,155,.055);}
+summary{transition:background .15s ease;border-radius:8px;}
+summary:hover{background:rgba(127,160,150,.13);}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(120,146,140,.45);border-radius:99px;border:2.5px solid transparent;background-clip:content-box;}
+::-webkit-scrollbar-thumb:hover{background:rgba(120,146,140,.7);background-clip:content-box;border:2.5px solid transparent;}
+:focus-visible{outline:2.5px solid var(--teal);outline-offset:2px;}
+.fb-item,.hl,.pt,.ins-kpi{border-radius:11px;}
+.chip{transition:filter .13s ease;}
+button.chip:hover,.rk-tab:hover{filter:brightness(1.05);}
+@media (prefers-reduced-motion:reduce){.btn,.btn:hover,summary,input,select,textarea{transition:none;transform:none;}}
 </style>
 </head>
 <body>
@@ -1362,7 +1395,8 @@ input,select,textarea{font-size:16px;} /* iOS 포커스 확대 방지 */
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v7.1 — 훈련 종목 대확장</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v7.2 — 디자인 리뉴얼 1차</h2>
+    <div class="ver-it"><b>✨ 7.2 — 프리미엄 타이포·인터랙션</b>전 화면의 글꼴이 <b>Pretendard</b>로 교체되고(특히 Windows에서 체감 큼), 버튼엔 들림·눌림, 입력창엔 포커스 링, 표엔 행 하이라이트가 생겼습니다. 스크롤바·접기 메뉴까지 결이 통일된 <b>프리미엄 클린 레이어</b> — 바다·모험의 정체성은 그대로입니다. (다음 차수: 통화·결과 화면 정밀 손질)</div>
     <div class="ver-it"><b>🔮 7.1 — 원장 반응 맞히기</b>수배전단의 새 종목. 원장의 반대와 MR의 답을 보고 <b>"원장이 다음에 뭐라 할까"</b>를 맞힙니다 — 명분+수치가 실리면 수긍, 안심만 시키면 재공격. 원장의 수가 읽히기 시작하면 실전에서 답이 먼저 보입니다.</div>
     <div class="ver-it"><b>⚖ 7.1 — 심사위원 체험</b>동료의 실전 리플레이를 <b>내가 5축으로 채점</b>하고 AI 심판과의 일치도가 점수가 됩니다. 어느 축을 후하게/짜게 보는지 비교표로 확인 — 채점 기준이 몸에 붙으면 내 리포트가 왜 그 점수인지 보입니다.</div>
     <div class="ver-it"><b>🔁 7.1 — 오늘의 복습 (간격 반복)</b>3일 전 미격파 유형과 틀린 수치가 수배전단 위에 <b>"리벤지 예고"</b>로 돌아옵니다 — 그 뒤에 이기면 졸업. 잊히기 직전의 반복이 가장 오래 남습니다.</div>
@@ -6736,7 +6770,8 @@ window.APP = (function () {
     { v: "6.9", rx: /(끝까지 인식|중간에 끊[기깁]|타이핑 해서|수동으로)/, t: "긴 발화 침묵 자동 연장" },
     { v: "5.6", rx: /(잘못된 수치라고|정확한 수가를 답변해도)/, t: "수치 인식 절단 수리 (소수점·쉼표)" },
     { v: "5.4", rx: /(파고들|추가 질문|금방 마무리)/, t: "짧은 답에 원장이 되파고듦" },
-    { v: "6.6", rx: /(음성은 저번|더 사실적|기계음)/, t: "일레븐 장애 가시화·재연결" }
+    { v: "6.6", rx: /(음성은 저번|더 사실적|기계음)/, t: "일레븐 장애 가시화·재연결" },
+    { v: "7.2", rx: /(촌스럽|디자인|레이아웃|글꼴|폰트|완성도가?\s?(부족|떨어))/, t: "프리미엄 타이포·인터랙션 리뉴얼" }
   ];
   function fbFixedTag(txt) { var s = String(txt || ""); if (s.length < 4) return null; for (var i = 0; i < FIXED_LOG.length; i++) if (FIXED_LOG[i].rx.test(s)) return FIXED_LOG[i]; return null; }
   function renderReviewQueue() {
@@ -8092,7 +8127,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "7.1";
+  var APP_VER = "7.2";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
