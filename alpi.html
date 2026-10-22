@@ -848,7 +848,7 @@ button.chip:hover,.rk-tab:hover{filter:brightness(1.05);}
     <div class="ai-notice intro4">
       🤖 <b>본 서비스는 인공지능(AI) 기반으로 운용됩니다.</b><br>
       원장 역할은 AI가 연기하며, 훈련 결과 평가·피드백도 AI가 자동 생성합니다. AI 판정은 코칭 참고용이며 인사평가에 자동 반영되지 않습니다.<br>
-      <span class="ai-notice-sub">음성·영상 분석은 이 기기 안에서만 이루어지며, 서버에는 기본적으로 이름·소속·점수만 기록됩니다. <b>베타 기간에는 훈련 대화와 음성 녹음이</b> 코치 평가·채점 보정(캘리브레이션) 목적으로 전송됩니다 (베타 참여 시 사전 안내·동의). 영상은 어떤 경우에도 전송되지 않습니다. 정식 오픈 후에는 본인이 요청한 판만 전송됩니다. 등장 원장의 실사 이미지는 실존 인물이 아닌 <b>AI 생성 가상 인물</b>입니다.</span>
+      <span class="ai-notice-sub">음성·영상 분석은 이 기기 안에서만 이루어지며, 서버에는 기본적으로 이름·소속·점수만 기록됩니다. <b>베타 기간에는 훈련 대화와 음성 녹음이</b> 코치 평가·채점 보정(캘리브레이션) 목적으로 전송됩니다 (베타 참여 시 사전 안내·동의). 영상은 어떤 경우에도 전송되지 않습니다. 정식 오픈 후에는 본인이 요청한 판만 전송됩니다. 서비스 안정화를 위해 앱 버전·브라우저 종류·연결 오류 같은 품질 진단 정보(대화 내용 제외)가 함께 기록됩니다. 등장 원장의 실사 이미지는 실존 인물이 아닌 <b>AI 생성 가상 인물</b>입니다.</span>
     </div>
   </div>
   <div class="st-foot"><span class="credit">NEW BUSINESS STRATEGY TEAM&ensp;PRESENTS</span></div>
@@ -1337,6 +1337,7 @@ button.chip:hover,.rk-tab:hover{filter:brightness(1.05);}
         <table class="voy" id="admTable"></table>
         <button class="btn ghost" onclick="APP.admExport()">세션 기록 일괄 내보내기 (JSON)</button>
       </div></details>
+      <details class="acc2 detail-acc"><summary>🩺 시스템 건강 <span class="small">전 직원 판의 품질 진단 집계 — 일레븐 연결률·오류·자동 복구 (서버 데이터 불러오기 후)</span></summary><div class="bd2"><div id="admHealth"></div></div></details>
       <details class="acc2 detail-acc"><summary>🧯 오류 로그 <span class="small">이 기기에서 잡힌 스크립트 오류 — 베타 원격 진단</span></summary><div class="bd2"><div id="admErr"></div></div></details>
       <details class="acc2 detail-acc"><summary>👥 명단 업로드 <span class="small">조직도 갱신 시에만 — 사번 입력 자동완성용</span></summary><div class="bd2">
         <div class="small" style="margin-bottom:6px;">엑셀에서 <b>사번·이름·사무소·사업부</b> 4개 열을 복사해 붙여넣으세요 (같은 사번은 덮어씀).</div>
@@ -1397,7 +1398,10 @@ button.chip:hover,.rk-tab:hover{filter:brightness(1.05);}
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v7.4 — 표정 연기 수업</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v7.5 — 실녹취로 고친 대화</h2>
+    <div class="ver-it"><b>🎧 7.5 — 실제 통화 51건을 듣고 고쳤습니다</b>베타 기간 쌓인 실제 대화 전문을 분석해, 어색함의 진범들을 잡았습니다: ① <b>"두 목소리"</b> — 연결 중인 일레븐 세션이 하나 더 붙어 원장 둘이 동시에 말하던 사고(세대 토큰으로 원천 차단) ② <b>같은 질문 두 번</b> — 생각 중인 MR을 재촉하며 질문을 통째로 반복하던 현상 ③ <b>"내가 안 한 말"</b> — MR이 말하지도 않은 QR·10초·유료화를 전제로 반박하던 유령 맥락 ④ <b>점만 찍는 침묵</b>("…") 응답.</div>
+    <div class="ver-it"><b>📞 7.5 — "여보세요?" "제 말 들리세요?"를 알아듣습니다</b>MR이 원장이 못 들었냐고 물으면 이제 원장이 "아, 끊겼나 봐요. 다시 한 번요"라고 받습니다(예전엔 방향을 거꾸로 알아들었음). 원장이 MR의 말투 꼬리("말씀드리고 싶습니다")를 되뇌던 버릇도 고쳤습니다.</div>
+    <div class="ver-it"><b>🩺 7.5 — 품질 관측소</b>판마다 연결 성공·소요 시간·오류·자동 복구 횟수를 기록해(대화 내용 제외), 관리자 화면 <b>🩺 시스템 건강</b>에서 버전·브라우저별로 봅니다 — "오류가 많다"를 이제 숫자로 추적합니다.</div>
     <div class="ver-it"><b>🎭 7.4 — 표정이 '점프'하지 않습니다</b>표정 교체가 사실상 하드컷이던 문제를 고쳤습니다: ① 컷 사이에 <b>진짜 크로스페이드(0.26초)</b>가 걸리고 ② 분노↔미소처럼 반대 감정은 <b>중립 한 컷을 경유</b>해 넘어가며(사람 얼굴의 문법) ③ 입모양 박자에 <b>미세 지터</b>를 넣어 메트로놈 같던 기계 입을 없앴습니다.</div>
     <div class="ver-it"><b>🌱 7.4 — 살아있는 초상 (선택)</b>원장당 <b>neutral2.webp 한 장</b>(아주 미세하게 다른 중립 컷)만 img 폴더에 추가하면, 대기 중 자세가 가끔 바뀌는 '숨 쉬는 초상'이 자동으로 켜집니다 — 파일이 없으면 아무 일도 안 일어납니다.</div>
     <div class="ver-it"><b>📷 7.3 — 일러스트 깜빡임 제거</b>화면 전환 때 옛 일러스트가 잠깐 보이던 문제 — 사진 세트를 접속마다 처음부터 다시 확인하던 구조가 원인이었습니다. 이제 <b>한 번 확인된 실사 세트는 기기에 기억</b>되어 다음 접속부터 첫 화면부터 실사로 그려지고, 부팅 직후 4인 전체를 선로드해 전환 깜빡임을 없앴습니다. 교체·삭제된 컷은 자동으로 목록에서 내려 깨진 이미지를 무대에 올리지 않습니다.</div>
@@ -2869,6 +2873,17 @@ window.APP = (function () {
   var SLOWER = { // 두 번 이상 못 알아들었다 — 사람은 이럴 때 더 천천히, 더 짧게 말한다
     "장인석": "천천히 말할게요.", "강지은": "아 제가 빨랐죠~ 천천히 말할게요~", "신혁주": "천천히, 짧게 말씀드립니다.", "김민우": "아, 천천히 말하죠."
   };
+  var NOT_HEARD = { "장인석": "아, 끊겼었나 봐요. 다시 한 번 말해봐요.", "강지은": "어머, 제가 놓쳤나 봐요~ 한 번만 다시 말씀해 주세요~", "신혁주": "중간에 끊겼습니다. 다시 한 번 말씀해 주시죠.", "김민우": "아, 못 들었어요. 다시 한 번 말해요." };
+  var HELLO_BACK = { "장인석": "네, 들려요. 말해요.", "강지은": "네~ 잘 들려요! 말씀하세요~", "신혁주": "네, 들립니다. 말씀하시죠.", "김민우": "네, 들려요. 계속하세요." };
+  var NOT_HEARD_RE = /(안\s?들리셨|못\s?들으셨|못\s?들으신|제\s?(말|목소리)\s?(이|가|을|를)?\s?(안|못)\s?들|방금\s?(제가\s?)?(말씀\s?)?드렸는데|말씀\s?드렸는데\s?(요)?\s?(잘\s?)?(안|못)\s?들|제\s?(말|목소리)\s?(이|가)?\s?들리세요|제\s?말\s?들리시나요)/;
+  var HELLO_RE = /^\s*(여보세요|저기요|원장님)\s*[?？!.~]*\s*(여보세요|원장님)?\s*[?？!.~]*\s*$|^\s*(제\s?말\s?)?들리세요\s*[?？]*\s*$/;
+  function hearKind(t) { // 순수 — 들림 확인 행위: "hello"(여보세요?) / "notheard"(원장이 못 들었냐) / null — 짧은 메타 발화만
+    var s = String(t || "").trim();
+    if (!s || s.length > 45) return null;
+    if (HELLO_RE.test(s)) return "hello";
+    if (NOT_HEARD_RE.test(s)) return "notheard";
+    return null;
+  }
   function lastSent(s2) { var m = String(s2 || "").match(/[^.!?…]+[.!?…]*/g); var l = m && m.length ? m[m.length - 1].trim() : ""; return l || String(s2 || "").trim(); } // 룩비하인드 금지 — 구형 사파리에서 통째로 죽는다
   var ACT_NEEDBACK = { thanks: 1, apology: 1, praise: 1, smalltalk: 1, offer: 1, summarize: 1, askback: 1, nudge: 1 }; // 대사 자체가 본론을 안 밀어주는 행위만 복귀 문장을 붙인다
   var ACT_GOOD = { summarize: 1, askback: 1 };   // 경청의 증거 — 원장 마음이 열린다
@@ -2883,6 +2898,9 @@ window.APP = (function () {
     var tail = (sents.length ? sents[sents.length - 1] : s).trim();
     var parts = tail.replace(/(\d),(\d)/g, "$1\u0002$2").split(","); // 천단위 쉼표 보호 — "385,290원"이 "290원"이 되던 사고
     tail = (parts[parts.length - 1] || tail).replace(/\u0002/g, ",").trim();
+    // 🗣 v7.5 — MR의 '말투 꼬리'(말씀드리고 싶습니다·생각합니다·입니다)는 떼고 알맹이만 되받는다.
+    //    실녹취 #42: 원장이 "“되는 사업이라고 말씀드리고 싶습니다”…"를 되뇌었다 — 음성으로 들으면 원장이 MR 대사를 읊는 꼴.
+    tail = tail.replace(ECHO_TAIL_RE, "").trim();
     var toks = tail.split(" ").filter(Boolean);
     for (var i = 0; i < toks.length; i++) { // 어절 경계에서만 시작 — 숫자·단어 중간에서 자르지 않는다 ("1.9억"이 "9억"이 되는 사고 방지)
       var f = toks.slice(i).join(" ");
@@ -2893,6 +2911,8 @@ window.APP = (function () {
     }
     return null;
   }
+  // 떼어도 말이 안 깨지는 꼬리만 (동사 어간에 붙은 '습니다·거든요·예요'는 떼면 "확인했…"처럼 부서지므로 제외)
+  var ECHO_TAIL_RE = /(?:(?:이라|라)고\s?)?(?:말씀\s?(?:을\s?)?드리고\s?싶습니다|말씀\s?드립니다|말씀\s?드렸습니다)\s*$|\s(?:생각합니다|생각됩니다)\s*$|\s(?:하실|할)\s?수\s?있습니다\s*$|(?:입니다|이에요)\s*$/;
   var RESCHED = {
     "장인석": "아니요, 이미 시간 냈어요. 미루면 다음은 없어요 — 1분이면 되잖아요. 하세요.",
     "강지은": "어머 아니에요~ 지금 짬 낸 거예요. 부담 갖지 말고 편하게 얘기하세요~",
@@ -2927,18 +2947,36 @@ window.APP = (function () {
     "신혁주": ["확인 하나.", "그럼 이건요.", "검산 삼아 묻습니다."],
     "김민우": ["근데 말이죠.", "그럼 이건 어때요.", "하나만 확인합시다."]
   };
-  function objProbe(o) { // 반대별 전용 되파기 — 걱정 20개마다 손으로 쓴 후속 질문이 있다 (한 판에서 재사용 금지)
+  /* 🧭 v7.5 되파기 전제 장부 — "QR 세워두면 알아서 한다는 건…"처럼 MR의 말을 전제하는 후속 질문은
+     MR이 그 내용을 실제로 말했을 때만 쓴다. (실녹취: MR은 QR을 말한 적이 없는데 원장이 QR을 반박 → "내가 하지 않은 말을 전하신다") */
+  var PROBE_PRE = {
+    "1#0": /(0\s?건|영\s?건|없었|없습니다|없어요|전무)/, "2#0": /(10\s?초|십\s?초|2\s?분|이\s?분)/, "3#1": /(선별|골라|고르|일부\s?환자|필요한\s?(환자|분))/,
+    "4#0": /(전담|인력|급여|인건비|고용)/, "4#1": /(수가|수익|받으실|받을\s?수)/, "5#0": /(매달|매월|한\s?달|관리)/, "5#1": /(보고서|출력)/,
+    "6#1": /(예산|끊|중단|부천)/, "7#0": /(10\s?초|십\s?초|카카오|카톡|간편)/, "8#0": /(20\s?명|이십\s?명|스무\s?명)/, "8#1": /(회수|상쇄|100\s?만|백만)/,
+    "9#1": /(알림|알려|표시|놓치)/, "11#0": /(부담금|부담\s?없|0\s?원|영\s?원|개편|12\s?월|건생)/, "11#1": /(포인트|차감)/,
+    "12#0": /(준비|미리|세팅)/, "12#1": /(5\s?명|다섯\s?명|파일럿|소수)/, "13#0": /(역할|배분|분담)/, "13#1": /(교육\s?간호사|간호사|방문|파견)/,
+    "14#0": /(간소|간편|쉬워|줄었|단순)/, "15#0": /(QR|큐알|스테이션|비치)/i, "16#0": /(ISO|아이에스오|인증|보안)/i, "16#1": /(최소|수집|정보)/,
+    "17#0": /(재심사|심사팀|도와)/, "17#1": /(증빙|누적|쌓)/, "18#0": /(65|육십오|고령|빼|제외)/, "19#1": /(유료|요금|돈을?\s?받)/,
+    "20#0": /(수수료|대행)/, "20#1": /(원격|위법|불법|법적)/
+  };
+  function probeCtx(txt) { // 전제 확인용 문맥 — 이번 말 + 직전 MR 발화 2개
+    var prev = (G.turns || []).filter(function (t) { return t.text; }).slice(-2).map(function (t) { return t.text; }).join(" ");
+    return String(txt || "") + " " + prev;
+  }
+  function objProbe(o, ctx) { // 반대별 전용 되파기 — 걱정 20개마다 손으로 쓴 후속 질문이 있다 (한 판에서 재사용 금지)
     if (!o || o.kind !== "v22" || !o.data || !o.data.probe || !o.data.probe.length) return null;
     G._probeUsed = G._probeUsed || {};
     for (var i = 0; i < o.data.probe.length; i++) {
       var k = o.data.n + "#" + i;
-      if (!G._probeUsed[k]) { G._probeUsed[k] = 1; return o.data.probe[i]; }
+      if (G._probeUsed[k]) continue;
+      if (PROBE_PRE[k] && !PROBE_PRE[k].test(String(ctx || ""))) continue; // MR이 그 전제를 말한 적 없다 — 이 질문은 아껴둔다(사용 표시 안 함)
+      G._probeUsed[k] = 1; return o.data.probe[i];
     }
     return null;
   }
   function pickProbe(txt, o) {
     // ① 방금 뚫린 그 걱정에 딸린 전용 되파기가 최우선 — 원장이 '이 주제를 계속 생각하고 있다'는 신호
-    var sp = objProbe(o);
+    var sp = objProbe(o, probeCtx(txt));
     G._probeSrc = sp ? o : null; G._probeBare = sp || null; // 전용 되파기면 그 걱정으로 채점한다 — 잡담 되파기는 채점 대상이 아니다
     if (sp) return pick("plead", PROBE_LEAD[G.doc && G.doc.nm] || PROBE_LEAD["신혁주"]) + " " + sp;
     if (/385|38만|1\.9억|98,?080|4,?900|수가|검사비/.test(txt)) return "잠깐만요. 그 계산, 우리 병원 환자 수 기준으로 하면 실제로 얼마나 나와요?";
@@ -3001,8 +3039,20 @@ window.APP = (function () {
   function llmOn() { return (!!G.claudeKey || !!G.proxyUrl) && !G.llmDead; }
   function elevenOn() { return !!G.elevenAgent && !G.elDead; } // 일레븐 모드 — 두뇌+목소리+턴테이킹 통합 (키 불필요)
   /* ══════════ 일레븐 모드 — ElevenLabs Agents (최고 품질 실시간 대화) ══════════ */
+  /* 📌 v7.5 SDK 버전 고정 — 일레븐 SDK는 매주 새 버전이 나온다(1.21→1.30, 두 달). 버전 미지정 import는 '오늘 나온 버전'을
+     전 직원에게 검증 없이 배포하는 것과 같다. 검증된 버전에 고정하고, 그 버전 로드가 실패할 때만 최신으로 폴백한다. */
+  var EL_SDK_VER = "1.28.0";
+  function elImport() {
+    return import("https://cdn.jsdelivr.net/npm/@elevenlabs/client@" + EL_SDK_VER + "/+esm")
+      .catch(function () { diagInc("sdkFallback"); return import("https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm"); });
+  }
   function startEleven() {
     try { if (G.elClient) { G.elClient.endSession(); G.elClient = null; } } catch (e) {} // 이중 세션 방지 — 같은 원장이 두 겹으로 말하는 사고의 뿌리를 자른다
+    // 🔒 v7.5 세션 세대 토큰 — 연결 중(promise 대기)인 세션은 G.elClient에 아직 없어서 위 가드를 빠져나갔다.
+    //    실녹취 #48(9/20): 오프닝이 두 번 깔리고 MR 발화까지 이중 전사 = 일레븐 세션 2개가 동시에 살아 '두 목소리'가 났다.
+    //    이제 최신 세대만 살아남는다 — 늦게 붙은 옛 세션은 연결 즉시 종료, 그 콜백은 전부 무시.
+    var gen = G._elGen = (G._elGen || 0) + 1, t0el = Date.now();
+    diagInc("elStarts");
     $("bWho").textContent = G.doc.nm + " 원장";
     $("bText").textContent = "연결 중…";
     // 마이크 선점검 — 차단 상태로 조용히 시작해 '전송만 되는' 상황 방지
@@ -3011,38 +3061,42 @@ window.APP = (function () {
       $("playBanner").innerHTML = micRescueHtml("일레븐 음성 대화에는 마이크가 필요합니다 — 해제 전까지는 타이핑으로 진행됩니다.") + $("playBanner").innerHTML;
     }
     $("playBanner").innerHTML = "<div class='banner info' id='elStat'>🎙 일레븐 연결 중…</div>" + $("playBanner").innerHTML;
-    import("https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm").then(function (mod) {
+    elImport().then(function (mod) {
       var vid = G.doc.elVoice || (G.doc.gender === "f" ? G.elevenVoiceF : G.elevenVoiceM); // 원장별 전용 캐스팅 우선
       var ov = { agent: { prompt: { prompt: buildDoctorSystem() }, firstMessage: ttsClean(openLine()) || openLine(), language: "ko" } };
       if (vid) ov.tts = { voiceId: vid };
       return mod.Conversation.startSession({
         agentId: G.elevenAgent,
         overrides: ov,
-        onConnect: function () { var el = document.querySelector("#elStat"); if (el) el.innerHTML = "🎙 <b>연결됨 ✓</b> — 그냥 말하세요. 끼어들어도 됩니다."; micState("듣는 중 — 말씀하세요", "g"); pokeIdle(); },
-        onModeChange: function (m) { var sp = !!(m && m.mode === "speaking"); setTalking(sp); G.ttsSpeaking = sp; if (sp && Date.now() - lastListenFx > 4000) { lastListenFx = Date.now(); setExpr("interest"); } },
+        onConnect: function () { if (gen !== G._elGen) return; if (G.diag) { G.diag.elOk = 1; G.diag.elMs = Date.now() - t0el; } var el = document.querySelector("#elStat"); if (el) el.innerHTML = "🎙 <b>연결됨 ✓</b> — 그냥 말하세요. 끼어들어도 됩니다."; micState("듣는 중 — 말씀하세요", "g"); pokeIdle(); },
+        onModeChange: function (m) { if (gen !== G._elGen) return; var sp = !!(m && m.mode === "speaking"); setTalking(sp); G.ttsSpeaking = sp; if (sp && Date.now() - lastListenFx > 4000) { lastListenFx = Date.now(); setExpr("interest"); } },
         onMessage: function (ev) {
-          if (!ev || !G.inCall) return;
+          if (!ev || !G.inCall || gen !== G._elGen) return; // 옛 세대 세션의 말은 기록·자막·채점 어디에도 들이지 않는다
           var msg = String(ev.message || "").trim();
           if (!msg) return;
           if (ev.source === "ai") {
+            var msg0 = msg; msg = collapseRepeat(msg); // 'A.A' 이중 문장 정리 — 침묵 재진입 때 같은 질문이 한 메시지에 겹쳐 온다 (실녹취 #51·#52·#53)
+            if (msg !== msg0) diagInc("dupCollapsed");
+            if (/^[.…\s]+$/.test(msg)) { diagInc("dotOnly"); msg = "…"; } // 점만 찍은 응답 — 화면엔 '…'로만
             $("bWho").textContent = G.doc.nm + " 원장"; subSet(msg); subDrift(14); G.lastDoctor = msg; G.saidLog.push(msg); G.dlgLog.push({ w: "dr", t: msg }); // 💬 일레븐도 자막이 말과 함께 흐른다
             if (G.drCommit && !G.drCommitEnded) { G.drCommitEnded = true; setTimeout(function () { if (G.inCall) endCall(false); }, 4000); } // 승낙 뒤 이어진 작별 인사가 끝나면 통과
             else { checkDrCommit(msg); pokeIdle(); }
           }
           else if (ev.source === "user") { pokeIdle(); nodSafe(); elevenTurn(msg); }
         },
-        onError: function (m) { elevenFail(typeof m === "string" ? m : (m && m.message) || "연결 오류"); },
+        onError: function (m) { if (gen !== G._elGen) return; elevenFail(typeof m === "string" ? m : (m && m.message) || "연결 오류"); },
         // 끊겼는데 폴백을 안 하면 elevenOn()이 계속 true라 브라우저 음성이 영영 입을 닫는다 — 원장이 벙어리가 되던 원인
-        onDisconnect: function () { if (G.inCall) elevenFail("연결이 끊어졌습니다"); }
+        onDisconnect: function () { if (gen !== G._elGen) return; if (G.inCall) elevenFail("연결이 끊어졌습니다"); }
       });
     }).then(function (conv) {
+      if (gen !== G._elGen) { try { conv.setVolume({ volume: 0 }); } catch (e) {} try { conv.endSession(); } catch (e) {} diagInc("zombie"); return; } // 늦게 붙은 옛 세대 = 두 번째 목소리 — 즉시 사살
       if (G.elDead || !G.inCall) { try { conv.endSession(); } catch (e) {} return; } // 연결 완료 전에 실패/종료 판정이 났다면 — 뒤늦게 붙는 유령 세션 차단
       G.elClient = conv;
       if (G.elQueue && G.elQueue.length) { // 연결되기 전에 보낸 말은 버리지 않고 이 시점에 흘려보낸다
         G.elQueue.forEach(function (t) { try { if (conv.sendUserMessage) conv.sendUserMessage(t); } catch (e) {} });
         G.elQueue = [];
       }
-    }).catch(function (e) { elevenFail((e && e.message) || String(e)); });
+    }).catch(function (e) { if (gen !== G._elGen) return; elevenFail((e && e.message) || String(e)); });
     // 연결이 영영 안 끝나는 경우(사내망 차단·CDN 실패) — 대기만 하다 통화가 통째로 죽는 것을 막는다
     clearTimeout(G._elT);
     G._elT = setTimeout(function () { if (G.inCall && !G.elClient && !G.elDead) elevenFail("연결 시간 초과"); }, 12000);
@@ -3057,6 +3111,25 @@ window.APP = (function () {
     if (/시간 초과|timeout|websocket|network|failed to fetch|import/.test(m)) return "네트워크·차단 문제 — 사내망이면 elevenlabs.io / cdn.jsdelivr.net 접근이 열려 있어야 합니다";
     return "원인 미상 — 아래 원문을 확인하세요";
   }
+  function collapseRepeat(s) { // 순수 — 한 메시지 안의 연속 중복 문장(블록)을 하나로: "Q.Q" / "A? B?A? B?" / "그런데 X? Y.X? Y."
+    var t = String(s || "").trim();
+    if (t.length < 8) return t;
+    var sents = t.match(/[^.!?…？]+[.!?…？]*/g) || [t], out = [];
+    sents.forEach(function (x) { var y = x.trim(); if (y) out.push(y); });
+    var nz = function (arr) { return normTxt(arr.join("")); };
+    var changed = true;
+    while (changed) {
+      changed = false;
+      for (var n = Math.min(3, Math.floor(out.length / 2)); n >= 1; n--) {
+        var last = nz(out.slice(-n)), prev = nz(out.slice(-2 * n, -n));
+        if (last.length >= 4 && prev.length >= last.length && prev.slice(prev.length - last.length) === last) { out = out.slice(0, out.length - n); changed = true; break; }
+      }
+    }
+    return out.join(" ");
+  }
+  function diagInc(k, v) { // 🩺 판별 품질 계측 — 카운터 하나 올리기 (통화 밖이면 무시)
+    try { if (!G.diag) return; G.diag[k] = (G.diag[k] || 0) + (v || 1); } catch (e) {}
+  }
   function elevenRetry() { // 🔄 결제·설정을 고친 뒤 그 자리에서 재연결 — 새 판을 다시 열 필요 없다
     if (!G.inCall) { toast("통화 중에만 재연결할 수 있습니다"); return; }
     G.elDead = false; G.elQueue = [];
@@ -3069,6 +3142,7 @@ window.APP = (function () {
   function elevenFail(msg) {
     if (G.elDead) return; // 재진입 금지 — onError와 catch가 겹쳐 들어와 원장 오프닝이 두 번 깔리던 문제
     clearTimeout(G._elT);
+    if (G.diag) { G.diag.elFail = String(msg || "").slice(0, 90); G.diag.elFailAt = Math.round((Date.now() - (G.t0 || Date.now())) / 1000); } // 🩺 관측: 어떤 이유로, 통화 몇 초에 끊겼나
     // 세션이 반쯤 살아있는 채로 폴백하면 일레븐+기계음이 동시에 말한다 — 음소거→종료→좀비 레퍼런스 보관(다음 drSay에서 확인 사살)
     if (G.elClient) { G._elZombie = G.elClient; try { G.elClient.setVolume({ volume: 0 }); } catch (e) {} try { G.elClient.endSession(); } catch (e) {} }
     G.elDead = true; G.elClient = null;
@@ -3119,7 +3193,7 @@ window.APP = (function () {
     };
     var done = false, once = function (ok, msg) { if (done) return; done = true; fin(ok, msg); };
     var conv2 = null;
-    import("https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm").then(function (mod) {
+    elImport().then(function (mod) {
       var vid = (($("elevenVoiceF") && $("elevenVoiceF").value) || "").trim();
       var ov = { agent: { prompt: { prompt: "테스트입니다. 아무 말도 하지 마세요." }, firstMessage: "연결 테스트 성공.", language: "ko" } };
       if (vid) ov.tts = { voiceId: vid };
@@ -3183,9 +3257,12 @@ window.APP = (function () {
   function buildDoctorSystem() {
     var d = G.doc;
     var objList = G.scen.objs.map(function (o, i) {
+      var probeTxt = (o.probe || []).map(function (p, pi) { // 전제가 붙은 후속 질문엔 조건을 명시 — MR이 말하지 않은 'QR·10초·유료화'를 MR이 말한 것처럼 전제하던 유령 맥락(실녹취 #42·#52·#53) 차단
+        return PROBE_PRE[o.n + "#" + pi] ? "\"" + p + "\" ← MR이 그 내용을 먼저 말했을 때만" : "\"" + p + "\"";
+      });
       return (i + 1) + ") [" + o.n + "] " + o.t + " — 풀리는 조건: " + (o.key && o.key[0] ? o.key[0] : "정확한 근거와 수치") + "\n   이 걱정을 꺼낼 때 내 말투 예: \"" + o.dr + "\"" +
         (o.dr2 ? "\n   MR의 답이 어설플 때 다시 파는 표현: \"" + o.dr2 + "\"" : "") +
-        (o.probe && o.probe.length ? "\n   MR의 답이 그럴듯해도 한 번 더 캐묻는 후속 질문: \"" + o.probe.join("\" / \"") + "\"" : "");
+        (probeTxt.length ? "\n   MR의 답이 그럴듯해도 한 번 더 캐묻는 후속 질문: " + probeTxt.join(" / ") : "");
     }).join("\n");
     return "당신은 한국 개원가 의사 역할의 배우다. 제약회사 MR이 웰체크·일만사(일차의료 만성질환관리) 제안 영상통화를 요청했고, 당신이 진료 틈에 콜백을 걸어 MR이 받았다 — 시간을 내준 쪽도, 대화의 주도권도 당신이다.\n" +
       "[컴플라이언스 — AI 출력 가드] 당신은 의사이지 홍보자가 아니다. 제품 효능·수가 수치를 당신 입으로 단정하지 마라 — 수치는 MR에게 되물어 확인시켜라. 어떤 경우에도 금품·리베이트를 요구하거나 암시하지 마라. MR이 금품성 발언을 하면 정색하고 거절하라.\n" +
@@ -3202,6 +3279,9 @@ window.APP = (function () {
       "[마음이 기울었을 때] 걱정들이 실제로 풀렸고 마음이 기울었으면, 남은 걱정을 기계적으로 다 꺼내지 마라. \"그럼 뭐부터 하면 돼요? 교육은 언제 와줄 수 있어요?\"처럼 당신이 먼저 다음 단계를 물어라 — 합의의 결정타(날짜·주체)는 MR이 말하게 하라.\n" +
       "[음성인식 오류 대응] MR의 말은 음성인식을 거쳐 온다. 문장이 어절 반복('사모님, 사모님')이거나 영업 대화에 있을 수 없는 호칭·내용으로 깨져 있으면, 그 문장을 절대 따라 하거나 해석해서 응하지 말고 짧게 되물어라 — \"잘 안 들렸어요. 다시 한 번요.\" 당신 입에서 '사모님' 같은 호칭이 나가는 일은 없다.\n" +
       (STD_RP[d.stdType] ? "[이 병원의 표준 유형] " + STD_RP[d.stdType].title + " — " + STD_RP[d.stdType].cs + "\n[이 유형 원장들이 실제로 하는 반대] " + STD_RP[d.stdType].obs.join(" / ") + "\n" : "") +
+      "[유령 맥락 금지 — 최우선 규칙] MR이 실제로 입 밖에 낸 단어·숫자·주장만 되받아라. MR이 말하지 않은 내용(예: QR, 10초·2분, 유료화, 색깔 알림, 숫자)을 MR이 말한 것처럼 전제하거나 '~라는 거죠?'로 대신 요약하지 마라. MR의 논리를 당신이 대신 완성해주지도 마라 — MR이 말을 흐리면 \"그래서 결론이 뭐예요?\"처럼 되물어라. 당신이 아는 정답을 MR 입에 넣는 순간 연습이 무너진다.\n" +
+      "[침묵·재촉 규칙] 실제 MR은 대답 전에 5~10초씩 생각한다. MR의 말이 '음…'으로 끝나거나 잠깐 멈추면 재촉하지 말고 기다려라. MR의 대답 없이 당신 차례가 다시 오면: ① 직전 질문을 다시 반복하지 마라(같은 말 두 번 = 고장 난 녹음기) ② 점(…/...)만 있는 응답은 절대 금지 — 상대에겐 아무 소리도 안 들려 전화가 끊긴 줄 안다 ③ '네, 천천히요.' '듣고 있어요.'처럼 4어절 이내 한마디만, 그것도 연속 두 번은 금지. '여보세요?'는 MR이 안 들린다고 할 때만 쓴다.\n" +
+      "[들림 확인] MR이 \"제 말 들리세요?\" \"방금 말씀드렸는데 못 들으셨나요?\"라고 하면 당신이 놓친 것이다 — \"아, 끊겼나 봐요. 다시 한 번요.\"라고 하고 기다려라. 당신이 했던 말을 되풀이하지 마라. 반대로 MR이 \"네? 뭐라고요?\"라고 하면 당신 말을 더 짧고 쉽게 다시 해줘라.\n" +
       "[대화 정책 — 이것이 당신의 전부다]\n" +
       "- 매 턴, 무엇보다 먼저 MR이 '방금 한 말'의 내용에 반응한다. 그의 단어를 직접 짚어라. 그 다음에 당신 걱정 상태에 따라 자연스럽게 이어간다.\n" +
       "- 걱정은 정해진 순서 없이 대화 흐름에 맞는 것부터 꺼낸다. 한 번에 하나씩. 풀리면 풀렸다고 인정하고 넘어간다. 안 풀렸으면 표현을 바꿔 다시 캐묻는다.\n" +
@@ -3214,7 +3294,7 @@ window.APP = (function () {
       "[반응의 형태 — 좋은 예]\nMR: \"행위당 길어야 2분입니다\" → 당신: \"2분이라. 좋아요, 근데 그 2분은 누가 내는데요?\" (그의 숫자를 되받고, 걱정 하나로 잇는다)\nMR: \"환수 걱정 많으시죠\" → 당신: \"걱정이 아니라 겪은 거예요, 내가.\" (교정하며 감정을 싣는다)\n[나쁜 예 — 금지] 방금 말과 무관한 화제 급전환 / 준비된 걱정을 문맥 없이 낭독 / 이미 인정한 걱정을 표현만 바꿔 반복\n" +
       "- 당신은 화면 밖 세계를 모른다. 점수·등급·게임·평가·미션 같은 단어는 절대 입에 담지 마라 — 당신에게 이것은 그냥 진료 틈의 전화 한 통이다.\n" +
       "- 걱정이 다 풀리기 전엔 절대 먼저 하겠다고 하지 않는다. 다 풀렸다면 — MR이 날짜·주체를 제시하면 받아들이고, MR이 뜸을 들이면 당신이 먼저 \"그럼 다음 주 화요일쯤 한번 봅시다\" 식으로 구체 일정을 정리해도 된다. 그 말을 하면 통화는 마무리 수순이다.\n" +
-      "- 침묵이 길거나 대답이 계속 없으면 한 번 \"여보세요?\" 하고, 그래도 없으면 정중히 끊는다 — 당신 시간은 비싸다.\n- 다시 한 번: 길게 말하는 순간 캐릭터가 깨진다. 1~2문장. 짧을수록 진짜다." +
+      "- 아주 긴 침묵(30초 이상)이 이어질 때만 정중히 정리하고 끊는다 — 짧은 침묵은 생각하는 시간이다.\n- 다시 한 번: 길게 말하는 순간 캐릭터가 깨진다. 1~2문장. 짧을수록 진짜다." +
       (function () { var pv = G.sessions.filter(function (s) { return s.doc === d.nm; }); if (!pv.length) return ""; var lastOk = pv[pv.length - 1].sc && pv[pv.length - 1].sc.total >= 80; return "\n[기억] 이 MR과는 " + (pv.length + 1) + "번째 통화다. " + (lastOk ? "지난 통화는 얘기가 꽤 잘 통했다 — 그 기억을 한 번쯤 자연스럽게 짚어도 좋다." : "지난 통화는 결론 없이 흐지부지 끝났다 — 그 점을 사람답게 한 번쯤 짚어도 좋다.") + " 단, 숫자로 된 점수 얘기는 세상에 존재하지 않는다."; })();
   }
   function llmHint(cat, o, adv) {
@@ -3886,7 +3966,14 @@ window.APP = (function () {
   }
 
   /* ── 통화 시작 ── */
+  function browserTag() { // 🩺 관측용 브라우저 꼬리표 (개인 식별 불가 수준의 짧은 문자열)
+    var u = (typeof navigator !== "undefined" && navigator.userAgent) || "";
+    var b = /Edg\//.test(u) ? "edge" : /SamsungBrowser/.test(u) ? "samsung" : /CriOS|Chrome\//.test(u) ? "chrome" : /Firefox|FxiOS/.test(u) ? "firefox" : /Safari\//.test(u) ? "safari" : "etc";
+    return b + (IS_IOS ? "-ios" : /Android/.test(u) ? "-android" : IS_MOBILE ? "-mobile" : "-pc");
+  }
   async function takeCall() {
+    if (G._takeBusy && Date.now() - G._takeBusy < 6000) return; // 🔒 v7.5 '받기' 연타·이중 호출 차단 — 두 번 받으면 일레븐 세션이 둘 생긴다
+    G._takeBusy = Date.now();
     if (connT) { clearTimeout(connT); connT = null; }
     bellStop();
     G.llmBusy = false; G.ttsSpeaking = false; G.elDead = false; // 이전 판에서 굳은 플래그가 새 판을 죽이지 못하게 — 새로고침 없이도 회복된다
@@ -3926,6 +4013,7 @@ window.APP = (function () {
     }
     G.qIdx = 0; G.turns = []; G.t0 = Date.now(); G.probeN = 0; G.lastMrText = ""; G.resolved = {}; G.freeN = 0; G.combo = 0; G.comboMax = 0; G.mem = {}; G.dlgLog = []; G.mannerFoul = false; G.mockN = 0; G._probeUsed = {}; G.probeObj = null; G._probeSrc = null; G.actGood = 0; G.confN = 0; G.lastAsk = ""; G.closeMiss = 0; G.keyGot = {}; G.pgTrail = []; G.curMission = loadK("mission", null); G.missionLive = 0;
     G.drCommit = false; G.drCommitEnded = false; G.silenceEnd = false; G.idleN = 0; G.gs = 0; G.bs = 0; G._phEnter = 0; G.converged = 0; disarmIdle(); moodSet(0); pgSet(50); // 새 판 — 감정·침묵·승낙·게이지 초기화
+    G.diag = { v: APP_VER, br: browserTag(), mode: elevenOn() ? "eleven" : llmOn() ? "llm" : "script", mic: !!(G.stream || G.micHold) }; // 🩺 v7.5 판별 품질 계측 (대화 내용은 담지 않는다)
     ambStart(); // 미세한 진료실 룸톤 — 무음의 어색함 제거
     var vst = document.querySelector(".vstage");
     if (vst) { vst.classList.remove("glitchin"); void vst.offsetWidth; vst.classList.add("glitchin"); setTimeout(function () { vst.classList.remove("glitchin"); }, 800); } // 연결 글리치 연출
@@ -3957,9 +4045,10 @@ window.APP = (function () {
       // 🧯 상태 고착 자동 복구 — '말하는 중'·'응답 대기'가 안 풀리면 자동전송·유휴·버튼이 전부 죽는다 (베타: "화면이 멈추고 버튼이 안 먹음")
       if (G.ttsSpeaking && G._ttsStartAt && Date.now() - G._ttsStartAt > ((elevenOn() && G.elClient) ? 45000 : 25000)) {
         setTalking(false); G.ttsSpeaking = false; try { speechSynthesis.cancel(); } catch (e) {}
+        diagInc("wdTts");
         toast("⚙ 말하기 상태가 안 풀려 자동 복구했습니다 — 그대로 계속하세요");
       }
-      if (G.llmBusy && G._busyAt && Date.now() - G._busyAt > 30000) { G.llmBusy = false; toast("⚙ 응답 대기가 길어 복구했습니다 — 다시 말씀해보세요"); }
+      if (G.llmBusy && G._busyAt && Date.now() - G._busyAt > 30000) { G.llmBusy = false; diagInc("wdBusy"); toast("⚙ 응답 대기가 길어 복구했습니다 — 다시 말씀해보세요"); }
     }, 1000);
     show("scr-play");
     G.inCall = true;
@@ -4416,7 +4505,7 @@ window.APP = (function () {
     text = String(text || "").replace(/\s{2,}/g, " ").trim(); // 조립 과정의 이중 공백 정리
     text = text.replace(/^((?:음|흠|아|글쎄|어)[…—~.]*\s+)(?:음|흠|아|글쎄|어)[…—~.]*\s+/, "$1"); // 문두 추임새 2연속 → 1개 (조립 사고 방어)
     if (!sayGuard(text)) text = (G.doc && SAY_FIX[G.doc.nm]) || "잠깐, 말이 엉켰네요. 계속하시죠."; // 오염 대사 교체
-    if (text.length > 14 && text === G._lastDrTxt && Date.now() - (G._lastDrAt || 0) < 8000) { if (cb) cb(); armIdle(); return; } // 같은 긴 대사 8초 내 이중 배선 — 두 번 말하지 않는다 (짧은 되묻기는 예외, 흐름은 cb로 이어간다)
+    if (text.length > 14 && text === G._lastDrTxt && Date.now() - (G._lastDrAt || 0) < 8000) { diagInc("dedupSkip"); if (cb) cb(); armIdle(); return; } // 같은 긴 대사 8초 내 이중 배선 — 두 번 말하지 않는다 (짧은 되묻기는 예외, 흐름은 cb로 이어간다)
     G._lastDrTxt = text; G._lastDrAt = Date.now();
     if (text.length > 14 && G.saidLog && G.saidLog.slice(-6).indexOf(text) >= 0) { // 같은 대사 토씨까지 반복 금지 (베타: "똑같은 말을 반복하심")
       text = (/^(아까|방금|다시)/.test(text) ? text : (G.mood >= 0 ? "아까도 말씀드렸지만 — " : "같은 말을 또 하게 되네요. ") + text);
@@ -4728,6 +4817,7 @@ window.APP = (function () {
     w.innerHTML = "<div style='background:#fff;color:#1A1F1C;border-radius:14px;max-width:520px;padding:24px 26px;line-height:1.8;font-size:14px;'>" +
       "<b style='font-size:16px;'>🔒 훈련 데이터 안내</b><br><br>" +
       "<b>서버에 저장:</b> 사번·이름·소속, 판별 점수(총점·5축)·등장 유형·크리티컬 수·난이도·기기 종류·턴수·소요시간, 전문가 평가 입력값<br>" +
+      "<b>품질 진단(v7.5~):</b> 앱 버전·브라우저 종류·음성 연결 성공 여부와 소요 시간·오류 메시지·자동 복구 횟수 — 서비스 안정화 목적, <b>대화 내용은 포함하지 않음</b><br>" +
       "<b>베타 기간 한정:</b> 대화 전문·음성 녹음이 <b>코치 평가·채점 보정(캘리브레이션) 목적</b>으로 전송됩니다 (참여 시 사전 안내·동의, 파일명에 이름·사번 없음). 정식 오픈 후에는 본인이 요청한 판만 전송<br>" +
       "<b>어떤 경우에도 전송 안 함:</b> 영상 — 캠 분석은 <b>전부 이 기기 안에서만</b> 처리되고 통화 종료와 함께 사라집니다<br>" +
       "<b>보관 위치:</b> 회사 관리 클라우드 DB (Supabase 도쿄 리전)<br>" +
@@ -4853,25 +4943,28 @@ window.APP = (function () {
       if (src === "boot" && hasWork && !G._downToast) { G._downToast = true; toast("☁ 기록 서버 연결 안 됨 — 판 기록은 이 기기에 보관됩니다"); }
     });
   }
-  function cloudUpload(table, row, fb2, onOk) { // fb2: 확장 컬럼이 서버에 아직 없을 때 되돌아갈 기본 페이로드 (배포 순서에 안전)
+  function cloudUpload(table, row, fb2, onOk) { // fb2: 확장 컬럼이 서버에 아직 없을 때 되돌아갈 페이로드 — 1개 또는 [덜 확장된 것, …, 기본형] 사슬 (배포 순서에 안전)
     if (!sbOn()) return;
+    var chain = [row].concat(Array.isArray(fb2) ? fb2 : (fb2 ? [fb2] : []));
+    var safest = chain[chain.length - 1];
     function keep(why) { // 실패 → 버리지 않고 이 기기에 보관 + 정직한 안내 (판당 1회)
-      upqPush(table, fb2 || row);
+      upqPush(table, safest);
       G.sbLive = false; sbBadge();
       if (!G._upKeptToast) { G._upKeptToast = true; toast("☁ 서버 연결 안 됨 — 기록은 이 기기에 보관됨 (서버 복구 시 자동 전송)"); }
       try { console.warn("[알피왕] 서버 기록 보관:", table, why); } catch (e) {}
     }
-    try {
-      fetch(G.sbUrl + "/rest/v1/" + table, { method: "POST", headers: sbHeaders(), body: JSON.stringify(row) })
+    function ok() { G.sbLive = true; sbBadge(); toast("☁ 서버에 기록됨"); if (onOk) onOk(); }
+    function tryAt(i) {
+      fetch(G.sbUrl + "/rest/v1/" + table, { method: "POST", headers: sbHeaders(), body: JSON.stringify(chain[i]) })
         .then(function (r) {
-          if (r.ok) { G.sbLive = true; sbBadge(); toast("☁ 서버에 기록됨"); if (onOk) onOk(); return; }
-          if (fb2) return fetch(G.sbUrl + "/rest/v1/" + table, { method: "POST", headers: sbHeaders(), body: JSON.stringify(fb2) })
-            .then(function (r2) { if (r2.ok) { G.sbLive = true; sbBadge(); toast("☁ 서버에 기록됨"); if (onOk) onOk(); } else keep(sbWhy(r2.status)); })
-            .catch(function () { keep(sbWhy("NET")); });
+          if (r.ok) { ok(); return; }
+          if (r.status === 400 && i + 1 < chain.length) { tryAt(i + 1); return; } // 컬럼 불일치 — 한 단계 덜 확장된 형태로
+          if (i + 1 < chain.length && r.status !== 401 && r.status !== 403) { tryAt(i + 1); return; }
           keep(sbWhy(r.status));
         })
-        .catch(function () { keep(sbWhy("NET")); });
-    } catch (e) { keep("예외: " + (e && e.message)); }
+        .catch(function () { keep(sbWhy("NET")); }); // 네트워크 단절은 폴백해도 소용없다 — 바로 보관
+    }
+    try { tryAt(0); } catch (e) { keep("예외: " + (e && e.message)); }
   }
   function sbDiag() { // 🩺 서버 기록 진단 — 연결·행수·확장 컬럼·보관함을 5초 안에 한눈에
     var out = $("sbDiagOut"); if (!out) return;
@@ -5105,7 +5198,7 @@ window.APP = (function () {
     if (/카카오|카톡/.test(t)) G.mem.카톡 = true;
     if (/교육\s?간호사|간호사/.test(t)) G.mem.간호사 = true;
     if (/리플렛|유인물|가이드/.test(t)) G.mem.리플렛 = true;
-    if (/385|1\.9|98,?080|2\s?억|수가/.test(t)) G.mem.수치 = true;
+    if (/385|1\.9|98,?080|\d[\d,.]*\s?(억|만\s?원|원|%|퍼센트|명|건)/.test(t)) G.mem.수치 = true; // 숫자가 실제로 나왔을 때만 — '수가'라는 단어만으로 "아까 숫자는 잘 들었어요"가 나가던 유령 기억(실녹취 #42) 차단
     if (/ISO|보안|암호|인증/.test(t)) G.mem.보안 = true;
     if (/건기식/.test(t)) G.mem.건기식 = true;
   }
@@ -5372,9 +5465,20 @@ window.APP = (function () {
         }
       }
     }
+    // 📞 v7.5 들림 확인 — "여보세요?" / "제 말 들리세요?" / "방금 말씀드렸는데 못 들으셨나요?"는 방향이 반대다:
+    //    MR이 못 들은 게 아니라 '원장이 MR 말을 놓쳤냐'는 질문. 실녹취 #42에서 원장이 "내 말이 빨랐나, 다시 말하죠"로 받아 대화가 꼬였다.
+    var hk = hearKind(text);
+    if (hk) {
+      G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text), act: hk });
+      diagInc(hk === "notheard" ? "notHeard" : "helloChk");
+      var HB = hk === "notheard" ? NOT_HEARD : HELLO_BACK;
+      drSay(HB[G.doc.nm] || HB["신혁주"], "think", "think");
+      return; // awaiting 그대로 — MR이 다시 말하면 정상 흐름으로
+    }
     // 🗣 못 알아들었다는 신호에는 단계와 무관하게 항상 다시 말해준다 — 채점하지 않는다
     //    (v5.5까진 반대 단계에서만 먹혀서, 되묻기·클로징에선 "네? 뭐라고요?"가 빗나감으로 채점되고 대화가 무너졌다)
     if (readAct(text) === "confused") {
+      diagInc("confused");
       G.turns.push({ typeN: 0, text: text, judge: judgeTurn(0, text), act: "confused" });
       G.confN = (G.confN || 0) + 1;
       var lead = G.confN >= 2 ? (SLOWER[G.doc.nm] || SLOWER["신혁주"]) : (ACT_REPLY.confused[G.doc.nm] || ACT_REPLY.confused["신혁주"]);
@@ -6315,7 +6419,9 @@ window.APP = (function () {
       var ext = {}; Object.keys(base).forEach(function (k) { ext[k] = base[k]; });
       ext.turns = G.turns.length; ext.dur = durSec;
       if (G._missionLog) ext.mission = G._missionLog; // 🎯 처방 실행 여부 — 조직 인사이트의 '실행률' 근거
-      cloudUpload("rp_sessions", ext, base, function () { // 성공 → 이 판은 서버에 있음 표시 + 밀린 보관분도 이 틈에 전송
+      var full = {}; Object.keys(ext).forEach(function (k) { full[k] = ext[k]; });
+      if (G.diag) full.diag = G.diag; // 🩺 판별 품질 진단 — diag 컬럼이 없으면 ext → base 순으로 자동 폴백 (기록은 절대 안 잃는다)
+      cloudUpload("rp_sessions", full, [ext, base], function () { // 성공 → 이 판은 서버에 있음 표시 + 밀린 보관분도 이 틈에 전송
         var ls = G.sessions[G.sessions.length - 1]; if (ls) { ls.up = 1; persistAll(); }
         upqFlush();
       });
@@ -6813,9 +6919,10 @@ window.APP = (function () {
     { v: "6.6", rx: /(음성은 저번|더 사실적|기계음)/, t: "일레븐 장애 가시화·재연결" },
     { v: "7.2", rx: /(촌스럽|디자인|레이아웃|글꼴|폰트|완성도가?\s?(부족|떨어))/, t: "프리미엄 타이포·인터랙션 리뉴얼" },
     { v: "7.3", rx: /(일러스트가?\s?(남|잠깐|보여)|깜빡|전환될 때|그림이 바뀌)/, t: "실사 즉시 표시 (매니페스트 기억+선로드)" },
-    { v: "7.4", rx: /(표정이?\s?(부자연|어색|이상)|얼굴이?\s?(어색|부자연)|입모양|입이 어색)/, t: "표정 크로스페이드·중립 경유·입 지터" }
+    { v: "7.4", rx: /(표정이?\s?(부자연|어색|이상)|얼굴이?\s?(어색|부자연)|입모양|입이 어색)/, t: "표정 크로스페이드·중립 경유·입 지터" },
+    { v: "7.5", rx: /(하지 않은 (내용|말)|안 한 말|상관이 ?없는 내용|이중으로|두 목소리|같은 말을? 두 번|똑같은 말|알아들으시는지)/, t: "실녹취 기반: 이중 세션·질문 반복·유령 맥락 수리" }
   ];
-  function fbFixedTag(txt) { var s = String(txt || ""); if (s.length < 4) return null; for (var i = 0; i < FIXED_LOG.length; i++) if (FIXED_LOG[i].rx.test(s)) return FIXED_LOG[i]; return null; }
+  function fbFixedTag(txt) { var s = String(txt || ""); if (s.length < 4) return null; for (var i = FIXED_LOG.length - 1; i >= 0; i--) if (FIXED_LOG[i].rx.test(s)) return FIXED_LOG[i]; return null; } // 최신 반영이 우선 — 같은 불만을 더 근본적으로 고친 버전을 보여준다
   function renderReviewQueue() {
     var box = $("admReview"); if (!box) return;
     var rows = revSort(G.review || []), pend = rows.filter(function (r) { return r.status !== "done"; });
@@ -7809,6 +7916,10 @@ window.APP = (function () {
       });
       $("admGrowth").innerHTML = h;
     })();
+    if ($("admHealth")) (function () { // 🩺 시스템 건강 — 서버 세션의 diag 집계 (v7.5+ 판부터)
+      var h = healthAgg(G.cloud || []);
+      $("admHealth").innerHTML = healthHtml(h);
+    })();
     if ($("admErr")) (function () { // 🧯 오류 로그 — 이 기기에서 잡힌 스크립트 오류 (베타 원격 진단용)
       var log = loadK("errlog", []);
       $("admErr").innerHTML = log.length
@@ -8156,11 +8267,59 @@ window.APP = (function () {
   try { if ($("sfxChk")) $("sfxChk").checked = G.sfxOn; } catch (e) {}
   /* 🗞 업데이트 노트 — 버전이 바뀐 첫 접속에 한 번만 */
   // 🧯 클라이언트 오류 링버퍼 — 베타에서 "안 돼요"를 재현 없이 진단한다 (로컬 저장, 서버 미전송)
+  function healthAgg(rows) { // 순수 — 판별 diag → 시스템 건강 지표
+    var d = (rows || []).filter(function (r) { return r && r.diag && typeof r.diag === "object"; });
+    var o = { n: d.length, el: 0, elOk: 0, msSum: 0, msN: 0, fails: {}, err: {}, errN: 0, sum: {}, ver: {}, br: {} };
+    var K = ["zombie", "dupCollapsed", "dotOnly", "wdTts", "wdBusy", "dedupSkip", "notHeard", "helloChk", "confused"];
+    d.forEach(function (r) {
+      var g = r.diag;
+      if (g.mode === "eleven") {
+        o.el++;
+        if (g.elOk) { o.elOk++; if (g.elMs) { o.msSum += g.elMs; o.msN++; } }
+        if (g.elFail) { var fk = elWhy(g.elFail).split(" — ")[0]; o.fails[fk] = (o.fails[fk] || 0) + 1; }
+      }
+      K.forEach(function (k) { if (g[k]) o.sum[k] = (o.sum[k] || 0) + g[k]; });
+      if (g.errN) o.errN += g.errN;
+      (g.errs || []).forEach(function (m) { var mk = String(m).slice(0, 70); o.err[mk] = (o.err[mk] || 0) + 1; });
+      var v = g.v || "?"; o.ver[v] = o.ver[v] || { n: 0, err: 0 }; o.ver[v].n++; o.ver[v].err += (g.errN || 0);
+      var b = g.br || "?"; o.br[b] = o.br[b] || { n: 0, elFail: 0 }; o.br[b].n++; if (g.elFail) o.br[b].elFail++;
+    });
+    o.elRate = o.el ? Math.round(100 * o.elOk / o.el) : null;
+    o.elMs = o.msN ? Math.round(o.msSum / o.msN) : null;
+    var top = function (m) { return Object.keys(m).map(function (k) { return [k, m[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 3); };
+    o.topFail = top(o.fails); o.topErr = top(o.err);
+    return o;
+  }
+  function healthHtml(h) {
+    if (!h.n) return "<div class='small'>아직 진단 데이터가 없습니다 — v7.5 이후 판부터 쌓입니다. 위의 <b>[☁ 서버 데이터 불러오기]</b>를 먼저 누르세요.</div>";
+    var S = h.sum, kpi = function (t, v, u, warn) { return "<div class='ins-kpi" + (warn ? " warn" : "") + "'><small>" + t + "</small><b>" + v + "</b><span>" + u + "</span></div>"; };
+    var x = "<div class='small' style='margin-bottom:6px;'>집계 대상 <b>" + h.n + "판</b>" + (h.n < 10 ? " <span style='color:#8a6d1a;'>(표본 10판 미만 — 경향 참고용)</span>" : "") + "</div>";
+    x += "<div class='ins-hero'>" +
+      (h.el ? kpi("일레븐 연결 성공률", h.elRate, "% (" + h.elOk + "/" + h.el + ")", h.elRate < 90) : "") +
+      (h.elMs ? kpi("평균 연결 시간", (h.elMs / 1000).toFixed(1), "초", h.elMs > 6000) : "") +
+      kpi("통화 중 오류", h.errN, "건", h.errN > 0) +
+      kpi("이중 세션 차단", S.zombie || 0, "회", false) +
+      kpi("자동 복구", (S.wdTts || 0) + (S.wdBusy || 0), "회", ((S.wdTts || 0) + (S.wdBusy || 0)) > h.n * 0.2) + "</div>";
+    var lines = [];
+    if (h.topFail.length) lines.push("<b>일레븐 실패 사유 Top</b> — " + h.topFail.map(function (f) { return esc(f[0]) + " " + f[1] + "회"; }).join(" · "));
+    if (h.topErr.length) lines.push("<b>오류 메시지 Top</b> — " + h.topErr.map(function (f) { return "<code>" + esc(f[0]) + "</code> " + f[1] + "회"; }).join(" · "));
+    lines.push("<b>대화 품질 신호</b> — 중복 문장 정리 " + (S.dupCollapsed || 0) + "회 · 점만 찍은 응답 " + (S.dotOnly || 0) + "회 · 같은 대사 이중 재생 차단 " + (S.dedupSkip || 0) + "회 · 들림 확인 " + ((S.notHeard || 0) + (S.helloChk || 0)) + "회 · 못 알아들음 " + (S.confused || 0) + "회");
+    lines.push("<b>버전별</b> — " + Object.keys(h.ver).sort().map(function (v) { return "v" + esc(v) + " " + h.ver[v].n + "판(오류 " + h.ver[v].err + ")"; }).join(" · "));
+    lines.push("<b>브라우저별</b> — " + Object.keys(h.br).map(function (b) { return esc(b) + " " + h.br[b].n + "판" + (h.br[b].elFail ? "(일레븐 실패 " + h.br[b].elFail + ")" : ""); }).join(" · "));
+    x += "<div style='margin-top:8px;line-height:1.85;font-size:12.5px;'>" + lines.map(function (l) { return "<div>" + l + "</div>"; }).join("") + "</div>";
+    x += "<div class='small' style='margin-top:6px;color:var(--sub);'>읽는 법: 연결 성공률 90% 미만·자동 복구가 판의 20% 초과·특정 브라우저에 실패 집중 → 그 지점이 다음 수정 1순위입니다. 진단 정보엔 대화 내용이 들어가지 않습니다.</div>";
+    return x;
+  }
   function errPush(kind, msg, src2, line) {
     try {
       var log = loadK("errlog", []);
       log.push({ at: new Date().toISOString().slice(0, 19), k: kind, m: String(msg).slice(0, 220), s: String(src2 || "").split("/").pop().slice(0, 60), l: line || 0, v: APP_VER });
       store("errlog", log.slice(-30));
+      if (G.inCall && G.diag) { // 🩺 통화 중 오류는 판 진단에도 — 서버에서 '어느 버전·어느 브라우저·무슨 오류'를 모아 본다 (최대 3건, 메시지만)
+        G.diag.errN = (G.diag.errN || 0) + 1;
+        G.diag.errs = G.diag.errs || [];
+        if (G.diag.errs.length < 3) G.diag.errs.push((kind + ": " + String(msg)).slice(0, 120));
+      }
     } catch (e) {}
   }
   try {
@@ -8169,7 +8328,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "7.4";
+  var APP_VER = "7.5";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -8242,7 +8401,7 @@ window.APP = (function () {
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
     toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, elevenRetry: elevenRetry, elevenTest: elevenTest, sbDiag: sbDiag, predQuiz: predQuiz, pqPick: pqPick, pqNext: pqNext, pqClose: pqClose, judgeGame: judgeGame, jgLv: jgLv, jgSubmit: jgSubmit, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, insPrint: insPrint, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, elWhy: elWhy, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK, MOCK_RE: MOCK_RE, MOCK_WARN: MOCK_WARN, mockCheck: mockCheck, CASE_RE: CASE_RE, FIXED_LOG: FIXED_LOG, fbFixedTag: fbFixedTag, silWait: silWait, drSay: drSay, revDue: revDue, pqBuild: pqBuild, jgScore: jgScore, exprRoute: exprRoute, EXPR_POLE: EXPR_POLE, officeHeat: officeHeat, PQ_WEAK: PQ_WEAK, PQ_ACC: PQ_ACC, JG_AX: JG_AX, axisWhy: axisWhy, buildReportDoc2: buildReportDoc, sbWhy: sbWhy, upqLoad: upqLoad, upqPush: upqPush, upqFlush: upqFlush, upqSave: upqSave, sbPing: sbPing, sessFillRow: sessFillRow, backfill: backfill, sbWake: sbWake, cloudUpload: cloudUpload, sbBadge: sbBadge, UPQ_MAX: UPQ_MAX } };
+    _test: { judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, elWhy: elWhy, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK, MOCK_RE: MOCK_RE, MOCK_WARN: MOCK_WARN, mockCheck: mockCheck, CASE_RE: CASE_RE, FIXED_LOG: FIXED_LOG, fbFixedTag: fbFixedTag, silWait: silWait, drSay: drSay, revDue: revDue, pqBuild: pqBuild, jgScore: jgScore, exprRoute: exprRoute, EXPR_POLE: EXPR_POLE, collapseRepeat: collapseRepeat, PROBE_PRE: PROBE_PRE, objProbe: objProbe, probeCtx: probeCtx, hearKind: hearKind, NOT_HEARD: NOT_HEARD, HELLO_BACK: HELLO_BACK, ECHO_TAIL_RE: ECHO_TAIL_RE, healthAgg: healthAgg, healthHtml: healthHtml, diagInc: diagInc, browserTag: browserTag, startEleven: startEleven, takeCall: takeCall, officeHeat: officeHeat, PQ_WEAK: PQ_WEAK, PQ_ACC: PQ_ACC, JG_AX: JG_AX, axisWhy: axisWhy, buildReportDoc2: buildReportDoc, sbWhy: sbWhy, upqLoad: upqLoad, upqPush: upqPush, upqFlush: upqFlush, upqSave: upqSave, sbPing: sbPing, sessFillRow: sessFillRow, backfill: backfill, sbWake: sbWake, cloudUpload: cloudUpload, sbBadge: sbBadge, UPQ_MAX: UPQ_MAX } };
 })();
 
 </script>
