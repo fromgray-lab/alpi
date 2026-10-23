@@ -844,6 +844,8 @@ body:has(#scr-call.on) .adminbtn{display:none;}
 @media(max-width:760px){.rdoc .ph{flex-direction:row;align-items:flex-start;gap:12px;} .rdoc .ph-av{width:68px;height:78px;border-width:2px;border-radius:10px;} .rdoc .ph-av svg{width:64px;height:74px;} .rdoc .ph-avcap{font-size:10px;max-width:76px;line-height:1.35;} .rdoc .ph h1{font-size:22px;} .rdoc .ph-brand{font-size:9.5px;letter-spacing:.2em;}}
 /* 전문가 평가 행 — 'AI 판정 27/30 · / 5(S) / · 100점'으로 줄이 끊기던 문제 */
 .cbax span b{display:inline;font-size:inherit;}
+.ver-it b{display:inline;margin:0;}
+.ver-it>b:first-child{display:block;margin-bottom:1px;} /* 업데이트 노트 — 제목만 블록, 본문 강조는 줄을 끊지 않는다 */
 /* ▶ 다음 한 수 */
 .nextcard{border:2px solid rgba(232,180,76,.6);}
 .nx-hd{display:flex;justify-content:space-between;align-items:flex-end;gap:10px 14px;flex-wrap:wrap;}
