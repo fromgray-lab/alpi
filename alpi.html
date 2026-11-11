@@ -987,7 +987,7 @@ body:has(.vstage.photomode) .flashcrit{background:radial-gradient(ellipse at 50%
       🤖 <b>본 서비스는 인공지능(AI) 기반으로 운용됩니다.</b><br>
       원장 역할은 AI가 연기하며, 훈련 결과 평가·피드백도 AI가 자동 생성합니다. AI 판정은 코칭 참고용이며 인사평가에 자동 반영되지 않습니다.
       <span class="ai-beta">🎙 <b>베타 기간</b>에는 훈련 대화·음성이 코치 평가 목적으로 전송됩니다 · 영상은 전송하지 않습니다</span>
-      <details class="ai-more"><summary>데이터 처리 자세히</summary><span class="ai-notice-sub">음성·영상 분석은 이 기기 안에서만 이루어지며, 서버에는 기본적으로 이름·소속·점수만 기록됩니다. <b>베타 기간에는 훈련 대화와 음성 녹음이</b> 코치 평가·채점 보정(캘리브레이션) 목적으로 전송됩니다 (베타 참여 시 사전 안내·동의). 영상은 어떤 경우에도 전송되지 않습니다. 정식 오픈 후에는 본인이 요청한 판만 전송됩니다. 서비스 안정화를 위해 앱 버전·브라우저 종류·연결 오류 같은 품질 진단 정보(대화 내용 제외)가 함께 기록됩니다. 등장 원장의 실사 이미지는 실존 인물이 아닌 <b>AI 생성 가상 인물</b>입니다.</span></details>
+      <details class="ai-more"><summary>데이터 처리 자세히</summary><span class="ai-notice-sub">음성·영상 분석은 이 기기 안에서만 이루어지며, 서버에는 기본적으로 이름·소속·점수만 기록됩니다. <b>베타 기간에는 훈련 대화와 음성 녹음이</b> 코치 평가·채점 보정(캘리브레이션)·채점 오류 자동 점검(대화 기록만) 목적으로 전송됩니다 (베타 참여 시 사전 안내·동의). 영상은 어떤 경우에도 전송되지 않습니다. 정식 오픈 후에는 본인이 요청한 판만 전송됩니다. 서비스 안정화를 위해 앱 버전·브라우저 종류·연결 오류 같은 품질 진단 정보(대화 내용 제외)와 채점 점검 수치(걱정 해소 수·확인 안 된 숫자의 개수 등 — 대화 내용 제외)가 함께 기록됩니다. 등장 원장의 실사 이미지는 실존 인물이 아닌 <b>AI 생성 가상 인물</b>입니다.</span></details>
     </div>
   </div>
   <div class="st-foot"><span class="credit">NEW BUSINESS STRATEGY TEAM&ensp;PRESENTS</span></div>
@@ -1417,6 +1417,11 @@ body:has(.vstage.photomode) .flashcrit{background:radial-gradient(ellipse at 50%
         <h2>🎖 인증 현황 <span class="small">'연습했다'가 아니라 '인증됐다' — 기준은 세션 기록에서 결정론 재계산</span></h2>
         <div id="admCert"><div class="small">서버 데이터를 불러오면 표시됩니다.</div></div>
       </div>
+      <div class="card" id="admOpsCard" style="border:2px solid var(--teal);">
+        <h2>🤖 자율 운영 <span class="small">기록을 읽고 · 문제를 찾고 · 고칠 안을 만듭니다 — 승인만 하세요</span></h2>
+        <div id="admOps"><div class="small">서버 데이터를 불러오면 자동으로 점검합니다.</div></div>
+        <button class="btn ghost" style="margin-top:10px;" onclick="APP.opsRun()">🔄 지금 점검</button>
+      </div>
       <div class="card">
         <h2>🎯 코칭 처방 <span class="small">정량 옆의 정성 — 무엇이 왜 부족하고, 무엇부터 챙길지</span></h2>
         <div id="admCoach"></div>
@@ -1544,7 +1549,10 @@ body:has(.vstage.photomode) .flashcrit{background:radial-gradient(ellipse at 50%
 <div id="verOv" onclick="APP.verClose()">
   <div class="ver-box" onclick="event.stopPropagation()">
     <div style="font-size:12px;font-weight:900;letter-spacing:.22em;color:#8a6d1a;">GRAND UPDATE</div>
-    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v7.9 — 채점이 공정해졌습니다</h2>
+    <h2 style="margin:4px 0 10px;font-size:20px;">🗞 v8.0 — 스스로 점검하고 고칠 안을 냅니다</h2>
+    <div class="ver-it"><b>🤖 8.0 — 자율 운영</b>관리자 화면에 <b>자율 운영</b> 칸이 생겼습니다. 서버의 판·대화 기록·의견·코치 평가를 지금의 채점으로 다시 돌려 문제를 찾고(이용이 끊겼는지, 표준집에 없는 숫자가 되풀이되는지, 정답인데 인정받지 못하는 표현이 있는지, 음성 인식이 용어를 잘못 받아쓰는지), <b>고칠 안과 승인 버튼</b>을 함께 보여 줍니다. 승인하면 지난 판의 점수가 얼마나 달라지는지도 미리 알려 줍니다. 승인한 '정답 표현'과 '음성 인식 보정'은 서버에 저장되어 <b>다음 판부터 전 직원 채점에 바로 반영</b>됩니다 — 새 버전을 기다릴 필요가 없고, 언제든 끌 수 있습니다.</div>
+    <div class="ver-it"><b>🩺 8.0 — 채점 점검 수치</b>판이 끝나면 걱정 해소 수·확인 안 된 숫자의 개수 같은 <b>개수만</b>(대화 내용 제외) 함께 기록합니다. 매일 도는 자동 점검이 이 숫자로 채점 이상을 먼저 알아챕니다.</div>
+    <h2 style="margin:14px 0 10px;font-size:17px;">v7.9 — 채점이 공정해졌습니다</h2>
     <div class="ver-it"><b>⚖ 7.9 — 인사·맞장구는 감점하지 않습니다</b>"네", "여보세요", 첫 인사, 원장에게 던진 질문까지 반대극복에서 2점씩 깎이던 문제를 고쳤습니다(실제 통화 53판에서 250번가량). 이제 근거 없이 길게 넘어간 답만 '답의 정확도'를 낮추고, 이미 푼 걱정의 점수는 깎지 않습니다.</div>
     <div class="ver-it"><b>🔢 7.9 — 맞는 숫자를 틀렸다고 하지 않습니다</b>"38만 5,290원"처럼 나눠 읽힌 숫자, "본인부담 20%", "2,300원밖에" 같은 어림 표현, 환자 수로 환산한 금액을 정답으로 인정합니다. 감점은 대표 수치(인당 최대 385,290원 · 500명 1.9억 · AH200 2,320원)를 다르게 말했을 때만 — 표준집에 없는 숫자는 감점 없이 <b>'확인 안 된 숫자'</b>로 표시하고, 원장이 출처를 되묻습니다.</div>
     <div class="ver-it"><b>🧾 7.9 — 점수가 왜 그런지 보입니다</b>반대극복 점수 옆에 계산이 그대로 나옵니다: <b>걱정 몇 개 중 몇 개 해소 → 몇 점 + 답의 정확도 몇 점</b>. 유형별 표의 ✓ 표시도 점수와 같은 기준(나눠 말한 열쇠 합산)으로 맞췄고, 인정된 열쇠 이름이 실제로 말한 내용과 어긋나던 8개 유형을 표준집 순서대로 바로잡았습니다. 채점 방식이 바뀌어, 예전 방식 기준으로 쌓인 코치 보정은 새 평가가 쌓일 때까지 적용하지 않습니다.</div>
@@ -2985,7 +2993,9 @@ window.APP = (function () {
     [/(삼십\s?팔\s?만|38\s?만)\s?원/g, "38만원"],
     [/일\s?점\s?구\s?억|1\s?점\s?9\s?억/g, "1.9억"]
   ];
-  function sttFix(t) { var s2 = String(t || ""); STT_FIX.forEach(function (r) { s2 = s2.replace(r[0], r[1]); }); return s2; }
+  function sttFix(t) { var s2 = String(t || ""); STT_FIX.forEach(function (r) { s2 = s2.replace(r[0], r[1]); });
+    if (typeof G !== "undefined" && G.ops && G.ops.stt) G.ops.stt.forEach(function (p) { s2 = opsSttApply(s2, p[0], p[1]); }); // 🤖 승인된 음성 인식 보정 (평문 비교 — 낱말 머리·조사 앞에서만)
+    return s2; }
   function misheard(t) { // 뭉개진 소리 판정 — 짧은 웅얼거림 + STT 오염(어절 반복·영업 대화에 없는 호칭) → 감점 대신 되묻는다
     var s2 = String(t || "").trim();
     if (!s2) return false;
@@ -3766,6 +3776,12 @@ window.APP = (function () {
     var keys = TYPEKEYS[typeN] || [];
     var hit = 0, hitIdx = [], tk = keyNorm(t); // v7.9 열쇠는 군말(", 어, " ", 이제, ")을 걷어낸 문장에서 찾는다 — "만성질환, 어, 통합관리료" 같은 음성 전사
     keys.forEach(function (re, ki) { if (re.test(tk)) { hit++; hitIdx.push(ki); } }); // 어떤 명분을 맞혔는지까지 기록 — 리포트가 '내 대화'를 짚는 근거
+    // 🤖 v8.0 승인된 운영 규칙 — 표준 열쇠의 '다른 표현'을 평문으로 추가 인정 (정규식 아님, 이미 맞힌 열쇠는 다시 세지 않는다)
+    var okw = G.ops && G.ops.kw && G.ops.kw[typeN];
+    if (okw) Object.keys(okw).forEach(function (kk) {
+      var ki2 = Number(kk); if (ki2 >= keys.length || hitIdx.indexOf(ki2) >= 0) return;
+      for (var q = 0; q < okw[kk].length; q++) if (tk.indexOf(okw[kk][q]) >= 0) { hit++; hitIdx.push(ki2); break; }
+    });
     // 🛠 커스텀 원장 전용 정답 키워드 — 지역·상황 특수 논리도 정답 명분으로 인정 (표준 채점에 '추가', 대체 아님)
     if (G.doc && G.doc.keys && G.doc.keys[typeN] && G.doc.keys[typeN].length) {
       var lo = t.toLowerCase();
@@ -4389,6 +4405,7 @@ window.APP = (function () {
     bellStop();
     G.llmBusy = false; G.ttsSpeaking = false; G.elDead = false; // 이전 판에서 굳은 플래그가 새 판을 죽이지 못하게 — 새로고침 없이도 회복된다
     calibSync(); // 전문가 채점 당겨받기 — 이번 판 채점에 바로 반영
+    opsLoad();   // 🤖 승인된 운영 규칙 당겨받기 — 코드 배포 없이 채점이 개선된다
     G.stream = null;
     if (G.wantCam && G.gearStream) G.stream = G.gearStream;
     if (G.stream) {
@@ -5236,7 +5253,8 @@ window.APP = (function () {
       "<b style='font-size:16px;'>🔒 훈련 데이터 안내</b><br><br>" +
       "<b>서버에 저장:</b> 사번·이름·소속, 판별 점수(총점·5축)·등장 유형·크리티컬 수·난이도·기기 종류·턴수·소요시간, 전문가 평가 입력값<br>" +
       "<b>품질 진단(v7.5~):</b> 앱 버전·브라우저 종류·음성 연결 성공 여부와 소요 시간·오류 메시지·자동 복구 횟수 — 서비스 안정화 목적, <b>대화 내용은 포함하지 않음</b><br>" +
-      "<b>베타 기간 한정:</b> 대화 전문·음성 녹음이 <b>코치 평가·채점 보정(캘리브레이션) 목적</b>으로 전송됩니다 (참여 시 사전 안내·동의, 파일명에 이름·사번 없음). 정식 오픈 후에는 본인이 요청한 판만 전송<br>" +
+      "<b>채점 점검 수치(v8.0~):</b> 걱정 해소 수·근거 없이 넘어간 답의 수·확인 안 된 숫자의 수 같은 <b>개수만</b> — 채점 오류를 자동으로 찾기 위한 목적, 대화 내용은 포함하지 않음<br>" +
+      "<b>베타 기간 한정:</b> 대화 전문·음성 녹음이 <b>코치 평가·채점 보정(캘리브레이션)·채점 오류 자동 점검(대화 기록만, 관리자 화면에서) 목적</b>으로 전송됩니다 (참여 시 사전 안내·동의, 파일명에 이름·사번 없음). 정식 오픈 후에는 본인이 요청한 판만 전송<br>" +
       "<b>어떤 경우에도 전송 안 함:</b> 영상 — 캠 분석은 <b>전부 이 기기 안에서만</b> 처리되고 통화 종료와 함께 사라집니다<br>" +
       "<b>보관 위치:</b> 회사 관리 클라우드 DB (Supabase 도쿄 리전)<br>" +
       "<b>용도:</b> 코칭 피드백·훈련 현황 관리 — 인사평가 비연동 원칙<br>" +
@@ -5462,9 +5480,10 @@ window.APP = (function () {
       // 🌱 남의 기기에서 올라온 경험 의견 — 이걸 안 읽어서 관리자 화면엔 내 기기 기록만 보였다
       fetch(G.sbUrl + "/rest/v1/rp_feedback?select=*&order=created_at.desc&limit=500", { headers: sbHeaders() }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
     ]).then(function (res) {
-      var dd = bkDedup(res[0] || []); G.cloudRaw = res[0] || []; G.cloud = dd.rows; G.cloudDup = dd.dup; G.cloudCalib = res[1] || []; G.cloudFb = res[2] || []; // 복구 중복 추정 행은 집계에서 뺀다 (원본은 cloudRaw)
+      var dd = bkDedup(res[0] || []); G.cloudRaw = res[0] || []; G.cloud = dd.rows; G.cloudDup = dd.dup; G.cloudCalib = (res[1] || []).filter(function (r) { return !(r && r.doc === OPS_NM); }); G.cloudFb = res[2] || []; // 복구 중복 추정 행은 집계에서 뺀다 (원본은 cloudRaw)
       $("cloudStat").textContent = "☁ 실데이터 모드 — 세션 " + G.cloud.length + "건" + (G.cloudDup ? " (복구 중복 추정 " + G.cloudDup + "건 제외)" : "") + " · 전문가 평가 " + G.cloudCalib.length + "건 · 경험 의견 " + G.cloudFb.length + "건";
       renderAdmin();
+      opsRun(true); // 🤖 서버 데이터가 들어오면 스스로 점검한다
     }).catch(function (e) {
       var net = /failed to fetch|networkerror|load failed/i.test(String((e && e.message) || e));
       $("cloudStat").textContent = "☁ 불러오기 실패: " + (net ? sbWhy("NET") : (e.message || e) + " — URL·키·RLS 정책 확인");
@@ -6904,6 +6923,7 @@ window.APP = (function () {
       ext.turns = G.turns.length; ext.dur = durSec;
       if (G._missionLog) ext.mission = G._missionLog; // 🎯 처방 실행 여부 — 조직 인사이트의 '실행률' 근거
       var full = {}; Object.keys(ext).forEach(function (k) { full[k] = ext[k]; });
+      if (G.diag && sc.ab) G.diag.sc = { e: sc.eng || 0, n: sc.ab.n, f: sc.ab.full, h: sc.ab.half, x: sc.ab.none, w: sc.ab.whiffN, u: sc.unvN || 0, b: sc.badN || 0, t: G.turns.length, a: G.turns.filter(function (t) { return t.typeN; }).length, r: (G.ops && G.ops.n) || 0 }; // 🤖 채점 점검 수치 — 개수만, 대화 내용 없음 (자동 점검이 매일 읽는다)
       if (G.diag) full.diag = G.diag; // 🩺 판별 품질 진단 — diag 컬럼이 없으면 ext → base 순으로 자동 폴백 (기록은 절대 안 잃는다)
       cloudUpload("rp_sessions", full, [ext, base], function () { // 성공 → 이 판은 서버에 있음 표시 + 밀린 보관분도 이 틈에 전송
         var ls = G.sessions[G.sessions.length - 1]; if (ls) { ls.up = 1; persistAll(); }
@@ -7166,7 +7186,7 @@ window.APP = (function () {
     if (!sbOn()) return;
     fetch(G.sbUrl + "/rest/v1/rp_calib?select=rule,human,evaluator,player,doc,created_at&order=created_at.desc&limit=100", { headers: sbHeaders() })
       .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (rows) { if (rows && rows.length) G.cloudCalib = rows; })
+      .then(function (rows) { if (rows && rows.length) G.cloudCalib = rows.filter(function (r) { return !(r && r.doc === OPS_NM); }); })
       .catch(function () {});
   }
   function biasSummary(calibs) { // 누적 축별 편향 자동 진단 — 조정의 '근거'까지만 (자동 적용은 거버넌스상 금지)
@@ -7367,6 +7387,386 @@ window.APP = (function () {
         : "<div class='small' style='margin:2px 0 10px;color:var(--sub);'>🎧 이 통화는 음성 녹음이 없어 대화 글만 전송됩니다" + (G.recIsVideo ? " (영상 녹화 판은 음성 첨부 제외)" : "") + ".</div>") +
       "<button class='btn gold' onclick='APP.reviewAsk()'>🎓 이 판, 코치 평가 요청</button>";
   }
+  /* ══════════ 🤖 자율 운영 (v8.0) — 기록을 읽고 · 문제를 찾고 · 고칠 안을 만들고 · 사람은 승인만 ══════════
+     ① 운영 규칙: 승인된 '정답 표현 추가'·'음성 인식 보정'이 서버에 쌓이고, 모든 기기가 앱·판 시작 때 내려받아 채점에 쓴다 — 코드 배포 없이 개선된다.
+        정규식이 아니라 평문만 받는다(커스텀 원장의 정답 키워드와 같은 신뢰 모델). 보정의 '바꿀 말'은 정해진 용어뿐이다.
+        저장: 원장 표(rp_doctors)의 예약 행 — nm="__ops__", enabled=false라 어느 버전의 수배전단에도 나오지 않는다. 끄기 = plabel "ops-off".
+        그 표가 받아 주지 않는 서버라면 보정 표(rp_calib)에 이어 쓴다(켬·끔 기록을 시간순으로 접는다). 둘 다 안 되면 이 기기에만 적용하고 그렇게 말한다.
+     ② 자율 점검(opsScan): 서버의 판·대화 기록·의견·코치 평가를 '지금의 채점'으로 다시 돌려 문제와 수정안을 낸다 — 순수 함수(테스트 대상). */
+  var OPS_NM = "__ops__", OPS_TERMS = ["웰체크", "일만사", "심평원", "교육간호사", "케어플랜", "닥터바이스", "아임파인"];
+  var OPS_WORD = /^[가-힣A-Za-z0-9 ·%.,-]{2,20}$/, OPS_DENY = /^(체크|일만|일만원|일만명|심평|간호사|교육|건강|케어|닥터|파인|플랜|환자|원장|병원|수가|사업|관리)$/;
+  var OPS_JOSA = /^(?:입니다|이에요|이지만|이라고|이라는|이라서|에서|으로|에게|한테|께서|까지|부터|처럼|보다|하고|이랑|이라|이고|이며|이나|이면|이죠|예요|인데|라서|라고|라는|마다|밖에|이란|은|는|이|가|을|를|에|의|도|로|와|과|만|요|랑|께|서|라|고|나|며|면|죠|야|란|들|뿐){0,3}$/; // 낱말 뒤에 붙은 것이 조사뿐인가
+  function opsValid(r) { // 규칙 하나의 형식 검증 — 통과한 것만 채점에 쓴다
+    if (!r || typeof r !== "object") return false;
+    if (r.k === "kw") { var ks = TYPEKEYS[r.t]; return !!ks && typeof r.i === "number" && r.i === Math.floor(r.i) && r.i >= 0 && r.i < ks.length && typeof r.w === "string" && OPS_WORD.test(r.w) && r.w === r.w.trim() && !OPS_DENY.test(r.w); }
+    if (r.k === "stt") return typeof r.f === "string" && OPS_WORD.test(r.f) && r.f === r.f.trim() && r.f.length >= 3 && !OPS_DENY.test(r.f) && OPS_TERMS.indexOf(r.w) >= 0 && r.w.indexOf(r.f) < 0 && r.f.indexOf(r.w) < 0;
+    return false;
+  }
+  function opsJo(w, a, b) { // 받침에 맞는 조사 — (을,를)·(으로,로: ㄹ받침은 '로')
+    var s = String(w || ""), c = s.charCodeAt(s.length - 1), j = (c >= 0xAC00 && c <= 0xD7A3) ? (c - 0xAC00) % 28 : 0;
+    return (j === 0 || (a === "으로" && j === 8)) ? b : a;
+  }
+  function opsDay(ms) { var d = new Date(ms); return (d.getMonth() + 1) + "월 " + d.getDate() + "일"; }
+  function opsSttApply(s, f, w) { // 승인된 음성 보정 — 낱말 머리에서, 뒤가 조사일 때만 바꾼다 ('일반사에'는 바꾸고 '일반사항'은 그대로). 평문 비교만 쓴다
+    var out = "", i = 0, p;
+    while ((p = s.indexOf(f, i)) >= 0) {
+      var e = p + f.length, q = e; while (q < s.length && /[가-힣]/.test(s.charAt(q))) q++;
+      var head = p === 0 || !/[가-힣A-Za-z0-9]/.test(s.charAt(p - 1));
+      out += s.slice(i, p) + (head && OPS_JOSA.test(s.slice(e, q)) ? w : f); i = e;
+    }
+    return out + s.slice(i);
+  }
+  function opsKey(r) { return r.k === "kw" ? "kw|" + r.t + "|" + r.i + "|" + r.w : "stt|" + r.f; }
+  function opsBuild(rules) { // 규칙 목록 → 채점이 바로 쓰는 색인 (순수)
+    var o = { kw: {}, stt: [], n: 0 };
+    (rules || []).slice(0, 200).forEach(function (r) {
+      if (!opsValid(r)) return;
+      if (r.k === "kw") { var a = (o.kw[r.t] = o.kw[r.t] || {}), b = (a[r.i] = a[r.i] || []); if (b.indexOf(r.w) < 0) { b.push(r.w); o.n++; } }
+      else if (!o.stt.some(function (p) { return p[0] === r.f; })) { o.stt.push([r.f, r.w]); o.n++; }
+    });
+    return o;
+  }
+  function opsFold(ev, loc) { // 켬·끔 기록을 시간순으로 접어 '지금 켜져 있는 규칙'만 남긴다 (순수) — 같은 규칙은 가장 나중 기록이 이긴다
+    var st = {}, order = [];
+    (ev || []).slice().sort(function (a, b) { return a.at - b.at; }).forEach(function (e) {
+      if (!opsValid(e.r)) return; var k = opsKey(e.r); if (order.indexOf(k) < 0) order.push(k);
+      st[k] = e.on ? { k: e.r.k, t: e.r.t, i: e.r.i, w: e.r.w, f: e.r.f, _src: e.src, _id: e.id == null ? null : e.id, _at: e.at } : null;
+    });
+    (loc || []).forEach(function (r) { if (!opsValid(r)) return; var k = opsKey(r); if (st[k]) return; if (order.indexOf(k) < 0) order.push(k); st[k] = { k: r.k, t: r.t, i: r.i, w: r.w, f: r.f, _src: "loc", _id: null, _at: 0 }; });
+    return order.map(function (k) { return st[k]; }).filter(Boolean).slice(0, 200);
+  }
+  function opsEvents(docRows, calRows) { // 서버 두 곳의 행 → 켬·끔 기록
+    var ev = [];
+    (docRows || []).forEach(function (row) { var r = null; try { r = JSON.parse((row && row.persona) || "null"); } catch (e) {} if (r) ev.push({ at: Date.parse(row.created_at) || 0, r: r, on: true, src: "doc", id: row.id }); });
+    (calRows || []).forEach(function (row) { var r = row && row.rule; if (r && r.ops) ev.push({ at: Date.parse(row.created_at) || 0, r: r, on: r.on !== 0, src: "cal", id: null }); });
+    return ev;
+  }
+  function opsMerge(docRows, calRows, loc) { return opsFold(opsEvents(docRows, calRows), loc); }
+  function opsCacheEv(src) { return loadK("opsCache", []).filter(function (r) { return r && (!src || r._src === src); }).map(function (r) { return { at: r._at || 0, r: r, on: true, src: r._src, id: r._id }; }); }
+  function opsKeep() { store("opsCache", (G.opsRules || []).filter(function (r) { return r._src !== "loc"; })); }
+  function opsBoot() { // 앱 시작 — 마지막으로 받은 규칙을 곧바로 쓰고, 서버에서 새로 받는다
+    try { G.opsRules = opsFold(opsCacheEv(), loadK("opsLocal", [])); } catch (e) { G.opsRules = []; }
+    G.ops = opsBuild(G.opsRules); opsLoad();
+  }
+  function opsLoad(cb) { // 앱·판 시작, 관리자 점검 때 — 서버에 못 닿으면 마지막으로 받은 규칙을 그대로 쓴다 (내장 채점은 언제나 돈다)
+    var loc = loadK("opsLocal", []);
+    var fin = function (ev) { G.opsRules = opsFold(ev, loc); G.ops = opsBuild(G.opsRules); if (cb) cb(); };
+    if (!sbOn() || typeof fetch !== "function") { fin(opsCacheEv()); return; }
+    var get = function (q) { return fetch(G.sbUrl + "/rest/v1/" + q, { headers: sbHeaders() }).then(function (r) { return r.ok ? r.json() : null; }).then(function (x) { return Array.isArray(x) ? x : null; }).catch(function () { return null; }); };
+    Promise.all([
+      get("rp_doctors?nm=eq." + OPS_NM + "&plabel=in.(ops-on,ops-digest)&select=id,plabel,persona,created_at&order=created_at.asc&limit=220"),
+      get("rp_calib?doc=eq." + OPS_NM + "&select=rule,created_at&order=created_at.asc&limit=500")
+    ]).then(function (a) {
+      var d = a[0], c = a[1];
+      if (d) { var dg = d.filter(function (x) { return x && x.plabel === "ops-digest"; })[0]; G.opsDigestId = dg ? dg.id : null; }
+      fin((d ? opsEvents(d.filter(function (x) { return x && x.plabel === "ops-on"; }), []) : opsCacheEv("doc")).concat(c ? opsEvents([], c) : opsCacheEv("cal")));
+      if (d || c) opsKeep();
+    });
+  }
+  function opsRow(plabel, tag, body) { // 예약 행 — 원장 표의 칸을 무해한 값으로 채운다 (enabled=false: 전단에 나오지 않는다)
+    return { nm: OPS_NM, hosp: "", ht: "B", preset: "명랑", diff: 1, plabel: plabel, tag: String(tag).slice(0, 60), open: "", persona: JSON.stringify(body), bias: [1], author: (G.user && G.user.name) || "관리자", enabled: false, lines: {}, keys: {} };
+  }
+  function opsCalRow(r, on) { // 보정 표에 이어 쓰는 형태 — 켬(on=1)·끔(on=0)
+    return { player: OPS_NM, empno: null, office: "", doc: OPS_NM, evaluator: (G.user && G.user.name) || "관리자", rule: { ops: 1, on: on ? 1 : 0, k: r.k, t: r.t, i: r.i, w: r.w, f: r.f, v: APP_VER }, human: {}, comment: on ? "ops-on" : "ops-off" };
+  }
+  function opsSend(body, cb) { // 서버에 규칙 한 줄 — ① 원장 표의 예약 행 ② 받아 주지 않으면 보정 표에 이어 쓰기. cb("doc"|"cal"|null, id)
+    if (!sbOn()) { cb(null, null); return; }
+    var calTry = function () {
+      fetch(G.sbUrl + "/rest/v1/rp_calib", { method: "POST", headers: sbHeaders(), body: JSON.stringify(opsCalRow(body, 1)) })
+        .then(function (r) { cb(r.ok ? "cal" : null, null); }, function () { cb(null, null); });
+    };
+    var h = sbHeaders(); h.Prefer = "return=representation";
+    fetch(G.sbUrl + "/rest/v1/rp_doctors", { method: "POST", headers: h, body: JSON.stringify(opsRow("ops-on", opsKey(body), body)) })
+      .then(function (r) { return r.ok ? r.json().catch(function () { return null; }) : null; }, function () { return null; })
+      .then(function (rows) { if (rows && rows[0] && rows[0].id != null) cb("doc", rows[0].id); else calTry(); });
+  }
+  function opsApprove(rule, why, cb) { // 승인 = 서버에 규칙 한 줄 → 모든 기기가 다음 판부터 쓴다
+    if (!opsValid(rule)) { toast("규칙 형식이 맞지 않습니다"); if (cb) cb(false); return; }
+    var body = { k: rule.k, t: rule.t, i: rule.i, w: rule.w, f: rule.f, why: String(why || "").slice(0, 120), v: APP_VER, at: todayStr() };
+    opsSend(body, function (src, id) {
+      var r = { k: body.k, t: body.t, i: body.i, w: body.w, f: body.f, _src: src || "loc", _id: id == null ? null : id, _at: Date.now() };
+      if (!src) { var loc = loadK("opsLocal", []).filter(function (x) { return opsKey(x) !== opsKey(r); }); loc.push({ k: r.k, t: r.t, i: r.i, w: r.w, f: r.f }); store("opsLocal", loc.slice(-50)); }
+      G.opsRules = (G.opsRules || []).filter(function (x) { return opsKey(x) !== opsKey(r); }).concat([r]); G.ops = opsBuild(G.opsRules);
+      if (src) opsKeep();
+      toast(src ? "✅ 승인 — 다음 판부터 전 직원 채점에 반영됩니다" : "서버에 저장하지 못해 이 기기에만 적용했습니다 — 아래 '서버에 올리기'로 다시 시도하세요");
+      if (cb) cb(true, src);
+    });
+  }
+  function opsPush(idx) { // 이 기기에만 있던 규칙을 서버로
+    var r = (G.opsRules || [])[idx]; if (!r || r._src !== "loc") return;
+    opsSend({ k: r.k, t: r.t, i: r.i, w: r.w, f: r.f, why: "", v: APP_VER, at: todayStr() }, function (src, id) {
+      if (!src) { toast("아직 서버에 저장하지 못했습니다 — 잠시 뒤 다시 시도하세요"); return; }
+      r._src = src; r._id = id == null ? null : id; r._at = Date.now();
+      store("opsLocal", loadK("opsLocal", []).filter(function (x) { return opsKey(x) !== opsKey(r); })); opsKeep();
+      toast("✅ 서버에 올렸습니다 — 다음 판부터 전 직원 채점에 반영됩니다"); opsRender();
+    });
+  }
+  function opsRevoke(idx) { // 끄기 — 서버 행은 지우지 않고 '끔' 표시만 남긴다
+    var r = (G.opsRules || [])[idx]; if (!r) return;
+    var key = opsKey(r);
+    G.opsRules.splice(idx, 1); G.ops = opsBuild(G.opsRules); opsKeep();
+    store("opsLocal", loadK("opsLocal", []).filter(function (x) { return opsKey(x) !== key; }));
+    var calOff = function () { cloudUpload("rp_calib", opsCalRow(r, 0)); }; // 끊겨도 보관했다가 다시 보낸다
+    if (sbOn() && r._src === "doc" && r._id != null) {
+      var h = sbHeaders(); h.Prefer = "return=representation";
+      fetch(G.sbUrl + "/rest/v1/rp_doctors?id=eq." + encodeURIComponent(r._id), { method: "PATCH", headers: h, body: JSON.stringify({ plabel: "ops-off" }) })
+        .then(function (x) { return x.ok ? x.json().catch(function () { return []; }) : []; }, function () { return []; })
+        .then(function (rows) { if (!rows || !rows.length) calOff(); }); // 고쳐 쓰기가 안 되는 서버 — '끔' 기록을 이어 쓴다
+    } else if (sbOn() && r._src === "cal") calOff();
+    toast("규칙을 껐습니다 — 다음 판부터 적용되지 않습니다"); opsRender();
+  }
+  function opsReplay(rv) { // 서버 대화 기록 한 판을 '지금의 채점'으로 다시 돌린다 — 자유 대화 판은 답이 어느 걱정을 향했는지도 다시 가린다
+    var keepDoc = G.doc; G.doc = null; // 커스텀 원장 전용 열쇠는 빼고 표준 채점으로
+    var objs = ((rv.scen && rv.scen.objs) || []).map(function (n) { return V22.filter(function (v) { return v.n === n; })[0]; }).filter(Boolean);
+    var diff = rv.diff || 2, free = !!rv.llm, res = {}, got = {};
+    var turns = (rv.turns || []).filter(function (t) { return t && t.text; }).map(function (t) {
+      var tx = sttFix(t.text), typeN = t.typeN || 0, j;
+      if (free) { // attributeTurn과 같은 규칙 — 아직 안 풀린 걱정에 실린 답이면 그쪽으로
+        var best = null, bs = 0, bo = null, bos = 0;
+        objs.forEach(function (o) { var jj = judgeTurn(o.n, tx), s = jj.keyHit * 2 + Math.min(2, jj.numsOk); if (s > bs) { bs = s; best = { typeN: o.n, judge: jj }; } if (!res[o.n] && s > bos) { bos = s; bo = { typeN: o.n, judge: jj }; } });
+        if (bo && bos >= 2 && bo.judge.keyHit >= 1 && best && res[best.typeN]) { best = bo; bs = bos; }
+        if (best && bs >= 2) { typeN = best.typeN; j = best.judge; } else { typeN = 0; j = judgeTurn(0, tx); }
+      } else j = judgeTurn(typeN, tx);
+      j.crit = typeN ? critCheck(j, diff) : false;
+      if (typeN) { var g = (got[typeN] = got[typeN] || { idx: {}, num: false }); (j.keyHitIdx || []).forEach(function (k) { g.idx[k] = 1; }); if (j.numsOk > 0) g.num = true; var c = Object.keys(g.idx).length; if (j.crit || c >= 2 || (c >= 1 && g.num)) res[typeN] = true; }
+      return { typeN: typeN, text: tx, judge: j };
+    });
+    G.doc = keepDoc;
+    return { objs: objs.map(function (o) { return o.n; }), turns: turns, ab: axABreak(turns, { objs: objs, diff: diff }) };
+  }
+  var OPS_STOP = /^(원장|저희|제가|저는|저도|제일|이제|그래|그러|그런|그럼|그리|그렇|그거|그게|그건|이거|이게|이건|이런|이렇|저거|저게|저런|어떤|어떻|어디|언제|누가|무슨|뭔가|하지만|때문|경우|정도|부분|말씀|생각|지금|현재|사실|일단|우선|먼저|진행|가능|필요|사용|활용|환자|병원|의원|사업|일만사|웰체크|대웅|하나|우리|같은|같이|함께|모든|다른|많이|많은|조금|아주|정말|진짜|바로|계속|다시|한번|있습|없습|있는|없는|있으|없으|있고|없고|됩니|합니|같습|입니|하시|하실|하신|해주|해드|드리|드립|드릴|드렸|되시|되고|되는|하는|하게|하고|해서|하면|맞습|맞아|감사|안녕|여보|네네|아니|그냥|이번|저번|다음|오늘|내일|요즘|최근|관련|대해|대한|통해|위해|위한|따라|대로|만큼|보다|부터|까지|라고|라는|이라|것이|것은|것을|거는|거를|거예|거죠|건데|는데|니까|니다|세요|어요|아요)/;
+  var OPS_VERBISH = /(됩|겠|했|됐|였|었|았|니다|니까|세요|어요|아요|네요|군요|거든|는데|지만|으면|면서|려고|도록|게요|시죠|하죠|되죠|해요|돼요|하고|해서|하면|하는|되는|되고|하게|드리|드립|드릴|드린|시는|시고|시면|신다|한다|된다)$/;
+  function opsWords(t) { return keyNorm(String(t || "")).split(/[^가-힣A-Za-z0-9]+/).filter(function (w) { return w.length >= 2 && /^[가-힣A-Za-z]+$/.test(w); }); }
+  function opsClip(t, w) { var s = String(t || ""), p = s.indexOf(w); if (p < 0) return s.slice(0, 60); return s.slice(Math.max(0, p - 26), p + w.length + 26); }
+  function opsKeyGuess(n, w) { // 이 말은 그 걱정의 몇 번째 열쇠의 '다른 표현'인가 — 표준집의 열쇠 문구·표준 스크립트에서 단서를 찾는다 (없으면 -1 = 사람이 고른다)
+    var v = V22.filter(function (x) { return x.n === n; })[0], ks = TYPEKEYS[n] || []; if (!v) return -1;
+    for (var i = 0; i < v.key.length && i < ks.length; i++) if (String(v.key[i]).indexOf(w) >= 0) return i;
+    var ss = splitSentences(v.script || "");
+    for (var s = 0; s < ss.length; s++) if (ss[s].indexOf(w) >= 0) for (var k = 0; k < ks.length; k++) if (ks[k].test(ss[s])) return k;
+    return -1;
+  }
+  var OPS_VTAIL = /^(해|하|한|할|합|했|됩|된|될|되|돼)[가-힣]{0,4}$/, OPS_NEXT = "은는이가을를에의도로와과만요랑께라고해하한할합했됩된될되돼입인일으";
+  function opsMine(reps, names) { // 정답 표현 후보 — 걱정이 풀리지 않은 판의, 열쇠가 하나도 걸리지 않은 긴 답에서 되풀이되는 말 (그런 판에 쏠려 있고, 어떤 열쇠에도 안 걸리는 말)
+    var all = {}, byT = {}, oS = {}, nS = reps.length || 1, nm = (names || []).filter(function (x) { return x && String(x).length >= 2; }).map(String);
+    reps.forEach(function (rp) {
+      var sa = {}, st = {};
+      var open = rp.ab.per.filter(function (p) { return p.st !== "full"; }).map(function (p) { return p.n; });
+      open.forEach(function (n) { oS[n] = (oS[n] || 0) + 1; });
+      rp.turns.forEach(function (x) {
+        var pf = [];
+        opsWords(x.text).forEach(function (w) { for (var L = 2; L <= Math.min(6, w.length); L++) pf.push([w.slice(0, L), w.charAt(L) || "$"]); }); // 낱말의 앞머리 = 조사를 뗀 몸통 후보
+        pf.forEach(function (p) { if (!sa[p[0]]) { sa[p[0]] = 1; all[p[0]] = (all[p[0]] || 0) + 1; } });
+        var tg = x.typeN ? (x.judge.keyHit === 0 && open.indexOf(x.typeN) >= 0 ? [x.typeN] : []) : ((String(x.text || "").length >= 40 && !x.judge.question) ? open : []); // 열쇠가 하나라도 걸린 답의 낱말은 그 열쇠의 일부일 수 있어 뺀다
+        tg.forEach(function (n) { pf.forEach(function (p) {
+          var k = n + "|" + p[0], e = (byT[k] = byT[k] || { n: n, w: p[0], c: 0, nx: {}, tot: 0, ex: [], co: {} });
+          e.nx[p[1]] = (e.nx[p[1]] || 0) + 1; e.tot++; open.forEach(function (m) { e.co[m] = 1; });
+          if (!st[k]) { st[k] = 1; e.c++; if (e.ex.length < 2) e.ex.push(opsClip(x.text, p[0])); }
+        }); });
+      });
+    });
+    var out = [], drOf = {}; V22.forEach(function (v) { drOf[v.n] = [v.dr, v.dr2].concat(v.probe || []).join(" "); });
+    Object.keys(byT).forEach(function (k) {
+      var e = byT[k], w = e.w, of = oS[e.n] || 1, pr = e.c / (all[w] || e.c);
+      if (e.c < 3 || e.c / of < 0.25 || pr < 0.6 || pr / (of / nS) < 1.5) return;                    // 서로 다른 3판 이상 · 그 걱정이 안 풀린 판의 1/4 이상 · 이 말이 나온 판의 60% 이상이 그런 판이고, 그 비율이 평소의 1.5배 이상 (어디서나 나오는 말 제외)
+      if (OPS_STOP.test(w) || OPS_VERBISH.test(w) || anyKey(w) || !opsValid({ k: "kw", t: e.n, i: 0, w: w })) return; // 흔한 말·서술어·이미 열쇠인 말 제외
+      for (var c in e.nx) if (c !== "$" && OPS_NEXT.indexOf(c) < 0 && e.nx[c] / e.tot >= 0.8) return; // 늘 같은 글자(조사가 아닌)가 뒤따르면 낱말의 중간이다
+      if (nm.some(function (x) { return x.indexOf(w) >= 0 || w.indexOf(x) >= 0; })) return;         // 사람 이름은 규칙이 될 수 없다
+      if (DOCTORS.some(function (d) { return String(d.nm || "").indexOf(w) >= 0 || String(d.hosp || "").indexOf(w) >= 0; })) return;
+      if (Object.keys(e.co).some(function (m) { return (drOf[m] || "").indexOf(w) >= 0; })) return;   // 원장의 걱정을 되받은 말일 뿐 (그 판에 함께 남아 있던 걱정의 대사 포함)
+      if (G.ops && G.ops.kw && G.ops.kw[e.n] && Object.keys(G.ops.kw[e.n]).some(function (i) { return G.ops.kw[e.n][i].some(function (x) { return x.indexOf(w) >= 0 || w.indexOf(x) >= 0; }); })) return;
+      out.push({ n: e.n, w: w, c: e.c, of: oS[e.n] || 0, sh: e.c / of, i: opsKeyGuess(e.n, w), ex: e.ex });
+    });
+    out.sort(function (a, b) { return (b.i >= 0) - (a.i >= 0) || b.sh - a.sh || b.c - a.c || a.w.length - b.w.length; }); // 표준집에 단서가 있는 말 → 그 걱정에 가장 쏠린 말
+    var keep = [];
+    out.forEach(function (c) { // 같은 말은 한 번만 — 여러 걱정에 걸치면 앞선 것, 긴 꼴·짧은 꼴이 겹치면 조사를 뗀 쪽(따로도 쓰이면 짧은 쪽, 늘 붙어 다니면 긴 쪽)
+      for (var q = 0; q < keep.length; q++) {
+        var o = keep[q], sh, lg;
+        if (o.w === c.w) return;
+        if (o.w.indexOf(c.w) === 0) { sh = c; lg = o; } else if (c.w.indexOf(o.w) === 0) { sh = o; lg = c; } else continue;
+        var rem = lg.w.slice(sh.w.length);
+        if ((OPS_JOSA.test(rem) || OPS_VTAIL.test(rem) || sh.c > lg.c ? sh : lg) === c) keep[q] = c;
+        return;
+      }
+      keep.push(c);
+    });
+    return keep.filter(function (c) { return c.i >= 0; }).slice(0, 3).concat(keep.filter(function (c) { return c.i < 0; }).slice(0, 2)); // 표준집에 단서가 있는 말 먼저, 없는 말은 둘까지만
+  }
+  function opsSttMine(reps) { // 음성 인식 보정 후보 — 핵심 용어와 한 글자만 다른 말이 여러 판에서 나오면 잘못 받아쓴 것으로 본다
+    var cnt = {};
+    reps.forEach(function (rp) {
+      var seen = {};
+      rp.turns.forEach(function (x) { opsWords(x.text).forEach(function (w) {
+        for (var q = 0; q < OPS_TERMS.length; q++) {
+          var term = OPS_TERMS[q], f = w.slice(0, term.length), d = 0;
+          if (f.length !== term.length || f === term || seen[f] || !OPS_JOSA.test(w.slice(term.length))) continue;
+          for (var p = 0; p < term.length; p++) if (f.charAt(p) !== term.charAt(p)) d++;
+          if (d !== 1 || !opsValid({ k: "stt", f: f, w: term })) continue;
+          seen[f] = 1; var e = (cnt[f] = cnt[f] || { f: f, w: term, c: 0, ex: [] }); e.c++; if (e.ex.length < 2) e.ex.push(opsClip(x.text, f)); break;
+        }
+      }); });
+    });
+    return Object.keys(cnt).map(function (k) { return cnt[k]; }).filter(function (e) { return e.c >= 2; }).sort(function (a, b) { return b.c - a.c; }).slice(0, 4);
+  }
+  function opsImpact(rule, revs) { // 이 규칙을 켜면 지난 판들의 반대극복 점수가 얼마나 달라지나 — 승인 전에 보여 준다 (끝나면 규칙을 되돌린다)
+    if (!opsValid(rule)) return null;
+    var needle = rule.k === "kw" ? rule.w : rule.f;
+    var hit = (revs || []).filter(function (rv) { return rv && rv.turns && rv.turns.some(function (t) { return t && t.text && String(t.text).indexOf(needle) >= 0; }); });
+    var keep = G.ops, base = hit.map(function (rv) { return opsReplay(rv).ab.total; }), aft = base;
+    G.ops = opsBuild((G.opsRules || []).concat([rule]));
+    try { aft = hit.map(function (rv) { return opsReplay(rv).ab.total; }); } finally { G.ops = keep; }
+    var n = 0, d = 0; base.forEach(function (b, i) { if (aft[i] !== b) { n++; d += aft[i] - b; } });
+    return { n: n, d: n ? Math.round(d / n * 10) / 10 : 0, of: hit.length };
+  }
+  var OPS_ASK = /으면\s?(좋|합|함|한다|해요)|좋겠|좋을\s?것|주세요|주시면|주셨으면|바랍니다|바람|부탁|필요(합니다|해요|함|할|하다)|아쉽|아쉬웠|아쉬운|아쉬움|불편|안\s?(됩니다|돼요|됨|되었|됐|나옵|나와|들립|들려)|못\s?(하|알아|들)|어렵습니다|어려웠|오류|버그|개선|수정|보완|추가(해|되|됐으면)|조금\s?더|좀\s?더|더\s?(다양|자세|길|짧|빠르|느리|많|쉽|어렵)|너무\s?(길|짧|빠르|느리|많|적|어렵|쉽)|끊[기깁겼]|이상(하|합|했)|틀[리렸린]|헷갈|부자연|어색/; // 고쳐 달라는 말 (칭찬·소감과 구분)
+  function opsImpTxt(m) { return !m ? "" : m.n ? "승인하면 이 말이 나온 지난 " + m.of + "판 가운데 " + m.n + "판의 반대극복 점수가 평균 " + (m.d > 0 ? "+" : "") + m.d + "점 달라집니다." : "지난 판의 반대극복 점수는 그대로입니다 — 앞으로의 판에서 이 말을 알아듣게 됩니다."; }
+  function opsScan(inp) { // 자율 점검 — {sessions, reviews, feedback, calib, now} → {status, findings[], stats} (입력만 읽는다)
+    inp = inp || {}; var now = inp.now || Date.now(), F = [], DAY = 86400000;
+    var real = function (r) { return r && rankFilter([r]).length; };                                   // 시연·테스트 계정 제외
+    var ses = (inp.sessions || []).filter(function (r) { return real(r) && r.created_at && (r.total || 0) > 0; });
+    var ts = ses.map(function (r) { return Date.parse(r.created_at); }).filter(function (x) { return !isNaN(x); });
+    var last = null; ts.forEach(function (x) { if (last === null || x > last) last = x; });
+    var idle = last === null ? null : Math.floor((now - last) / DAY);
+    var w1 = ts.filter(function (x) { return now - x < 7 * DAY; }).length, w0 = ts.filter(function (x) { return now - x >= 7 * DAY && now - x < 14 * DAY; }).length;
+    var url = (typeof location !== "undefined" && /^https?:/.test(location.href)) ? location.origin + location.pathname : "";
+    var msg = "[알피왕 v" + APP_VER + "] 채점이 바뀌었습니다 — 인사·맞장구·질문은 감점하지 않고, 점수 옆에 계산식이 그대로 나옵니다. 정복 지도에서 섬을 고르고 '이 걱정 하나만 연습'을 켜면 2~3분이면 한 판입니다." + (url ? " " + url : "");
+    // ① 이용 맥박
+    if (idle !== null && idle >= 7) F.push({ id: "pulse|" + new Date(last).toISOString().slice(0, 10), sev: 3, t: "새 판이 " + idle + "일째 없습니다",
+      ev: "마지막 판은 " + opsDay(last) + "입니다. 고쳐도 써 보는 사람이 없으면 나아졌는지 확인할 수 없습니다 — 아래 문구를 팀 채널에 붙여 보세요.", fix: { k: "msg", label: "안내 문구 복사", text: msg } });
+    else if (w0 >= 6 && w1 * 2 < w0) F.push({ id: "pulse2|" + w0, sev: 2, t: "이용이 절반 아래로 줄었습니다 — 최근 7일 " + w1 + "판 (그 전 7일 " + w0 + "판)", ev: "아래 문구를 팀 채널에 붙여 보세요.", fix: { k: "msg", label: "안내 문구 복사", text: msg } });
+    // ② 대화 기록 재채점 — 채점이 놓친 것 찾기
+    var revs = (inp.reviews || []).filter(function (r) { return real(r) && r.turns && r.turns.length; }).slice(0, 80);
+    var reps = revs.map(opsReplay), nT = 0, nW = 0, nUnv = {}, nBadS = 0, none = 0, conc = 0, names = {};
+    (inp.sessions || []).concat(inp.reviews || []).forEach(function (r) { if (r && r.player) names[String(r.player).trim()] = 1; });
+    reps.forEach(function (rp) {
+      conc += rp.ab.n; none += rp.ab.none; nW += rp.ab.whiffN; nT += rp.turns.length;
+      var su = {}, bad = false;
+      rp.turns.forEach(function (x) {
+        (x.judge.unvClaims || []).forEach(function (u) { var k = String(u).split(" (")[0].replace(/\s/g, ""); if (k && !su[k]) { su[k] = 1; nUnv[k] = (nUnv[k] || 0) + 1; } });
+        if (x.judge.numsBad) bad = true;
+      });
+      if (bad) nBadS++;
+    });
+    var topU = Object.keys(nUnv).filter(function (k) { return nUnv[k] >= 2; }).sort(function (a, b) { return nUnv[b] - nUnv[a]; }).slice(0, 4);
+    if (topU.length) F.push({ id: "unv|" + topU.join(","), sev: 2, t: "표준집에 없는 숫자가 여러 판에서 되풀이됩니다",
+      ev: topU.map(function (k) { return "“" + k + "” " + nUnv[k] + "판"; }).join(" · ") + " — 지금은 감점하지 않고 '확인 안 된 숫자'로만 표시합니다. 표준 수치로 넣을지, 교육 때 바로잡을지 정해야 합니다.",
+      fix: { k: "note", label: "표준 수치 검토 요청으로 남기기", text: "표준 수치 검토 — 여러 판에서 되풀이된 숫자: " + topU.map(function (k) { return k + "(" + nUnv[k] + "판)"; }).join(", ") } });
+    opsMine(reps, Object.keys(names)).forEach(function (c) {
+      var imp = c.i >= 0 ? opsImpact({ k: "kw", t: c.n, i: c.i, w: c.w }, revs) : null;
+      if (imp && !imp.n) return;                                                                      // 켜도 달라질 판이 없으면 제안하지 않는다
+      var v = V22.filter(function (x) { return x.n === c.n; })[0] || {};
+      F.push({ id: "kw|" + c.n + "|" + c.w, sev: 2, t: "[" + c.n + "] " + (v.t || "") + " — “" + c.w + "”" + opsJo(c.w, "을", "를") + " 정답 표현으로 인정할까요?",
+        ev: "이 걱정이 풀리지 않은 " + c.of + "판 가운데 " + c.c + "판에서, 열쇠가 하나도 걸리지 않은 답에 이 말이 있었습니다.", imp: opsImpTxt(imp), ex: c.ex,
+        fix: { k: "kw", t: c.n, i: c.i, w: c.w, label: "승인 — 전 직원 채점에 반영", why: "[" + c.n + "] 미해소 " + c.of + "판 중 " + c.c + "판" } });
+    });
+    opsSttMine(reps).forEach(function (c) {
+      F.push({ id: "stt|" + c.f, sev: 2, t: "음성 인식이 “" + c.w + "”" + opsJo(c.w, "을", "를") + " “" + c.f + "”" + opsJo(c.f, "으로", "로") + " 받아쓰고 있습니다", ev: c.c + "판에서 발견했습니다.", imp: opsImpTxt(opsImpact({ k: "stt", f: c.f, w: c.w }, revs)), ex: c.ex,
+        fix: { k: "stt", f: c.f, w: c.w, label: "승인 — “" + c.f + "”" + opsJo(c.f, "을", "를") + " “" + c.w + "”" + opsJo(c.w, "으로", "로") + " 바로잡기", why: c.c + "판에서 발견" } });
+    });
+    // ③ 코치 평가와의 차이 — 지금 채점 방식으로 채점된 판만 견준다
+    var calAll = (inp.calib || []).filter(function (r) { return r && r.rule && r.human && real(r); }), cal = calAll.filter(function (r) { return r.rule.eng === ENGINE_VER; });
+    if (cal.length >= 3) [["A", "반대극복", 30], ["B", "근거기반", 20], ["C", "고객의득", 20], ["D", "경청공감", 15], ["E", "클로징", 15]].forEach(function (a) {
+      var ds = cal.filter(function (r) { return typeof r.human[a[0]] === "number" && typeof r.rule[a[0]] === "number"; }); if (ds.length < 3) return;
+      var d = ds.reduce(function (s, r) { return s + (r.human[a[0]] - r.rule[a[0]]); }, 0) / ds.length;
+      if (Math.abs(d) >= a[2] * 0.15) F.push({ id: "cal|" + a[0] + (d > 0 ? "+" : "-"), sev: 2, t: "AI가 " + a[1] + opsJo(a[1], "을", "를") + " 코치보다 평균 " + (Math.round(Math.abs(d) * 10) / 10) + "점 " + (d > 0 ? "낮게" : "높게") + " 채점합니다 (" + a[2] + "점 만점)",
+        ev: "코치 평가 " + ds.length + "건 기준. 점수 보정은 자동으로 들어가고 있지만, 이만큼 벌어지면 채점 기준 자체를 손봐야 합니다.", fix: { k: "note", label: "채점 기준 수정 요청으로 남기기", text: a[1] + " 채점 기준 재검토 — 코치보다 평균 " + (Math.round(d * 10) / 10) + "점 (코치−AI, " + ds.length + "건)" } });
+    });
+    // ④ 사람 손을 기다리는 것
+    var pend = (inp.reviews || []).filter(function (r) { return real(r) && r.status !== "done"; }), disp = pend.filter(function (r) { return r.disputes && r.disputes.length; });
+    if (disp.length) F.push({ id: "disp|" + disp.length, sev: 3, t: "판정 이의 " + disp.length + "건이 답을 기다립니다", ev: "참여자가 '이 판정은 납득이 안 된다'고 표시한 판입니다. 아래 코치 평가 대기열 맨 위에 올라와 있습니다.", fix: null });
+    if (pend.length >= 20 && !cal.length) F.push({ id: "queue", sev: 1, t: "지금 채점 방식에 대한 코치 평가가 아직 없습니다 (대기 " + pend.length + "판)", ev: "v7.9에서 채점이 바뀐 뒤로 사람이 매긴 점수가 없어, 채점이 맞는지 견줄 기준이 없습니다. 3건만 평가해도 비교가 시작됩니다.", fix: null });
+    // ⑤ 아직 반영 기록이 없는 의견
+    var fresh = (inp.feedback || []).filter(function (r) { if (!r || r.evaluator === "자율 운영" || !real(r)) return false; var tx = [r.wish, r.miss].filter(Boolean).join(" "); return tx.length >= 8 && OPS_ASK.test(tx) && !fbFixedTag(tx); });
+    var ask = function (r) { var tx = [r.wish, r.miss].filter(Boolean).join(" "), m = OPS_ASK.exec(tx), p = m ? m.index : 0; return tx.slice(Math.max(0, p - 44), p + 44).replace(/\s+/g, " "); };
+    if (fresh.length) { var fl = fresh.map(function (r) { return String(r.created_at || ""); }).sort().pop() || "";
+      F.push({ id: "fb|" + fresh.length + "|" + fl.slice(0, 10), sev: 2, t: "아직 반영 기록이 없는 의견 " + fresh.length + "건", ex: fresh.slice(0, 3).map(ask),
+        ev: "고쳐 달라는 말이 담겼는데 수정 이력과 이어지지 않은 의견입니다.", fix: { k: "note", label: "개선 요청으로 남기기", text: "의견 반영 검토 " + fresh.length + "건 — " + fresh.slice(0, 3).map(function (r) { return "“" + ask(r) + "”"; }).join(" / ") } }); }
+    // ⑥ 연결 품질 (최근 30일)
+    var hh = healthAgg(ses.filter(function (r) { return now - Date.parse(r.created_at) < 30 * DAY; }));
+    if (hh.el >= 5 && hh.elRate !== null && hh.elRate < 90) F.push({ id: "conn|" + Math.floor(hh.elRate / 10), sev: 3, t: "음성 연결 성공률이 " + hh.elRate + "%입니다 (최근 30일 " + hh.el + "판)",
+      ev: hh.topFail.map(function (x) { return x[0] + " " + x[1] + "건"; }).join(" · ") || "실패 사유가 기록되지 않았습니다.", fix: { k: "note", label: "연결 문제 수정 요청으로 남기기", text: "음성 연결 성공률 " + hh.elRate + "% (" + hh.elOk + "/" + hh.el + ") — " + hh.topFail.map(function (x) { return x[0] + " " + x[1] + "건"; }).join(", ") } });
+    F.sort(function (a, b) { return b.sev - a.sev; });
+    return { at: now, status: F.some(function (x) { return x.sev >= 3; }) ? "act" : F.length ? "warn" : "ok", findings: F,
+      stats: { sess: ses.length, w1: w1, w0: w0, idle: idle, revs: reps.length, turns: nT, whiff: nW, concerns: conc, none: none, unv: Object.keys(nUnv).length, badS: nBadS, cal: cal.length, calAll: calAll.length, pend: pend.length, rules: (G.ops && G.ops.n) || 0 } };
+  }
+  function opsDigest(R, list) { // 점검 요약 한 줄을 서버에 남긴다 — 매일 도는 자동 점검이 읽는다 (개수만, 낱말·이름 없음). 한 줄을 고쳐 쓰므로 쌓이지 않는다
+    if (!sbOn() || !R || G.opsNoDigest) return;
+    var L = list || R.findings, h = sbHeaders(); h.Prefer = "return=representation";
+    var body = { at: new Date(R.at).toISOString(), v: APP_VER, status: L.some(function (f) { return f.sev >= 3; }) ? "act" : L.length ? "warn" : "ok", n: L.length, kinds: L.map(function (f) { return String(f.id).split("|")[0]; }), stats: R.stats };
+    var row = opsRow("ops-digest", "digest", body);
+    var p = G.opsDigestId != null
+      ? fetch(G.sbUrl + "/rest/v1/rp_doctors?id=eq." + encodeURIComponent(G.opsDigestId), { method: "PATCH", headers: h, body: JSON.stringify({ persona: row.persona }) })
+      : fetch(G.sbUrl + "/rest/v1/rp_doctors", { method: "POST", headers: h, body: JSON.stringify(row) });
+    p.then(function (r) { return r.ok ? r.json().catch(function () { return []; }) : []; }, function () { return null; })
+      .then(function (rows) { if (rows === null) return; if (rows && rows[0] && rows[0].id != null) G.opsDigestId = rows[0].id; else G.opsNoDigest = true; }); // 받아 주지 않는 서버면 더 시도하지 않는다
+  }
+  function opsRun(auto) { // 관리자 화면 — 서버 데이터가 들어오면 스스로, 또는 [지금 점검] 버튼으로
+    if (!sbOn()) { if (!auto) toast("서버 연결이 필요합니다"); return; }
+    if (!auto) { G.opsLast = null; G._opsRefetch = true; cloudFetch(); return; } // 버튼 = 서버 기록부터 새로 읽는다 (끝나면 스스로 다시 들어온다)
+    if (G.opsLast && Date.now() - G.opsLast.at < 600000) { opsRender(); return; }
+    var box = $("admOps"); if (box) box.innerHTML = "<div class='small'>기록을 읽고 있습니다…</div>";
+    var go = function () {
+      opsLoad(function () {
+        try { G.opsLast = opsScan({ sessions: G.cloud || [], reviews: G.review || [], feedback: G.cloudFb || [], calib: G.cloudCalib || [], now: Date.now() }); }
+        catch (e) { G.opsLast = { at: Date.now(), status: "err", findings: [], stats: {}, err: String((e && e.message) || e) }; }
+        opsRender();
+        if (G.opsLast.status !== "err") opsDigest(G.opsLast, G._opsShown);
+      });
+    };
+    if (!G._opsRefetch && G.review && G.review.length) { go(); return; }
+    G._opsRefetch = false;
+    fetch(G.sbUrl + "/rest/v1/rp_review?select=*&order=created_at.desc&limit=200", { headers: sbHeaders() })
+      .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) { G.review = Array.isArray(rows) ? rows : []; }).catch(function () {}).then(go);
+  }
+  function opsRender() {
+    var box = $("admOps"); if (!box) return;
+    var R = G.opsLast, rules = G.opsRules || [], skip = loadK("opsSkip", []);
+    var ruleHtml = rules.length ? "<div class='small' style='margin-top:12px;'><b>적용 중인 운영 규칙 " + rules.length + "개</b> — 전 직원 채점에 쓰이고 있습니다<br>" + rules.map(function (r, ri) {
+      return "<span style='display:inline-block;margin:4px 6px 0 0;padding:2px 8px;border:1px solid var(--line);border-radius:12px;'>" +
+        (r.k === "kw" ? "[" + r.t + "] 열쇠 " + (r.i + 1) + " ← “" + esc(r.w) + "”" : "“" + esc(r.f) + "” → " + esc(r.w)) +
+        (r._src === "loc" ? " <b style='color:#8A6410;'>(이 기기만)</b> <a href='javascript:void(0)' onclick='APP.opsPush(" + ri + ")'>서버에 올리기</a>" : "") +
+        " <a href='javascript:void(0)' onclick='APP.opsOff(" + ri + ")'>끄기</a></span>"; }).join("") + "</div>" : "";
+    if (!R) { box.innerHTML = "<div class='small'>서버 데이터를 불러오면 자동으로 점검합니다.</div>" + ruleHtml; G._opsShown = []; return; }
+    if (R.status === "err") { box.innerHTML = "<div class='banner err'>점검 중 오류: " + esc(R.err) + "</div>" + ruleHtml; G._opsShown = []; return; }
+    var list = R.findings.filter(function (f) { return skip.indexOf(f.id) < 0; }), st = R.stats;
+    var col = list.some(function (f) { return f.sev >= 3; }) ? "#B0392E" : list.length ? "#8A6410" : "#0B5B54";
+    var h = "<div style='font-weight:800;color:" + col + ";'>" + (list.length ? "● 살펴볼 것 " + list.length + "건" : "● 이상 없음") + "</div>" +
+      "<div class='small'>" + new Date(R.at).toLocaleString("ko-KR") + " 점검 — 판 " + st.sess + "개를 읽고, 대화 기록 " + st.revs + "판(" + st.turns + "턴)을 지금의 채점으로 다시 돌렸습니다" + (st.whiff ? " · 답으로 인정하지 못한 긴 발화 " + st.whiff + "개" : "") + "</div>";
+    list.forEach(function (f, i) {
+      var fx = f.fix, b = "";
+      if (fx && fx.k === "kw") {
+        var v = V22.filter(function (x) { return x.n === fx.t; })[0] || { key: [] };
+        b += "<select id='opsKey" + i + "' onchange='APP.opsPick(" + i + ")' style='max-width:280px;margin:0 6px 6px 0;padding:7px 8px;'>" + (fx.i < 0 ? "<option value=''>어느 열쇠의 다른 표현인가요?</option>" : "") +
+          v.key.slice(0, (TYPEKEYS[fx.t] || []).length).map(function (k, ki) { return "<option value='" + ki + "'" + (ki === fx.i ? " selected" : "") + ">" + (ki + 1) + ". " + esc(String(k).split(" — ")[0].slice(0, 28)) + "</option>"; }).join("") + "</select>";
+      }
+      if (fx && fx.k === "msg") b += "<div style='margin:0 0 7px;padding:8px 10px;background:#F4F7F6;border-radius:8px;font-size:12.5px;user-select:all;'>" + esc(fx.text) + "</div>";
+      if (fx) b += "<button class='btn " + (fx.k === "kw" || fx.k === "stt" ? "gold" : "ghost") + "' style='padding:6px 12px;font-size:12.5px;margin:0 6px 6px 0;' onclick='APP.opsOk(" + i + ")'>" + esc(fx.label) + "</button>";
+      b += "<button class='btn ghost' style='padding:6px 12px;font-size:12.5px;margin:0 0 6px 0;' onclick='APP.opsSkip(" + i + ")'>넘기기</button>";
+      h += "<div style='margin-top:9px;padding:10px 12px;border:1px solid var(--line);border-left:4px solid " + (f.sev >= 3 ? "#B0392E" : f.sev === 2 ? "#B9932B" : "#9AA5A1") + ";border-radius:8px;'><b>" + esc(f.t) + "</b>" +
+        "<div class='small' style='margin:3px 0 6px;'>" + esc(f.ev) + " <span id='opsImp" + i + "'>" + esc(f.imp || "") + "</span></div>" +
+        (f.ex && f.ex.length ? "<div class='small' style='margin:0 0 7px;color:var(--sub);'>" + f.ex.map(function (x) { return "“…" + esc(x) + "…”"; }).join("<br>") + "</div>" : "") + b + "</div>";
+    });
+    G._opsShown = list; box.innerHTML = h + ruleHtml;
+  }
+  function opsPick(i) { // 열쇠를 고르면 — 이 규칙을 켰을 때 지난 판 점수가 얼마나 달라지는지 바로 계산해 보여 준다
+    var f = (G._opsShown || [])[i], sel = $("opsKey" + i), out = $("opsImp" + i); if (!f || !f.fix || !sel || !out) return;
+    out.textContent = sel.value === "" ? "" : opsImpTxt(opsImpact({ k: "kw", t: f.fix.t, i: Number(sel.value), w: f.fix.w }, (G.review || []).filter(function (r) { return rankFilter([r]).length; })));
+  }
+  function opsDone(f) { var s = loadK("opsSkip", []); if (s.indexOf(f.id) < 0) s.push(f.id); store("opsSkip", s.slice(-200)); opsRender(); } // 넘기기 — 이 기기에서 다시 묻지 않는다
+  function opsDrop(f) { if (G.opsLast) G.opsLast.findings = G.opsLast.findings.filter(function (x) { return x !== f; }); opsRender(); }     // 승인됨 — 이번 목록에서만 뺀다 (규칙을 끄면 후보로 다시 올라온다)
+  function opsOk(i) { // 승인 버튼
+    var f = (G._opsShown || [])[i]; if (!f || !f.fix) return; var fx = f.fix;
+    if (fx.k === "kw") { var sel = $("opsKey" + i), ki = sel ? sel.value : ""; if (ki === "") { toast("어느 열쇠의 다른 표현인지 먼저 골라 주세요"); return; } opsApprove({ k: "kw", t: fx.t, i: Number(ki), w: fx.w }, fx.why, function (ok) { if (ok) opsDrop(f); }); }
+    else if (fx.k === "stt") opsApprove({ k: "stt", f: fx.f, w: fx.w }, fx.why, function (ok) { if (ok) opsDrop(f); });
+    else if (fx.k === "msg") { var said = function () { toast("문구를 직접 골라 복사해 주세요 (복사 권한이 없습니다)"); };
+      try { navigator.clipboard.writeText(fx.text).then(function () { toast("안내 문구를 복사했습니다 — 팀 채널에 붙여 넣으세요"); }, said); } catch (e) { said(); } }
+    else if (fx.k === "note") { // 코드로 고쳐야 하는 것 — 개선 요청으로 남긴다 (매일 도는 자동 점검이 읽어 수정안을 준비한다)
+      cloudUpload("rp_feedback", { player: (G.user && G.user.name) || "관리자", empno: null, office: (G.user && G.user.office) || "", role: "mgr", evaluator: "자율 운영", sat: null, like_txt: "", wish: "[자율 운영 요청] " + String(fx.text).slice(0, 400), miss: "", doc: "-", total: 0 },
+        null, function () { toast("개선 요청으로 남겼습니다 — 다음 자동 점검 때 수정안을 준비합니다"); });
+      opsDone(f);
+    }
+  }
+  function opsSkipF(i) { var f = (G._opsShown || [])[i]; if (f) opsDone(f); }
+
   /* ── CM 관리자: 평가 대기열 ── */
   function reviewFetch() {
     if (!sbOn()) { toast("서버 설정이 필요합니다"); return; }
@@ -8290,6 +8690,7 @@ window.APP = (function () {
       "<div class='small' style='margin-top:6px;'>남은 갭: 진행도 " + (100 - progPct) + "%p · S/A 전환 대상 " + (roster.length - sa) + "명 — 개선할 점이 낮은 축부터 지정 출제로 과정관리.</div>";
     renderOrgInsight(); // 📊 실데이터 인사이트가 구 조직표·직원랭킹을 대체
     renderCertBoard();
+    opsRender();
     renderAuthorList(); fetchCustomDocs(function () { renderAuthorList(); });
     // 🎯 코칭 처방 — 무엇이 왜 부족하고, 무엇부터 챙길지 (전사 → 사무소 → 개인)
     if ($("admCoach")) (function () {
@@ -8839,7 +9240,7 @@ window.APP = (function () {
       window.addEventListener("unhandledrejection", function (ev) { errPush("promise", (ev.reason && (ev.reason.message || ev.reason)) || "rejection"); });
     }
   } catch (e) {}
-  var APP_VER = "7.9";
+  var APP_VER = "8.0";
   function verShow() { var m = $("verOv"); if (m) m.classList.add("show"); }
   function onbClose() { store("onb1", true); var ov = $("onbOv"); if (ov) ov.classList.remove("show"); }
   function verClose() { var m = $("verOv"); if (m) m.classList.remove("show"); store("seenVer", APP_VER); }
@@ -8860,6 +9261,7 @@ window.APP = (function () {
     if (hs) { G.sbUrl = hs.url; G.sbKey = hs.key; store("sbUrl", G.sbUrl); store("sbKey", G.sbKey); }
     try { if ($("sbUrl")) $("sbUrl").value = G.sbUrl; if ($("sbKey")) $("sbKey").value = G.sbKey; } catch (e) {}
   })();
+  opsBoot(); // 🤖 승인된 운영 규칙 — 앱이 뜨자마자 (스파링·대본 모드도 같은 채점을 쓴다)
   // 📷 v7.3 — 실사 매니페스트 복원: 한 번 확인된 사진 세트는 다음 접속의 '첫 렌더'부터 실사 (일러스트 깜빡임 제거)
   try {
     var _ph = loadK("photoHave", null);
@@ -8910,9 +9312,9 @@ window.APP = (function () {
   return { toReg: toReg, toPick: toPick, choose: choose, gearGo: gearGo, takeCall: takeCall, denyCall: denyCall,
     toggleMic: toggleMic, sendTurn: sendTurn, endCall: endCall, copyTsv: copyTsv, toRank: toRank, playMine: playMine,
     toMap: toMap, again: again, freeSail: freeSail, show: show, calibSubmit: calibSubmit,
-    toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, focusSet: function (b) { G.focusOne = !!b; }, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
+    toAdmin: toAdmin, adminUnlock: adminUnlock, adminBack: adminBack, adminLock: adminLock, admApply: admApply, admExport: admExport, admForceSet: admForceSet, admRankSort: admRankSort, challengeType: challengeType, focusSet: function (b) { G.focusOne = !!b; }, opsRun: opsRun, opsOk: opsOk, opsSkip: opsSkipF, opsOff: opsRevoke, opsPick: opsPick, opsPush: opsPush, testClaude: testClaude, llmRetry: llmRetry, admWipe: admWipe, shareQR: shareQR, cloudFetch: cloudFetch, numDrill: numDrill, empnoLookup: empnoLookup, admRosterUp: admRosterUp, secInfo: secInfo, shareReport: shareReport, toLib: toLib, micRetry: micRetry,
     toCodex: toCodex, toNext: toNext, disputeOpen: disputeOpen, rankRefresh: rankRefresh, inbarPin: inbarPin, verShow: verShow, verClose: verClose, toggleSfx: toggleSfx, calibPick: calibPick, faidUse: faidUse, faidToggle: faidToggle, dispute: dispute, elevenRetry: elevenRetry, elevenTest: elevenTest, sbDiag: sbDiag, predQuiz: predQuiz, pqPick: pqPick, pqNext: pqNext, pqClose: pqClose, judgeGame: judgeGame, jgLv: jgLv, jgSubmit: jgSubmit, sparStart: sparStart, sparClose: sparClose, sparCodex: sparCodex, stdPlay: stdPlay, shadowGo: shadowGo, qfbSat: qfbSat, qfbSend: qfbSend, qfbGuard: qfbGuard, reviewAsk: reviewAsk, reviewFetch: reviewFetch, reviewOpen: reviewOpen, revPick: revPick, revSubmit: revSubmit, insTab: insTabSet, insCoach: insCoach, insCsv: insCsv, insPrint: insPrint, authSave: authSave, authPreview: authPreview, authOff: authOff, certPrint: certPrint, weeklyPrint: weeklyPrint, weeklyCopy: weeklyCopy, authListen: authListen, onbClose: onbClose, expRole: expRole, expSat: expSat, growthExport: growthExport, demoExSet: demoExSet,
-    _test: { keyNorm: keyNorm, calibRecords: calibRecords, ENGINE_VER: ENGINE_VER, applyCalib: applyCalib, calibSelf: calibSelf, axABreak: axABreak, isWhiff: isWhiff, turnQ: turnQ, numCompounds: numCompounds, stdMoney: stdMoney, keyTopic: keyTopic, josa: josa, nextTopic: nextTopic, keyAsk: keyAsk, missingKey: missingKey, sttFix: sttFix, elevenJudgeNote: elevenJudgeNote, TYPEKEYS: TYPEKEYS, isleReport: isleReport, axisWhy: axisWhy, bkDay: bkDay, bkSig: bkSig, bkQ: bkQ, bkDedup: bkDedup, echoQ: echoQ, openEcho: openEcho, nextTipHtml: nextTipHtml, officeNorm: officeNorm, pipSync: pipSync, moodSet: moodSet, ACKS_SHORT: ACKS_SHORT, judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, elWhy: elWhy, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK, MOCK_RE: MOCK_RE, MOCK_WARN: MOCK_WARN, mockCheck: mockCheck, CASE_RE: CASE_RE, FIXED_LOG: FIXED_LOG, fbFixedTag: fbFixedTag, silWait: silWait, drSay: drSay, revDue: revDue, pqBuild: pqBuild, jgScore: jgScore, exprRoute: exprRoute, EXPR_POLE: EXPR_POLE, lipName: lipName, lipTarget: lipTarget, setExpr: setExpr, blinkName: blinkName, PHOTO_C: PHOTO_C, PHOTO_FACE_E: PHOTO_FACE_E, photoProbeC: photoProbeC, setTalking: setTalking, collapseRepeat: collapseRepeat, PROBE_PRE: PROBE_PRE, objProbe: objProbe, probeCtx: probeCtx, hearKind: hearKind, NOT_HEARD: NOT_HEARD, HELLO_BACK: HELLO_BACK, ECHO_TAIL_RE: ECHO_TAIL_RE, healthAgg: healthAgg, healthHtml: healthHtml, diagInc: diagInc, browserTag: browserTag, startEleven: startEleven, takeCall: takeCall, officeHeat: officeHeat, PQ_WEAK: PQ_WEAK, PQ_ACC: PQ_ACC, JG_AX: JG_AX, axisWhy: axisWhy, buildReportDoc2: buildReportDoc, sbWhy: sbWhy, upqLoad: upqLoad, upqPush: upqPush, upqFlush: upqFlush, upqSave: upqSave, sbPing: sbPing, sessFillRow: sessFillRow, backfill: backfill, sbWake: sbWake, cloudUpload: cloudUpload, sbBadge: sbBadge, UPQ_MAX: UPQ_MAX } };
+    _test: { opsValid: opsValid, opsKey: opsKey, opsBuild: opsBuild, opsFold: opsFold, opsMerge: opsMerge, opsLoad: opsLoad, opsBoot: opsBoot, opsSend: opsSend, opsApprove: opsApprove, opsRevoke: opsRevoke, opsPush: opsPush, opsReplay: opsReplay, opsWords: opsWords, opsKeyGuess: opsKeyGuess, opsMine: opsMine, opsSttMine: opsSttMine, opsImpact: opsImpact, opsScan: opsScan, opsDigest: opsDigest, opsRender: opsRender, opsRun: opsRun, opsRow: opsRow, opsCalRow: opsCalRow, OPS_TERMS: OPS_TERMS, anyKey: anyKey, rankFilter: rankFilter, V22: V22, keyNorm: keyNorm, calibRecords: calibRecords, ENGINE_VER: ENGINE_VER, applyCalib: applyCalib, calibSelf: calibSelf, axABreak: axABreak, isWhiff: isWhiff, turnQ: turnQ, numCompounds: numCompounds, stdMoney: stdMoney, keyTopic: keyTopic, josa: josa, nextTopic: nextTopic, keyAsk: keyAsk, missingKey: missingKey, sttFix: sttFix, elevenJudgeNote: elevenJudgeNote, TYPEKEYS: TYPEKEYS, isleReport: isleReport, axisWhy: axisWhy, bkDay: bkDay, bkSig: bkSig, bkQ: bkQ, bkDedup: bkDedup, echoQ: echoQ, openEcho: openEcho, nextTipHtml: nextTipHtml, officeNorm: officeNorm, pipSync: pipSync, moodSet: moodSet, ACKS_SHORT: ACKS_SHORT, judgeTurn: judgeTurn, scoreSession: scoreSession, genScenario: genScenario, radar: radar, DOCTORS: DOCTORS, critCheck: critCheck, demoAnswer: demoAnswer, portraitSvg: portraitSvg, echoGuard: echoGuard, acceptFinal: acceptFinal, llmHint: llmHint, GIVEUP: GIVEUP, buildFeedback: buildFeedback, splitSentences: splitSentences, progTxt: progTxt, axDiag: axDiag, calcCalib: calcCalib, biasSummary: biasSummary, gradeOf: gradeOf, aggBy: aggBy, rankSort: rankSort, ADMIN_SEED: ADMIN_SEED, hqOfDiv: hqOfDiv, genderMatch: genderMatch, pickProbe: pickProbe, buildDoctorSystem: buildDoctorSystem, pickType: pickType, G: G, ackFromText: ackFromText, detectIntent: detectIntent, doctorAnswer: doctorAnswer, RESCHED: RESCHED, COMMIT: COMMIT, echoFrag: echoFrag, attributeTurn: attributeTurn, llmOn: llmOn, elevenOn: elevenOn, seededTypes: seededTypes, memCallback: memCallback, scanMem: scanMem, openLine: openLine, loadK: loadK, MEMMAP: MEMMAP, parseSbHash: parseSbHash, cloudRoster: cloudRoster, calibStats: calibStats, dayMission: dayMission, axGrade: axGrade, step5Check: step5Check, buildShareText: buildShareText, LIB_CATS: LIB_CATS, DR_COMMIT: DR_COMMIT, moodDelta: moodDelta, IDLE_NUDGE: IDLE_NUDGE, IDLE_BYE: IDLE_BYE, REMATCH: REMATCH, checkDrCommit: checkDrCommit, ttsClean: ttsClean, PG: PG, pgClamp: pgClamp, coachRx: coachRx, personRx: personRx, axMeanOf: axMeanOf, TIER: TIER, bestOfType: bestOfType, AX_RX: AX_RX, SENT_END_RE: SENT_END_RE, rosterParse: rosterParse, streakCalc: streakCalc, bountyAgg: bountyAgg, sparkPath: sparkPath, APP_VER: APP_VER, V22C: V22, bumpCombo: bumpCombo, sparkSvg: sparkSvg, localRankRows: localRankRows, myRankKey: myRankKey, RUDE_RE: RUDE_RE, mannerAdjust: mannerAdjust, MANNER_BYE: MANNER_BYE, axAScore: axAScore, letterOf: letterOf, isleReport: isleReport, coachSummary: coachSummary, buildPrintSheet: buildPrintSheet, buildReportDoc: buildReportDoc, firstSent: firstSent, ISLE_NM: ISLE_NM, printTone: printTone, lvOf: lvOf, lvToRaw: lvToRaw, LV_META: LV_META, NV_ROWS: NV_ROWS, buildGrowthRec: buildGrowthRec, growthMerge: growthMerge, fbRowToGrowth: fbRowToGrowth, growthKey: growthKey, demoStatus: demoStatus, DEMO_EXCLUDE: DEMO_EXCLUDE, rankFilter: rankFilter, NUM_CLAIM_CTX: NUM_CLAIM_CTX, numVal: numVal, NUM_CTX_RULES: NUM_CTX_RULES, FAID_OPEN: FAID_OPEN, faidRender: faidRender, nameProblem: nameProblem, reviewPayload: reviewPayload, audioBlob: audioBlob, audioPublicUrl: audioPublicUrl, AUDIO_BUCKET: AUDIO_BUCKET, AUDIO_MAX: AUDIO_MAX, orgInsight: orgInsight, unitCoach: unitCoach, AX_ACT: AX_ACT, BETA_REVIEW_ALL: BETA_REVIEW_ALL, mkCustomDoc: mkCustomDoc, allDocs: allDocs, PRESETS: PRESETS, certOf: certOf, CERT_META: CERT_META, cpScan: cpScan, CP_RULES: CP_RULES, calibDeltas: calibDeltas, applyCalib: applyCalib, CALIB_K: CALIB_K, CALIB_CAP: CALIB_CAP, certSerial: certSerial, calibCurve: calibCurve, calibCurveSvg: calibCurveSvg, weeklyData: weeklyData, weeklyText: weeklyText, errPush: errPush, calibLOO: calibLOO, calibTuneK: calibTuneK, calibSelf: calibSelf, calibAdjOf: calibAdjOf, CALIB_KGRID: CALIB_KGRID, cmGuideHtml: cmGuideHtml, evaluatorStats: evaluatorStats, weakTypes: weakTypes, photoKey: photoKey, photoUrl: photoUrl, portraitPhoto: portraitPhoto, photoMode: photoMode, PHOTO_EXPRS: PHOTO_EXPRS, sttFix: sttFix, misheard: misheard, ackTopic: ackTopic, heardLine: heardLine, doctorAnswerCore: doctorAnswerCore, REASK: REASK, axisWhy: axisWhy, pgAmp: pgAmp, pickOrder: pickOrder, photoHrefOf: photoHrefOf, photoDual: photoDual, lipFrame: lipFrame, mrPosterSvg: mrPosterSvg, sttStrong: sttStrong, sayGuard: sayGuard, SAY_FIX: SAY_FIX, inbarSyncSrc: true, pgConverged: pgConverged, BUYING: BUYING, SLOWER: SLOWER, rematchLine: rematchLine, trackKeys: trackKeys, CLOSE_NUDGE: CLOSE_NUDGE, lastSent: lastSent, preSay: preSay, softExpr: softExpr, ACT_NEEDBACK: ACT_NEEDBACK, ACT_ANYLEN: ACT_ANYLEN, sitCardHtml: sitCardHtml, readAct: readAct, ACTS: ACTS, ACT_REPLY: ACT_REPLY, ACT_BACK: ACT_BACK, ACT_GOOD: ACT_GOOD, ACT_BAD: ACT_BAD, HT_TXT: HT_TXT, objProbe: objProbe, elevenJudgeNote: elevenJudgeNote, MISSIONS: MISSIONS, nextMission: nextMission, missionDone: missionDone, dispute: dispute, sparPickTypes: sparPickTypes, revSort: revSort, personInsight: personInsight, gapTxt: gapTxt, typeHeat: typeHeat, afterText: afterText, AFTER_TEXT: AFTER_TEXT, subSet: subSet, subTo: subTo, subDone: subDone, SUB: SUB, endOverlay: endOverlay, elWhy: elWhy, sparTurn: sparTurn, sparEnd: sparEnd, shadowJudge: shadowJudge, pgCurveSvg: pgCurveSvg, pgTrailPush: pgTrailPush, keyAsk: keyAsk, missingKey: missingKey, keyTopic: keyTopic, KEY_TOPIC: KEY_TOPIC, PROBE_LEAD: PROBE_LEAD, KEYASK: KEYASK, MOCK_RE: MOCK_RE, MOCK_WARN: MOCK_WARN, mockCheck: mockCheck, CASE_RE: CASE_RE, FIXED_LOG: FIXED_LOG, fbFixedTag: fbFixedTag, silWait: silWait, drSay: drSay, revDue: revDue, pqBuild: pqBuild, jgScore: jgScore, exprRoute: exprRoute, EXPR_POLE: EXPR_POLE, lipName: lipName, lipTarget: lipTarget, setExpr: setExpr, blinkName: blinkName, PHOTO_C: PHOTO_C, PHOTO_FACE_E: PHOTO_FACE_E, photoProbeC: photoProbeC, setTalking: setTalking, collapseRepeat: collapseRepeat, PROBE_PRE: PROBE_PRE, objProbe: objProbe, probeCtx: probeCtx, hearKind: hearKind, NOT_HEARD: NOT_HEARD, HELLO_BACK: HELLO_BACK, ECHO_TAIL_RE: ECHO_TAIL_RE, healthAgg: healthAgg, healthHtml: healthHtml, diagInc: diagInc, browserTag: browserTag, startEleven: startEleven, takeCall: takeCall, officeHeat: officeHeat, PQ_WEAK: PQ_WEAK, PQ_ACC: PQ_ACC, JG_AX: JG_AX, axisWhy: axisWhy, buildReportDoc2: buildReportDoc, sbWhy: sbWhy, upqLoad: upqLoad, upqPush: upqPush, upqFlush: upqFlush, upqSave: upqSave, sbPing: sbPing, sessFillRow: sessFillRow, backfill: backfill, sbWake: sbWake, cloudUpload: cloudUpload, sbBadge: sbBadge, UPQ_MAX: UPQ_MAX } };
 })();
 
 </script>
